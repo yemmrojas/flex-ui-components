@@ -1,0 +1,156 @@
+# GitHub Labels Configuration
+# Import these labels using: gh label create --file .github/labels.yml
+
+# Type Labels
+- name: "type: feature"
+  color: "0E8A16"
+  description: "New feature or enhancement"
+
+- name: "type: bug"
+  color: "D73A4A"
+  description: "Something isn't working"
+
+- name: "type: documentation"
+  color: "0075CA"
+  description: "Improvements or additions to documentation"
+
+- name: "type: refactor"
+  color: "FBCA04"
+  description: "Code refactoring"
+
+- name: "type: test"
+  color: "BFD4F2"
+  description: "Adding or updating tests"
+
+- name: "type: chore"
+  color: "FEF2C0"
+  description: "Maintenance tasks"
+
+# Priority Labels
+- name: "priority: critical"
+  color: "B60205"
+  description: "Critical priority - needs immediate attention"
+
+- name: "priority: high"
+  color: "D93F0B"
+  description: "High priority"
+
+- name: "priority: medium"
+  color: "FBCA04"
+  description: "Medium priority"
+
+- name: "priority: low"
+  color: "0E8A16"
+  description: "Low priority"
+
+# Status Labels
+- name: "status: in progress"
+  color: "FFA500"
+  description: "Work in progress"
+
+- name: "status: blocked"
+  color: "D73A4A"
+  description: "Blocked by another issue or dependency"
+
+- name: "status: needs review"
+  color: "FBCA04"
+  description: "Needs code review"
+
+- name: "status: needs testing"
+  color: "1D76DB"
+  description: "Needs testing"
+
+- name: "status: ready to merge"
+  color: "0E8A16"
+  description: "Ready to be merged"
+
+# Component Labels
+- name: "component: parser"
+  color: "C5DEF5"
+  description: "Related to JSON parsing"
+
+- name: "component: renderer"
+  color: "C5DEF5"
+  description: "Related to component rendering"
+
+- name: "component: styling"
+  color: "C5DEF5"
+  description: "Related to styling system"
+
+- name: "component: events"
+  color: "C5DEF5"
+  description: "Related to event system"
+
+- name: "component: containers"
+  color: "C5DEF5"
+  description: "Related to layout containers"
+
+- name: "component: atomic"
+  color: "C5DEF5"
+  description: "Related to atomic components"
+
+# Size Labels
+- name: "size: XS"
+  color: "E99695"
+  description: "Extra small change (< 10 lines)"
+
+- name: "size: S"
+  color: "F9D0C4"
+  description: "Small change (10-50 lines)"
+
+- name: "size: M"
+  color: "FEF2C0"
+  description: "Medium change (50-200 lines)"
+
+- name: "size: L"
+  color: "C2E0C6"
+  description: "Large change (200-500 lines)"
+
+- name: "size: XL"
+  color: "BFD4F2"
+  description: "Extra large change (> 500 lines)"
+
+# Special Labels
+- name: "good first issue"
+  color: "7057FF"
+  description: "Good for newcomers"
+
+- name: "help wanted"
+  color: "008672"
+  description: "Extra attention is needed"
+
+- name: "breaking change"
+  color: "D73A4A"
+  description: "Introduces breaking changes"
+
+- name: "dependencies"
+  color: "0366D6"
+  description: "Pull requests that update a dependency"
+
+- name: "security"
+  color: "D73A4A"
+  description: "Security related issue"
+
+- name: "performance"
+  color: "FFA500"
+  description: "Performance improvement"
+
+- name: "accessibility"
+  color: "0075CA"
+  description: "Accessibility improvements"
+
+- name: "duplicate"
+  color: "CFD3D7"
+  description: "This issue or pull request already exists"
+
+- name: "wontfix"
+  color: "FFFFFF"
+  description: "This will not be worked on"
+
+- name: "invalid"
+  color: "E4E669"
+  description: "This doesn't seem right"
+
+- name: "question"
+  color: "D876E3"
+  description: "Further information is requested"
