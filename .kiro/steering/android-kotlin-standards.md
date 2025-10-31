@@ -6,11 +6,16 @@ inclusion: always
 
 ## General Principles
 
-- Write clean, readable, and maintainable Kotlin code
-- Follow SOLID principles and clean architecture patterns
-- Prioritize immutability and functional programming where appropriate
-- Use meaningful names that clearly express intent
-- Keep functions small and focused on a single responsibility
+- Write clean, readable, and maintainable Kotlin code.
+- Follow SOLID principles and hexagonal architecture patterns (ports and adapters).
+- Prioritize immutability and functional programming when appropriate.
+- Use generically typed functions and classes for code reuse when necessary.
+- Use meaningful names that clearly express intent.
+- Keep functions small and focused on a single responsibility, avoiding code smells.
+- Never inject bulk classes into our constructors; always use abstraction through interfaces when necessary.
+- Before writing any functionality, let's review which design pattern is appropriate for the solution to maintain the scalability of our code.
+- We will always write this project using the TDD convention (test, driver, development).
+- Our project's unit tests must cover 100% of the cases and must comply with the provider function convention to avoid the setup function beforehand. This is done so that each test can manage its mocks and instantiate them.
 
 ## Kotlin Style Guide
 
@@ -476,3 +481,4 @@ Before submitting code for review, ensure:
 - [Jetpack Compose Guidelines](https://developer.android.com/jetpack/compose/guidelines)
 - [Android Architecture Guide](https://developer.android.com/topic/architecture)
 - [kotlinx.serialization Guide](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/serialization-guide.md)
+- [Architecture Hexagonal Guide](https://medium.com/@edusalguero/arquitectura-hexagonal-59834bb44b7f)
