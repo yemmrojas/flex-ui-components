@@ -1,4 +1,4 @@
-package com.libs.flex.ui.flexui.parser
+package com.libs.flex.ui.flexui.parser.infrastructure.mapper
 
 import com.libs.flex.ui.flexui.exceptions.ComponentTypeNotFoundException
 import com.libs.flex.ui.flexui.model.ComponentType

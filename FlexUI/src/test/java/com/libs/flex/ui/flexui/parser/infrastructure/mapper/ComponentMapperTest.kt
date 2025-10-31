@@ -1,7 +1,8 @@
-package com.libs.flex.ui.flexui.parser
+package com.libs.flex.ui.flexui.parser.infrastructure.mapper
 
 import com.libs.flex.ui.flexui.exceptions.ComponentTypeNotFoundException
 import com.libs.flex.ui.flexui.model.ComponentType
+import com.libs.flex.ui.flexui.parser.infrastructure.mapper.ComponentMapper
 import io.mockk.clearAllMocks
 import io.mockk.unmockkAll
 import org.junit.After
@@ -20,394 +21,394 @@ class ComponentMapperTest {
     
     @Test
     fun `mapType should return CONTENT_VERTICAL for contentVertical string`() {
-        // Arrange
+        // Given
         val typeString = provideContentVerticalTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.CONTENT_VERTICAL, result)
     }
     
     @Test
     fun `mapType should return CONTENT_HORIZONTAL for contentHorizontal string`() {
-        // Arrange
+        // Given
         val typeString = provideContentHorizontalTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.CONTENT_HORIZONTAL, result)
     }
     
     @Test
     fun `mapType should return CONTENT_SCROLL for contentScroll string`() {
-        // Arrange
+        // Given
         val typeString = provideContentScrollTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.CONTENT_SCROLL, result)
     }
     
     @Test
     fun `mapType should return CONTENT_WITH_FLOATING_BUTTON for contentWithFloatingButton string`() {
-        // Arrange
+        // Given
         val typeString = provideContentWithFloatingButtonTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.CONTENT_WITH_FLOATING_BUTTON, result)
     }
     
     @Test
     fun `mapType should return CONTENT_LIST for contentList string`() {
-        // Arrange
+        // Given
         val typeString = provideContentListTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.CONTENT_LIST, result)
     }
     
     @Test
     fun `mapType should return CONTENT_SLIDER for contentSlider string`() {
-        // Arrange
+        // Given
         val typeString = provideContentSliderTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.CONTENT_SLIDER, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_INPUT for componentInput string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentInputTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_INPUT, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_TEXT_VIEW for componentTextView string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentTextViewTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_TEXT_VIEW, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_CHECK for componentCheck string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentCheckTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_CHECK, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_SELECT for componentSelect string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentSelectTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_SELECT, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_SLIDER_CHECK for componentSliderCheck string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentSliderCheckTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_SLIDER_CHECK, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_BUTTON for componentButton string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentButtonTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_BUTTON, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_IMAGE for componentImage string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentImageTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_IMAGE, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_LOADER for componentLoader string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentLoaderTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_LOADER, result)
     }
     
     @Test
     fun `mapType should return COMPONENT_TOAST for componentToast string`() {
-        // Arrange
+        // Given
         val typeString = provideComponentToastTypeString()
         
-        // Act
+        // When
         val result = ComponentMapper.mapType(typeString)
         
-        // Assert
+        // Then
         assertEquals(ComponentType.COMPONENT_TOAST, result)
     }
     
     @Test(expected = ComponentTypeNotFoundException::class)
     fun `mapType should throw ComponentTypeNotFoundException for unknown type`() {
-        // Arrange
+        // Given
         val unknownType = provideUnknownTypeString()
         
-        // Act
+        // When
         ComponentMapper.mapType(unknownType)
         
-        // Assert - exception expected
+        // Then - exception expected
     }
     
     @Test(expected = ComponentTypeNotFoundException::class)
     fun `mapType should throw ComponentTypeNotFoundException for empty string`() {
-        // Arrange
+        // Given
         val emptyType = provideEmptyTypeString()
         
-        // Act
+        // When
         ComponentMapper.mapType(emptyType)
         
-        // Assert - exception expected
+        // Then - exception expected
     }
     
     @Test(expected = ComponentTypeNotFoundException::class)
     fun `mapType should throw ComponentTypeNotFoundException for case mismatch`() {
-        // Arrange
+        // Given
         val wrongCaseType = provideWrongCaseTypeString()
         
-        // Act
+        // When
         ComponentMapper.mapType(wrongCaseType)
         
-        // Assert - exception expected
+        // Then - exception expected
     }
     
     @Test
     fun `isLayoutType should return true for CONTENT_VERTICAL`() {
-        // Arrange
+        // Given
         val layoutType = provideContentVerticalType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(layoutType)
         
-        // Assert
+        // Then
         assertTrue(result)
     }
     
     @Test
     fun `isLayoutType should return true for CONTENT_HORIZONTAL`() {
-        // Arrange
+        // Given
         val layoutType = provideContentHorizontalType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(layoutType)
         
-        // Assert
+        // Then
         assertTrue(result)
     }
     
     @Test
     fun `isLayoutType should return true for CONTENT_SCROLL`() {
-        // Arrange
+        // Given
         val layoutType = provideContentScrollType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(layoutType)
         
-        // Assert
+        // Then
         assertTrue(result)
     }
     
     @Test
     fun `isLayoutType should return true for CONTENT_WITH_FLOATING_BUTTON`() {
-        // Arrange
+        // Given
         val layoutType = provideContentWithFloatingButtonType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(layoutType)
         
-        // Assert
+        // Then
         assertTrue(result)
     }
     
     @Test
     fun `isLayoutType should return true for CONTENT_LIST`() {
-        // Arrange
+        // Given
         val layoutType = provideContentListType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(layoutType)
         
-        // Assert
+        // Then
         assertTrue(result)
     }
     
     @Test
     fun `isLayoutType should return true for CONTENT_SLIDER`() {
-        // Arrange
+        // Given
         val layoutType = provideContentSliderType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(layoutType)
         
-        // Assert
+        // Then
         assertTrue(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_INPUT`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentInputType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_TEXT_VIEW`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentTextViewType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_CHECK`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentCheckType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_SELECT`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentSelectType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_SLIDER_CHECK`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentSliderCheckType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_BUTTON`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentButtonType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_IMAGE`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentImageType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_LOADER`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentLoaderType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     
     @Test
     fun `isLayoutType should return false for COMPONENT_TOAST`() {
-        // Arrange
+        // Given
         val atomicType = provideComponentToastType()
         
-        // Act
+        // When
         val result = ComponentMapper.isLayoutType(atomicType)
         
-        // Assert
+        // Then
         assertFalse(result)
     }
     

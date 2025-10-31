@@ -29,7 +29,7 @@ class JsonParserTest {
         val parser = provideJsonParser()
         val validJson = provideValidAtomicComponentJson()
         
-        // when
+        // When
         val result = parser.parse(validJson)
         
         // Then
@@ -43,14 +43,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should return success when JSON contains valid layout container`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val validJson = provideValidLayoutContainerJson()
         
-        // Act
+        // When
         val result = parser.parse(validJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val descriptor = result.getOrNull()
         assertNotNull(descriptor)
@@ -61,14 +61,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should handle nested children recursively`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val nestedJson = provideNestedComponentJson()
         
-        // Act
+        // When
         val result = parser.parse(nestedJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val descriptor = result.getOrNull() as? LayoutDescriptor
         assertNotNull(descriptor)
@@ -79,14 +79,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should extract style properties correctly`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val styledJson = provideStyledComponentJson()
         
-        // Act
+        // When
         val result = parser.parse(styledJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val descriptor = result.getOrNull()
         assertNotNull(descriptor?.style)
@@ -98,14 +98,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should extract atomic component properties`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val inputJson = provideInputComponentJson()
         
-        // Act
+        // When
         val result = parser.parse(inputJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val descriptor = result.getOrNull() as? AtomicDescriptor
         assertNotNull(descriptor)
@@ -120,14 +120,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should extract select options correctly`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val selectJson = provideSelectComponentJson()
         
-        // Act
+        // When
         val result = parser.parse(selectJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val descriptor = result.getOrNull() as? AtomicDescriptor
         assertNotNull(descriptor?.options)
@@ -138,14 +138,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should extract layout container properties`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val sliderJson = provideSliderComponentJson()
         
-        // Act
+        // When
         val result = parser.parse(sliderJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val descriptor = result.getOrNull() as? LayoutDescriptor
         assertNotNull(descriptor)
@@ -156,14 +156,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should return failure when type is missing`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val invalidJson = provideJsonWithoutType()
         
-        // Act
+        // When
         val result = parser.parse(invalidJson)
         
-        // Assert
+        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertTrue(exception is MissingPropertyException)
@@ -171,14 +171,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should return failure when id is missing`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val invalidJson = provideJsonWithoutId()
         
-        // Act
+        // When
         val result = parser.parse(invalidJson)
         
-        // Assert
+        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertTrue(exception is MissingPropertyException)
@@ -186,14 +186,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should return failure when type is unknown`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val invalidJson = provideJsonWithUnknownType()
         
-        // Act
+        // When
         val result = parser.parse(invalidJson)
         
-        // Assert
+        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertTrue(exception is JsonParseException)
@@ -201,27 +201,27 @@ class JsonParserTest {
     
     @Test
     fun `parse should handle malformed JSON`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val malformedJson = provideMalformedJson()
         
-        // Act
+        // When
         val result = parser.parse(malformedJson)
         
-        // Assert
+        // Then
         assertTrue(result.isFailure)
     }
     
     @Test
     fun `parse should handle deeply nested component hierarchy`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val deeplyNestedJson = provideDeeplyNestedJson()
         
-        // Act
+        // When
         val result = parser.parse(deeplyNestedJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val root = result.getOrNull() as? LayoutDescriptor
         assertNotNull(root)
@@ -240,14 +240,14 @@ class JsonParserTest {
     
     @Test
     fun `parse should handle optional properties with null values`() = runTest {
-        // Arrange
+        // Given
         val parser = provideJsonParser()
         val minimalJson = provideMinimalComponentJson()
         
-        // Act
+        // When
         val result = parser.parse(minimalJson)
         
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val descriptor = result.getOrNull() as? AtomicDescriptor
         assertNotNull(descriptor)

@@ -416,22 +416,112 @@ json.parseToJsonElement(jsonString)
 
 - Write tests for business logic and data transformations
 - Use descriptive test names that explain the scenario
-- Follow Arrange-Act-Assert pattern
+- Follow **Given-When-Then** pattern (BDD style)
 - Use MockK for mocking when needed
+- Use **provider functions** for test data (avoid setup/beforeEach)
+- Each test should manage its own mocks and instantiate them
 
 ```kotlin
 @Test
-fun `parse should return success when JSON is valid`() {
-    // Arrange
-    val validJson = """{"id": "test", "type": "componentButton"}"""
-    val parser = JsonParser()
+fun `parse should return success when JSON is valid`() = runTest {
+    // Given
+    val parser = provideJsonParser()
+    val validJson = provideValidJson()
     
-    // Act
-    val result = runBlocking { parser.parse(validJson) }
+    // When
+    val result = parser.parse(validJson)
     
-    // Assert
+    // Then
     assertTrue(result.isSuccess)
     assertEquals("test", result.getOrNull()?.id)
+}
+
+// Provider functions
+private fun provideJsonParser() = JsonParser()
+
+private fun provideValidJson() = """
+    {
+        "id": "test",
+        "type": "componentButton"
+    }
+""".trimIndent()
+```
+
+### MockK for Mocking
+
+- Use MockK for all mocking needs
+- Clear mocks after each test with `@After` hook
+- Use `every` for stubbing behavior
+- Use `verify` for verifying interactions
+
+```kotlin
+class MyServiceTest {
+    
+    @After
+    fun tearDown() {
+        unmockkAll()
+        clearAllMocks()
+    }
+    
+    @Test
+    fun `service should delegate to port`() = runTest {
+        // Given
+        val mockPort = mockk<OutputPort>()
+        every { mockPort.execute(any()) } returns mockResult
+        val service = provideService(mockPort)
+        
+        // When
+        val result = service.process(input)
+        
+        // Then
+        verify { mockPort.execute(input) }
+        assertEquals(expected, result)
+    }
+    
+    // Provider functions
+    private fun provideService(port: OutputPort) = MyService(port)
+    private fun provideMockResult() = Result.success(data)
+}
+```
+
+### Provider Functions Convention
+
+- Use provider functions instead of `@Before` setup
+- Each test manages its own dependencies
+- Improves test isolation and readability
+- Makes test data explicit
+
+```kotlin
+class ParserTest {
+    
+    @Test
+    fun `should parse valid JSON`() = runTest {
+        // Given
+        val parser = provideParser()
+        val json = provideValidJson()
+        
+        // When
+        val result = parser.parse(json)
+        
+        // Then
+        assertTrue(result.isSuccess)
+    }
+    
+    // Provider functions - clear and reusable
+    private fun provideParser() = JsonParser()
+    
+    private fun provideValidJson() = """
+        {
+            "id": "test",
+            "type": "componentButton"
+        }
+    """.trimIndent()
+    
+    private fun provideInvalidJson() = """
+        {
+            "id": "test"
+        }
+    """.trimIndent()
 }
 ```
 
@@ -444,20 +534,31 @@ fun `parse should return success when JSON is valid`() {
 ```kotlin
 @Test
 fun `button click should trigger event callback`() {
+    // Given
     var eventReceived: ComponentEvent? = null
+    val descriptor = provideButtonDescriptor()
     
     composeTestRule.setContent {
         ButtonComponent(
-            descriptor = buttonDescriptor,
+            descriptor = descriptor,
             onEvent = { eventReceived = it }
         )
     }
     
+    // When
     composeTestRule.onNodeWithText("Click Me").performClick()
     
+    // Then
     assertNotNull(eventReceived)
     assertTrue(eventReceived is ComponentEvent.Click)
 }
+
+// Provider function
+private fun provideButtonDescriptor() = AtomicDescriptor(
+    id = "test_button",
+    type = ComponentType.COMPONENT_BUTTON,
+    text = "Click Me"
+)
 ```
 
 ## Code Review Checklist
@@ -475,10 +576,101 @@ Before submitting code for review, ensure:
 - [ ] Code is formatted consistently
 - [ ] Tests are written for new functionality
 
+## Architecture Guidelines
+
+### Modular Hexagonal Architecture
+
+- Each module (parser, renderer, validator) has its own hexagonal architecture
+- Modules are self-contained with clear boundaries
+- Architecture is encapsulated within each module package
+
+#### Module Structure
+
+```
+module/
+├── ModuleName.kt                    (Public API - Entry point)
+├── application/                     (Application Layer - Wiring & DI)
+│   └── ModuleFacade.kt
+├── domain/                          (Domain Layer - Business logic)
+│   ├── ports/
+│   │   ├── InputPort.kt            (Use cases)
+│   │   └── OutputPort.kt           (Dependencies)
+│   └── service/
+│       └── ModuleService.kt
+└── infrastructure/                  (Infrastructure Layer - Technical details)
+    ├── adapter/
+    │   └── ConcreteAdapter.kt
+    ├── mapper/
+    │   └── TypeMapper.kt
+    ├── property/
+    │   └── PropertyParser.kt
+    └── util/
+        └── Extensions.kt
+```
+
+#### Example: Parser Module
+
+```kotlin
+// Public API (Entry point)
+class JsonParser(
+    strategies: List<ComponentParserStrategyPort> = defaultStrategies()
+) {
+    private val facade = JsonParserFacade(strategies)
+    
+    suspend fun parse(jsonString: String): Result<ComponentDescriptor> {
+        return facade.parse(jsonString)
+    }
+}
+
+// Domain Port (Interface)
+interface ComponentParserStrategyPort {
+    fun canParse(type: ComponentType): Boolean
+    fun parse(jsonObject: JsonObject, type: ComponentType): ComponentDescriptor
+}
+
+// Infrastructure Adapter (Implementation)
+class LayoutParserStrategy : ComponentParserStrategyPort {
+    override fun canParse(type: ComponentType) = ComponentMapper.isLayoutType(type)
+    override fun parse(jsonObject: JsonObject, type: ComponentType): ComponentDescriptor {
+        // Implementation
+    }
+}
+```
+
+#### Benefits
+
+- **Module Independence**: Each module evolves independently
+- **Clear Boundaries**: Well-defined module interfaces
+- **Easy to Understand**: Focus on one module at a time
+- **Testable**: Test modules in isolation
+- **Scalable**: Easy to add new modules
+
+### Test Structure
+
+- Mirror production code structure in tests
+- Organize tests by architectural layer
+- Use provider functions instead of setup methods
+
+```
+module/test/
+├── ModuleNameTest.kt                (Integration tests)
+├── application/
+│   └── ModuleFacadeTest.kt
+├── domain/
+│   └── service/
+│       └── ModuleServiceTest.kt
+└── infrastructure/
+    ├── adapter/
+    │   └── AdapterTest.kt
+    └── util/
+        └── ExtensionsTest.kt
+```
+
 ## Resources
 
 - [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
 - [Jetpack Compose Guidelines](https://developer.android.com/jetpack/compose/guidelines)
 - [Android Architecture Guide](https://developer.android.com/topic/architecture)
 - [kotlinx.serialization Guide](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/serialization-guide.md)
-- [Architecture Hexagonal Guide](https://medium.com/@edusalguero/arquitectura-hexagonal-59834bb44b7f)
+- [Hexagonal Architecture Guide](https://medium.com/@edusalguero/arquitectura-hexagonal-59834bb44b7f)
+- [BDD Testing with Given-When-Then](https://martinfowler.com/bliki/GivenWhenThen.html)
