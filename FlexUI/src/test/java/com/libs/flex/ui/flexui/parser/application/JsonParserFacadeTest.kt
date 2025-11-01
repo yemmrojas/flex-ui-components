@@ -109,19 +109,17 @@ class JsonParserFacadeTest {
         assertTrue(result.isFailure)
     }
     
-    @Test
-    fun `defaultStrategies should return non-empty list`() {
-        // When
-        val strategies = JsonParserFacade.defaultStrategies()
-        
-        // Then
-        assertTrue(strategies.isNotEmpty())
-        assertEquals(2, strategies.size)
-    }
-    
     // Provider functions
     
-    private fun provideJsonParserFacade() = JsonParserFacade()
+    private fun provideJsonParserFacade(): JsonParserFacade {
+        val mapper = com.libs.flex.ui.flexui.parser.infrastructure.mapper.ComponentMapper()
+        val strategies = listOf(
+            com.libs.flex.ui.flexui.parser.infrastructure.adapter.LayoutParserStrategy(mapper),
+            com.libs.flex.ui.flexui.parser.infrastructure.adapter.AtomicParserStrategy(mapper)
+        )
+        val service = com.libs.flex.ui.flexui.parser.domain.service.JsonParserService(strategies, mapper)
+        return JsonParserFacade(service)
+    }
     
     private fun provideValidLayoutJson() = """
         {

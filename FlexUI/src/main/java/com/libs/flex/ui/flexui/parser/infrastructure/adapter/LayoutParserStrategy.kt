@@ -4,11 +4,17 @@ import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentParserStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.mapper.ComponentMapper
+import com.libs.flex.ui.flexui.parser.domain.ports.ComponentTypeMapperPort
 import com.libs.flex.ui.flexui.parser.infrastructure.property.StylePropertiesParser
-import com.libs.flex.ui.flexui.parser.infrastructure.util.*
+import com.libs.flex.ui.flexui.parser.infrastructure.util.getOptionalArray
+import com.libs.flex.ui.flexui.parser.infrastructure.util.getOptionalBooleanOrNull
+import com.libs.flex.ui.flexui.parser.infrastructure.util.getOptionalLong
+import com.libs.flex.ui.flexui.parser.infrastructure.util.getOptionalObject
+import com.libs.flex.ui.flexui.parser.infrastructure.util.getOptionalString
+import com.libs.flex.ui.flexui.parser.infrastructure.util.getRequiredString
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
+import javax.inject.Inject
 
 /**
  * Infrastructure Adapter for parsing LayoutDescriptor components.
@@ -21,12 +27,14 @@ import kotlinx.serialization.json.jsonObject
  * - Contains JSON-specific parsing logic
  * - Can be replaced with other implementations
  */
-class LayoutParserStrategy : ComponentParserStrategyPort {
-    
+class LayoutParserStrategy @Inject constructor(
+    private val componentTypeMapper: ComponentTypeMapperPort
+) : ComponentParserStrategyPort {
+
     override fun canParse(type: ComponentType): Boolean {
-        return ComponentMapper.isLayoutType(type)
+        return componentTypeMapper.isLayoutType(type)
     }
-    
+
     override fun parse(
         jsonObject: JsonObject,
         type: ComponentType,
@@ -34,10 +42,10 @@ class LayoutParserStrategy : ComponentParserStrategyPort {
     ): ComponentDescriptor {
         val id = jsonObject.getRequiredString("id", type.name)
         val style = jsonObject.getOptionalObject("style")?.let { StylePropertiesParser.parse(it) }
-        
+
         val children = parseChildren(jsonObject, recursiveParser)
         val itemTemplate = parseItemTemplate(jsonObject, recursiveParser)
-        
+
         return LayoutDescriptor(
             id = id,
             type = type,
@@ -55,7 +63,7 @@ class LayoutParserStrategy : ComponentParserStrategyPort {
             autoPlayInterval = jsonObject.getOptionalLong("autoPlayInterval")
         )
     }
-    
+
     /**
      * Parses the children array recursively.
      */
@@ -67,7 +75,7 @@ class LayoutParserStrategy : ComponentParserStrategyPort {
             recursiveParser(childElement.jsonObject)
         } ?: emptyList()
     }
-    
+
     /**
      * Parses the item template for list/slider components.
      */

@@ -4,9 +4,11 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -17,47 +19,47 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class AtomicParserStrategyTest {
-    
+
     private val json = Json { ignoreUnknownKeys = true }
-    
+
     @After
     fun tearDown() {
         unmockkAll()
         clearAllMocks()
     }
-    
+
     @Test
     fun `canParse should return true for atomic types`() {
         // Given
         val strategy = provideAtomicParserStrategy()
-        
+
         // When & Assert
         assertTrue(strategy.canParse(ComponentType.COMPONENT_BUTTON))
         assertTrue(strategy.canParse(ComponentType.COMPONENT_TEXT_VIEW))
         assertTrue(strategy.canParse(ComponentType.COMPONENT_INPUT))
     }
-    
+
     @Test
     fun `canParse should return false for layout types`() {
         // Given
         val strategy = provideAtomicParserStrategy()
-        
+
         // When & Assert
         assertFalse(strategy.canParse(ComponentType.CONTENT_VERTICAL))
         assertFalse(strategy.canParse(ComponentType.CONTENT_HORIZONTAL))
     }
-    
+
     @Test
     fun `parse should create AtomicDescriptor with correct properties`() {
         // Given
         val strategy = provideAtomicParserStrategy()
         val jsonString = provideButtonJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        
+        val mockParser = provideMockParser()
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.COMPONENT_BUTTON, mockParser)
-        
+
         // Then
         assertTrue(result is AtomicDescriptor)
         val atomic = result as AtomicDescriptor
@@ -66,18 +68,18 @@ class AtomicParserStrategyTest {
         assertEquals("Click Me", atomic.text)
         assertEquals("primary", atomic.buttonStyle)
     }
-    
+
     @Test
     fun `parse should handle input component with validation`() {
         // Given
         val strategy = provideAtomicParserStrategy()
         val jsonString = provideInputWithValidationJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        
+        val mockParser = provideMockParser()
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.COMPONENT_INPUT, mockParser)
-        
+
         // Then
         assertTrue(result is AtomicDescriptor)
         val atomic = result as AtomicDescriptor
@@ -88,18 +90,18 @@ class AtomicParserStrategyTest {
         assertTrue(atomic.validation?.required ?: false)
         assertEquals(3, atomic.validation?.minLength)
     }
-    
+
     @Test
     fun `parse should handle select component with options`() {
         // Given
         val strategy = provideAtomicParserStrategy()
         val jsonString = provideSelectWithOptionsJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        
+        val mockParser = provideMockParser()
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.COMPONENT_SELECT, mockParser)
-        
+
         // Then
         assertTrue(result is AtomicDescriptor)
         val atomic = result as AtomicDescriptor
@@ -109,18 +111,18 @@ class AtomicParserStrategyTest {
         assertEquals("United States", atomic.options?.get(0)?.label)
         assertEquals("us", atomic.options?.get(0)?.value)
     }
-    
+
     @Test
     fun `parse should handle minimal atomic component`() {
         // Given
         val strategy = provideAtomicParserStrategy()
         val jsonString = provideMinimalAtomicJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        
+        val mockParser = provideMockParser()
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.COMPONENT_TEXT_VIEW, mockParser)
-        
+
         // Then
         assertTrue(result is AtomicDescriptor)
         val atomic = result as AtomicDescriptor
@@ -129,11 +131,24 @@ class AtomicParserStrategyTest {
         assertNull(atomic.style)
         assertTrue(atomic.enabled!!)
     }
-    
+
     // Provider functions
-    
-    private fun provideAtomicParserStrategy() = AtomicParserStrategy()
-    
+
+    private fun provideAtomicParserStrategy() =
+        AtomicParserStrategy(provideMockComponentTypeMapper())
+
+    private fun provideMockComponentTypeMapper() =
+        mockk<com.libs.flex.ui.flexui.parser.domain.ports.ComponentTypeMapperPort>().apply {
+            every { isLayoutType(ComponentType.COMPONENT_BUTTON) } returns false
+            every { isLayoutType(ComponentType.COMPONENT_TEXT_VIEW) } returns false
+            every { isLayoutType(ComponentType.COMPONENT_INPUT) } returns false
+            every { isLayoutType(ComponentType.CONTENT_VERTICAL) } returns true
+            every { isLayoutType(ComponentType.CONTENT_HORIZONTAL) } returns true
+        }
+
+    private fun provideMockParser(): (JsonObject) -> ComponentDescriptor =
+        mockk(relaxed = true)
+
     private fun provideButtonJson() = """
         {
             "id": "test_button",
@@ -142,7 +157,7 @@ class AtomicParserStrategyTest {
             "buttonStyle": "primary"
         }
     """.trimIndent()
-    
+
     private fun provideInputWithValidationJson() = """
         {
             "id": "username_input",
@@ -156,7 +171,7 @@ class AtomicParserStrategyTest {
             }
         }
     """.trimIndent()
-    
+
     private fun provideSelectWithOptionsJson() = """
         {
             "id": "country_select",
@@ -167,7 +182,7 @@ class AtomicParserStrategyTest {
             ]
         }
     """.trimIndent()
-    
+
     private fun provideMinimalAtomicJson() = """
         {
             "id": "minimal_text",

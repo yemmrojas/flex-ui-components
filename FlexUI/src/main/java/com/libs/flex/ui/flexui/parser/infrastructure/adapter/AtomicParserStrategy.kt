@@ -4,13 +4,14 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentParserStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.mapper.ComponentMapper
+import com.libs.flex.ui.flexui.parser.domain.ports.ComponentTypeMapperPort
 import com.libs.flex.ui.flexui.parser.infrastructure.property.SelectOptionParser
 import com.libs.flex.ui.flexui.parser.infrastructure.property.StylePropertiesParser
 import com.libs.flex.ui.flexui.parser.infrastructure.property.ValidationRulesParser
 import com.libs.flex.ui.flexui.parser.infrastructure.util.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
+import javax.inject.Inject
 
 /**
  * Infrastructure Adapter for parsing AtomicDescriptor components.
@@ -22,13 +23,17 @@ import kotlinx.serialization.json.jsonObject
  * - Implements the ComponentParserStrategyPort
  * - Contains JSON-specific parsing logic
  * - Can be replaced with other implementations
+ *
+ * @property componentTypeMapper Port for component type operations
  */
-class AtomicParserStrategy : ComponentParserStrategyPort {
-    
+class AtomicParserStrategy @Inject constructor(
+    private val componentTypeMapper: ComponentTypeMapperPort
+) : ComponentParserStrategyPort {
+
     override fun canParse(type: ComponentType): Boolean {
-        return !ComponentMapper.isLayoutType(type)
+        return !componentTypeMapper.isLayoutType(type)
     }
-    
+
     override fun parse(
         jsonObject: JsonObject,
         type: ComponentType,
@@ -36,7 +41,7 @@ class AtomicParserStrategy : ComponentParserStrategyPort {
     ): ComponentDescriptor {
         val id = jsonObject.getRequiredString("id", type.name)
         val style = jsonObject.getOptionalObject("style")?.let { StylePropertiesParser.parse(it) }
-        
+
         return AtomicDescriptor(
             id = id,
             type = type,
@@ -64,7 +69,7 @@ class AtomicParserStrategy : ComponentParserStrategyPort {
             validation = parseValidation(jsonObject)
         )
     }
-    
+
     /**
      * Parses the options array for select components.
      */
@@ -72,7 +77,7 @@ class AtomicParserStrategy : ComponentParserStrategyPort {
         jsonObject.getOptionalArray("options")?.map { optionElement ->
             SelectOptionParser.parse(optionElement.jsonObject)
         }
-    
+
     /**
      * Parses validation rules for input components.
      */

@@ -3,6 +3,11 @@ package com.libs.flex.ui.flexui.parser
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.parser.application.JsonParserFacade
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentParserStrategyPort
+import com.libs.flex.ui.flexui.parser.domain.service.JsonParserService
+import com.libs.flex.ui.flexui.parser.infrastructure.adapter.AtomicParserStrategy
+import com.libs.flex.ui.flexui.parser.infrastructure.adapter.LayoutParserStrategy
+import com.libs.flex.ui.flexui.parser.infrastructure.mapper.ComponentMapper
+import javax.inject.Inject
 
 /**
  * Main entry point for JSON parsing in the FlexUI library.
@@ -32,25 +37,37 @@ import com.libs.flex.ui.flexui.parser.domain.ports.ComponentParserStrategyPort
  * - Clear boundaries between modules
  * - Testable in isolation
  *
- * Usage:
+ * Usage with Hilt (recommended):
+ * ```kotlin
+ * @Inject lateinit var parser: JsonParser
+ * val result = parser.parse(jsonString)
+ * ```
+ *
+ * Usage without DI (backward compatible):
  * ```kotlin
  * val parser = JsonParser()
  * val result = parser.parse(jsonString)
- *
- * result.fold(
- *     onSuccess = { descriptor -> render(descriptor) },
- *     onFailure = { error -> handleError(error) }
- * )
  * ```
  *
- * @property strategies List of parsing strategies (can be customized for testing)
+ * @property facade The application facade that handles parsing
  */
-class JsonParser(
-    strategies: List<ComponentParserStrategyPort> = defaultStrategies()
+class JsonParser @Inject constructor(
+    private val facade: JsonParserFacade
 ) {
-    
-    private val facade = JsonParserFacade(strategies)
-    
+
+    /**
+     * Secondary constructor for backward compatibility without DI.
+     * Creates parser with default strategies and mapper.
+     */
+    constructor() : this(
+        JsonParserFacade(
+            JsonParserService(
+                defaultStrategies(),
+                defaultMapper()
+            )
+        )
+    )
+
     /**
      * Parses a JSON string into a ComponentDescriptor hierarchy.
      *
@@ -64,14 +81,24 @@ class JsonParser(
     suspend fun parse(jsonString: String): Result<ComponentDescriptor> {
         return facade.parse(jsonString)
     }
-    
+
     companion object {
+        /**
+         * Provides the default component type mapper.
+         */
+        private fun defaultMapper(): ComponentMapper = ComponentMapper()
+
         /**
          * Provides the default list of parsing strategies.
          *
          * This can be overridden for testing or to add custom strategies.
          */
-        fun defaultStrategies(): List<ComponentParserStrategyPort> = 
-            JsonParserFacade.defaultStrategies()
+        fun defaultStrategies(): List<ComponentParserStrategyPort> {
+            val mapper = defaultMapper()
+            return listOf(
+                LayoutParserStrategy(mapper),
+                AtomicParserStrategy(mapper)
+            )
+        }
     }
 }
