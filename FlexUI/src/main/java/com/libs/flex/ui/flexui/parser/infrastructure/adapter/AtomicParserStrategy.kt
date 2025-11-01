@@ -29,11 +29,11 @@ import javax.inject.Inject
 class AtomicParserStrategy @Inject constructor(
     private val componentTypeMapper: ComponentTypeMapperPort
 ) : ComponentParserStrategyPort {
-    
+
     override fun canParse(type: ComponentType): Boolean {
         return !componentTypeMapper.isLayoutType(type)
     }
-    
+
     override fun parse(
         jsonObject: JsonObject,
         type: ComponentType,
@@ -41,7 +41,7 @@ class AtomicParserStrategy @Inject constructor(
     ): ComponentDescriptor {
         val id = jsonObject.getRequiredString("id", type.name)
         val style = jsonObject.getOptionalObject("style")?.let { StylePropertiesParser.parse(it) }
-        
+
         return AtomicDescriptor(
             id = id,
             type = type,
@@ -69,7 +69,7 @@ class AtomicParserStrategy @Inject constructor(
             validation = parseValidation(jsonObject)
         )
     }
-    
+
     /**
      * Parses the options array for select components.
      */
@@ -77,7 +77,7 @@ class AtomicParserStrategy @Inject constructor(
         jsonObject.getOptionalArray("options")?.map { optionElement ->
             SelectOptionParser.parse(optionElement.jsonObject)
         }
-    
+
     /**
      * Parses validation rules for input components.
      */

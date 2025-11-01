@@ -26,7 +26,7 @@ import javax.inject.Inject
  * eliminating duplication and ensuring compile-time safety.
  */
 class ComponentMapper @Inject constructor() : ComponentTypeMapperPort {
-    
+
     /**
      * Maps a component type string from JSON to its corresponding ComponentType enum value.
      *
@@ -41,7 +41,7 @@ class ComponentMapper @Inject constructor() : ComponentTypeMapperPort {
         return ComponentType.fromJsonKey(typeString)
             ?: throw ComponentTypeNotFoundException(typeString)
     }
-    
+
     /**
      * Maps a component type string from JSON to its corresponding ComponentType enum value (case-insensitive).
      *
@@ -55,7 +55,7 @@ class ComponentMapper @Inject constructor() : ComponentTypeMapperPort {
         return ComponentType.fromJsonKeyIgnoreCase(typeString)
             ?: throw ComponentTypeNotFoundException(typeString)
     }
-    
+
     /**
      * Determines whether a ComponentType represents a layout container.
      *

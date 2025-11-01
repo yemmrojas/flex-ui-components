@@ -29,8 +29,10 @@ interface PropertyParser<T> {
 object StylePropertiesParser : PropertyParser<StyleProperties> {
     override fun parse(jsonObject: JsonObject): StyleProperties {
         return StyleProperties(
-            padding = jsonObject.getOptionalObject("padding")?.let { PaddingValuesParser.parse(it) },
-            margin = jsonObject.getOptionalObject("margin")?.let { PaddingValuesParser.parse(it) },
+            padding = jsonObject.getOptionalObject("padding")
+                ?.let { PaddingValuesParser.parse(it) },
+            margin = jsonObject.getOptionalObject("margin")
+                ?.let { PaddingValuesParser.parse(it) },
             backgroundColor = jsonObject.getOptionalString("backgroundColor"),
             borderRadius = jsonObject.getOptionalInt("borderRadius"),
             elevation = jsonObject.getOptionalInt("elevation"),

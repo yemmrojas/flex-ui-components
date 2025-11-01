@@ -23,7 +23,7 @@ interface ComponentParserStrategyPort {
      * @return true if this strategy can parse the type, false otherwise
      */
     fun canParse(type: ComponentType): Boolean
-    
+
     /**
      * Parses a JsonObject into a ComponentDescriptor.
      *

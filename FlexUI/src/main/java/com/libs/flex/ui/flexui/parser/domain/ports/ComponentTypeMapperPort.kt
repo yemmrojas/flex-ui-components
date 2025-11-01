@@ -16,7 +16,7 @@ import com.libs.flex.ui.flexui.model.ComponentType
  * - Follows hexagonal architecture principles
  */
 interface ComponentTypeMapperPort {
-    
+
     /**
      * Maps a component type string from JSON to its corresponding ComponentType enum value.
      *
@@ -25,7 +25,7 @@ interface ComponentTypeMapperPort {
      * @throws com.libs.flex.ui.flexui.exceptions.ComponentTypeNotFoundException if the type string is not recognized
      */
     fun mapType(typeString: String): ComponentType
-    
+
     /**
      * Maps a component type string from JSON to its corresponding ComponentType enum value (case-insensitive).
      *
@@ -34,7 +34,7 @@ interface ComponentTypeMapperPort {
      * @throws com.libs.flex.ui.flexui.exceptions.ComponentTypeNotFoundException if the type string is not recognized
      */
     fun mapTypeIgnoreCase(typeString: String): ComponentType
-    
+
     /**
      * Determines whether a ComponentType represents a layout container.
      *

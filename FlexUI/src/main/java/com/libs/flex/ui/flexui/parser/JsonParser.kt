@@ -54,7 +54,7 @@ import javax.inject.Inject
 class JsonParser @Inject constructor(
     private val facade: JsonParserFacade
 ) {
-    
+
     /**
      * Secondary constructor for backward compatibility without DI.
      * Creates parser with default strategies and mapper.
@@ -67,7 +67,7 @@ class JsonParser @Inject constructor(
             )
         )
     )
-    
+
     /**
      * Parses a JSON string into a ComponentDescriptor hierarchy.
      *
@@ -81,13 +81,13 @@ class JsonParser @Inject constructor(
     suspend fun parse(jsonString: String): Result<ComponentDescriptor> {
         return facade.parse(jsonString)
     }
-    
+
     companion object {
         /**
          * Provides the default component type mapper.
          */
         private fun defaultMapper(): ComponentMapper = ComponentMapper()
-        
+
         /**
          * Provides the default list of parsing strategies.
          *

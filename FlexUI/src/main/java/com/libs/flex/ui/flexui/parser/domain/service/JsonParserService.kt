@@ -35,7 +35,7 @@ class JsonParserService @Inject constructor(
     private val strategies: List<@JvmSuppressWildcards ComponentParserStrategyPort>,
     private val componentTypeMapper: ComponentTypeMapperPort
 ) : ParseComponentPort {
-    
+
     /**
      * JSON configuration for parsing with lenient settings.
      */
@@ -44,14 +44,14 @@ class JsonParserService @Inject constructor(
         isLenient = true
         coerceInputValues = true
     }
-    
+
     /**
      * Parses a JSON string into a ComponentDescriptor hierarchy.
      *
      * @param jsonString The JSON string to parse
      * @return Result containing the parsed ComponentDescriptor on success, or an exception on failure
      */
-    override suspend fun parse(jsonString: String): Result<ComponentDescriptor> = 
+    override suspend fun parse(jsonString: String): Result<ComponentDescriptor> =
         withContext(Dispatchers.IO) {
             try {
                 val jsonElement = json.parseToJsonElement(jsonString)
@@ -65,7 +65,7 @@ class JsonParserService @Inject constructor(
                 Result.failure(JsonParseException("Failed to parse JSON: ${e.message}", e))
             }
         }
-    
+
     /**
      * Recursively parses a JSON object into a ComponentDescriptor.
      *
@@ -79,10 +79,10 @@ class JsonParserService @Inject constructor(
     private fun parseComponent(jsonObject: JsonObject): ComponentDescriptor {
         val typeString = jsonObject.getRequiredString("type", "unknown")
         val componentType = componentTypeMapper.mapType(typeString)
-        
+
         val strategy = strategies.firstOrNull { it.canParse(componentType) }
             ?: throw JsonParseException("No parser strategy found for component type: $componentType")
-        
+
         return strategy.parse(jsonObject, componentType, ::parseComponent)
     }
 }
