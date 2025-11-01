@@ -5,6 +5,7 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentParserStrategyPort
+import com.libs.flex.ui.flexui.parser.domain.ports.ComponentTypeMapperPort
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -27,11 +28,10 @@ class JsonParserServiceTest {
     @Test
     fun `parse should delegate to appropriate strategy`() = runTest {
         // Given
-        val mockStrategy = provideMockStrategy()
-        val mockDescriptor = provideMockDescriptor()
-        every { mockStrategy.canParse(any()) } returns true
-        every { mockStrategy.parse(any(), any(), any()) } returns mockDescriptor
-        
+        val mockStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = true
+        )
         val service = provideJsonParserService(listOf(mockStrategy))
         val jsonString = provideValidJson()
         
@@ -47,11 +47,11 @@ class JsonParserServiceTest {
     @Test
     fun `parse should return success when JSON is valid`() = runTest {
         // Given
-        val mockStrategy = provideMockStrategy()
+        val mockStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = true
+        )
         val mockDescriptor = provideMockDescriptor()
-        every { mockStrategy.canParse(any()) } returns true
-        every { mockStrategy.parse(any(), any(), any()) } returns mockDescriptor
-        
         val service = provideJsonParserService(listOf(mockStrategy))
         val jsonString = provideValidJson()
         
@@ -66,9 +66,10 @@ class JsonParserServiceTest {
     @Test
     fun `parse should return failure when no strategy found`() = runTest {
         // Given
-        val mockStrategy = provideMockStrategy()
-        every { mockStrategy.canParse(any()) } returns false
-        
+        val mockStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = false
+        )
         val service = provideJsonParserService(listOf(mockStrategy))
         val jsonString = provideValidJson()
         
@@ -83,7 +84,10 @@ class JsonParserServiceTest {
     @Test
     fun `parse should return failure when JSON is malformed`() = runTest {
         // Given
-        val mockStrategy = provideMockStrategy()
+        val mockStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = true
+        )
         val service = provideJsonParserService(listOf(mockStrategy))
         val malformedJson = provideMalformedJson()
         
@@ -98,14 +102,14 @@ class JsonParserServiceTest {
     @Test
     fun `parse should select correct strategy based on component type`() = runTest {
         // Given
-        val layoutStrategy = provideMockStrategy()
-        val atomicStrategy = provideMockStrategy()
-        val mockDescriptor = provideMockDescriptor()
-        
-        every { layoutStrategy.canParse(ComponentType.COMPONENT_BUTTON) } returns false
-        every { atomicStrategy.canParse(ComponentType.COMPONENT_BUTTON) } returns true
-        every { atomicStrategy.parse(any(), any(), any()) } returns mockDescriptor
-        
+        val layoutStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = false
+        )
+        val atomicStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = true
+        )
         val service = provideJsonParserService(listOf(layoutStrategy, atomicStrategy))
         val jsonString = provideValidJson()
         
@@ -123,11 +127,7 @@ class JsonParserServiceTest {
     @Test
     fun `parse should handle nested components recursively`() = runTest {
         // Given
-        val mockStrategy = provideMockStrategy()
-        val mockDescriptor = provideMockDescriptor()
-        every { mockStrategy.canParse(any()) } returns true
-        every { mockStrategy.parse(any(), any(), any()) } returns mockDescriptor
-        
+        val mockStrategy = provideMockStrategyForAnyType()
         val service = provideJsonParserService(listOf(mockStrategy))
         val nestedJson = provideNestedJson()
         
@@ -143,9 +143,30 @@ class JsonParserServiceTest {
     // Provider functions
     
     private fun provideJsonParserService(strategies: List<ComponentParserStrategyPort>) =
-        JsonParserService(strategies)
+        JsonParserService(strategies, provideMockComponentTypeMapper())
     
-    private fun provideMockStrategy() = mockk<ComponentParserStrategyPort>()
+    private fun provideMockStrategy(
+        componentType: ComponentType,
+        isSupported: Boolean = true
+    ) = mockk<ComponentParserStrategyPort>().apply {
+        if (isSupported) {
+            every { canParse(componentType) } returns true
+            every { parse(any(), componentType, any()) } returns provideMockDescriptor()
+        } else {
+            every { canParse(componentType) } returns false
+        }
+    }
+    
+    private fun provideMockStrategyForAnyType() = mockk<ComponentParserStrategyPort>().apply {
+        every { canParse(any()) } returns true
+        every { parse(any(), any(), any()) } returns provideMockDescriptor()
+    }
+    
+    private fun provideMockComponentTypeMapper() = mockk<ComponentTypeMapperPort>().apply {
+        every { mapType("componentButton") } returns ComponentType.COMPONENT_BUTTON
+        every { mapType("contentVertical") } returns ComponentType.CONTENT_VERTICAL
+        every { isLayoutType(any()) } returns false
+    }
     
     private fun provideMockDescriptor() = AtomicDescriptor(
         id = "mock_id",

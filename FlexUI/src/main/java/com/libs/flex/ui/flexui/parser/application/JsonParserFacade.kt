@@ -6,6 +6,7 @@ import com.libs.flex.ui.flexui.parser.domain.ports.ParseComponentPort
 import com.libs.flex.ui.flexui.parser.domain.service.JsonParserService
 import com.libs.flex.ui.flexui.parser.infrastructure.adapter.AtomicParserStrategy
 import com.libs.flex.ui.flexui.parser.infrastructure.adapter.LayoutParserStrategy
+import javax.inject.Inject
 
 /**
  * Application Facade for the Parser module.
@@ -19,12 +20,10 @@ import com.libs.flex.ui.flexui.parser.infrastructure.adapter.LayoutParserStrateg
  * - Provides dependency injection
  * - Maintains backward compatibility
  *
- * @property strategies List of parsing strategies (can be customized)
  * @property parserService The parsing service implementation
  */
-class JsonParserFacade(
-    strategies: List<ComponentParserStrategyPort> = defaultStrategies(),
-    private val parserService: ParseComponentPort = JsonParserService(strategies)
+class JsonParserFacade @Inject constructor(
+    private val parserService: ParseComponentPort
 ) {
 
     /**
@@ -35,17 +34,5 @@ class JsonParserFacade(
      */
     suspend fun parse(jsonString: String): Result<ComponentDescriptor> {
         return parserService.parse(jsonString)
-    }
-
-    companion object {
-        /**
-         * Provides the default list of parsing strategies.
-         *
-         * This can be overridden for testing or to add custom strategies.
-         */
-        fun defaultStrategies(): List<ComponentParserStrategyPort> = listOf(
-            LayoutParserStrategy(),
-            AtomicParserStrategy()
-        )
     }
 }

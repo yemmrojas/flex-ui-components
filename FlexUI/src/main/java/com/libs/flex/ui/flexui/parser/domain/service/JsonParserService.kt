@@ -5,13 +5,14 @@ import com.libs.flex.ui.flexui.exceptions.MissingPropertyException
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentParserStrategyPort
 import com.libs.flex.ui.flexui.parser.domain.ports.ParseComponentPort
-import com.libs.flex.ui.flexui.parser.infrastructure.mapper.ComponentMapper
+import com.libs.flex.ui.flexui.parser.domain.ports.ComponentTypeMapperPort
 import com.libs.flex.ui.flexui.parser.infrastructure.util.getRequiredString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
+import javax.inject.Inject
 
 /**
  * Domain Service that implements the parsing logic.
@@ -28,9 +29,11 @@ import kotlinx.serialization.json.jsonObject
  * - Independent of JSON library specifics
  *
  * @property strategies List of parsing strategies
+ * @property componentTypeMapper Port for component type mapping operations
  */
-class JsonParserService(
-    private val strategies: List<ComponentParserStrategyPort>
+class JsonParserService @Inject constructor(
+    private val strategies: List<@JvmSuppressWildcards ComponentParserStrategyPort>,
+    private val componentTypeMapper: ComponentTypeMapperPort
 ) : ParseComponentPort {
     
     /**
@@ -75,7 +78,7 @@ class JsonParserService(
      */
     private fun parseComponent(jsonObject: JsonObject): ComponentDescriptor {
         val typeString = jsonObject.getRequiredString("type", "unknown")
-        val componentType = ComponentMapper.mapType(typeString)
+        val componentType = componentTypeMapper.mapType(typeString)
         
         val strategy = strategies.firstOrNull { it.canParse(componentType) }
             ?: throw JsonParseException("No parser strategy found for component type: $componentType")

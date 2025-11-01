@@ -17,47 +17,47 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LayoutParserStrategyTest {
-    
+
     private val json = Json { ignoreUnknownKeys = true }
-    
+
     @After
     fun tearDown() {
         unmockkAll()
         clearAllMocks()
     }
-    
+
     @Test
     fun `canParse should return true for layout types`() {
         // Given
         val strategy = provideLayoutParserStrategy()
-        
+
         // When & Assert
         assertTrue(strategy.canParse(ComponentType.CONTENT_VERTICAL))
         assertTrue(strategy.canParse(ComponentType.CONTENT_HORIZONTAL))
         assertTrue(strategy.canParse(ComponentType.CONTENT_SCROLL))
     }
-    
+
     @Test
     fun `canParse should return false for atomic types`() {
         // Given
         val strategy = provideLayoutParserStrategy()
-        
+
         // When & Assert
         assertTrue(!strategy.canParse(ComponentType.COMPONENT_BUTTON))
         assertTrue(!strategy.canParse(ComponentType.COMPONENT_TEXT_VIEW))
     }
-    
+
     @Test
     fun `parse should create LayoutDescriptor with correct properties`() {
         // Given
         val strategy = provideLayoutParserStrategy()
         val jsonString = provideLayoutJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        
+        val mockParser = provideMockParser()
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.CONTENT_VERTICAL, mockParser)
-        
+
         // Then
         assertTrue(result is LayoutDescriptor)
         val layout = result as LayoutDescriptor
@@ -66,38 +66,37 @@ class LayoutParserStrategyTest {
         assertEquals("center", layout.arrangement)
         assertEquals("start", layout.alignment)
     }
-    
+
     @Test
     fun `parse should recursively parse children`() {
         // Given
         val strategy = provideLayoutParserStrategy()
         val jsonString = provideLayoutWithChildrenJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockChild = mockk<ComponentDescriptor>()
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        every { mockParser(any()) } returns mockChild
-        
+        val mockChild = provideMockComponentDescriptor()
+        val mockParser = provideMockParserWithChild(mockChild)
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.CONTENT_VERTICAL, mockParser)
-        
+
         // Then
         assertTrue(result is LayoutDescriptor)
         val layout = result as LayoutDescriptor
         assertEquals(2, layout.children.size)
         verify(exactly = 2) { mockParser(any()) }
     }
-    
+
     @Test
     fun `parse should handle optional properties`() {
         // Given
         val strategy = provideLayoutParserStrategy()
         val jsonString = provideMinimalLayoutJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        
+        val mockParser = provideMockParser()
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.CONTENT_VERTICAL, mockParser)
-        
+
         // Then
         assertTrue(result is LayoutDescriptor)
         val layout = result as LayoutDescriptor
@@ -106,18 +105,18 @@ class LayoutParserStrategyTest {
         assertEquals(null, layout.arrangement)
         assertEquals(null, layout.alignment)
     }
-    
+
     @Test
     fun `parse should handle slider properties`() {
         // Given
         val strategy = provideLayoutParserStrategy()
         val jsonString = provideSliderLayoutJson()
         val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-        val mockParser: (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor = mockk()
-        
+        val mockParser = provideMockParser()
+
         // When
         val result = strategy.parse(jsonObject, ComponentType.CONTENT_SLIDER, mockParser)
-        
+
         // Then
         assertTrue(result is LayoutDescriptor)
         val layout = result as LayoutDescriptor
@@ -126,11 +125,34 @@ class LayoutParserStrategyTest {
         assertNotNull(layout.items)
         assertEquals(2, layout.items?.size)
     }
-    
+
     // Provider functions
-    
-    private fun provideLayoutParserStrategy() = LayoutParserStrategy()
-    
+
+    private fun provideLayoutParserStrategy() =
+        LayoutParserStrategy(provideMockComponentTypeMapper())
+
+    private fun provideMockComponentTypeMapper() =
+        mockk<com.libs.flex.ui.flexui.parser.domain.ports.ComponentTypeMapperPort>().apply {
+            every { isLayoutType(ComponentType.CONTENT_VERTICAL) } returns true
+            every { isLayoutType(ComponentType.CONTENT_HORIZONTAL) } returns true
+            every { isLayoutType(ComponentType.CONTENT_SCROLL) } returns true
+            every { isLayoutType(ComponentType.CONTENT_SLIDER) } returns true
+            every { isLayoutType(ComponentType.COMPONENT_BUTTON) } returns false
+            every { isLayoutType(ComponentType.COMPONENT_TEXT_VIEW) } returns false
+        }
+
+    private fun provideMockParser(): (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor =
+        mockk(relaxed = true)
+
+    private fun provideMockComponentDescriptor() = mockk<ComponentDescriptor>()
+
+    private fun provideMockParserWithChild(
+        child: ComponentDescriptor
+    ): (kotlinx.serialization.json.JsonObject) -> ComponentDescriptor =
+        mockk<(kotlinx.serialization.json.JsonObject) -> ComponentDescriptor>().apply {
+            every { this@apply(any()) } returns child
+        }
+
     private fun provideLayoutJson() = """
         {
             "id": "test_layout",
@@ -139,7 +161,7 @@ class LayoutParserStrategyTest {
             "alignment": "start"
         }
     """.trimIndent()
-    
+
     private fun provideLayoutWithChildrenJson() = """
         {
             "id": "parent_layout",
@@ -150,14 +172,14 @@ class LayoutParserStrategyTest {
             ]
         }
     """.trimIndent()
-    
+
     private fun provideMinimalLayoutJson() = """
         {
             "id": "minimal_layout",
             "type": "contentVertical"
         }
     """.trimIndent()
-    
+
     private fun provideSliderLayoutJson() = """
         {
             "id": "slider_layout",

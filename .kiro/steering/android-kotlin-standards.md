@@ -490,6 +490,9 @@ class MyServiceTest {
 - Each test manages its own dependencies
 - Improves test isolation and readability
 - Makes test data explicit
+- **Provider functions should handle all mock configuration** (including `every` blocks)
+- Avoid repeating `every` blocks in test bodies - move them to provider functions
+- Use parameters in provider functions to handle different mock behaviors
 
 ```kotlin
 class ParserTest {
@@ -524,6 +527,91 @@ class ParserTest {
     """.trimIndent()
 }
 ```
+
+#### Advanced Provider Functions with Mock Configuration
+
+Provider functions should encapsulate ALL mock setup logic, including `every` blocks. This keeps tests clean and makes mock behavior explicit through function parameters.
+
+```kotlin
+class ServiceTest {
+    
+    @After
+    fun tearDown() {
+        unmockkAll()
+        clearAllMocks()
+    }
+    
+    @Test
+    fun `should delegate to strategy when supported`() = runTest {
+        // Given
+        val mockStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = true
+        )
+        val service = provideService(listOf(mockStrategy))
+        
+        // When
+        val result = service.parse(validJson)
+        
+        // Then
+        assertTrue(result.isSuccess)
+        verify { mockStrategy.canParse(ComponentType.COMPONENT_BUTTON) }
+    }
+    
+    @Test
+    fun `should return failure when no strategy found`() = runTest {
+        // Given
+        val mockStrategy = provideMockStrategy(
+            componentType = ComponentType.COMPONENT_BUTTON,
+            isSupported = false
+        )
+        val service = provideService(listOf(mockStrategy))
+        
+        // When
+        val result = service.parse(validJson)
+        
+        // Then
+        assertTrue(result.isFailure)
+    }
+    
+    // Provider functions with mock configuration
+    private fun provideService(strategies: List<StrategyPort>) = 
+        MyService(strategies)
+    
+    // Good: All mock behavior configured in provider function
+    private fun provideMockStrategy(
+        componentType: ComponentType = ComponentType.COMPONENT_BUTTON,
+        isSupported: Boolean = true
+    ) = mockk<StrategyPort>().apply {
+        if (isSupported) {
+            every { canParse(componentType) } returns true
+            every { parse(any(), componentType, any()) } returns provideMockDescriptor()
+        } else {
+            every { canParse(componentType) } returns false
+        }
+    }
+    
+    // For tests that need to accept any type
+    private fun provideMockStrategyForAnyType() = mockk<StrategyPort>().apply {
+        every { canParse(any()) } returns true
+        every { parse(any(), any(), any()) } returns provideMockDescriptor()
+    }
+    
+    private fun provideMockDescriptor() = AtomicDescriptor(
+        id = "mock_id",
+        type = ComponentType.COMPONENT_BUTTON,
+        text = "Mock"
+    )
+}
+```
+
+#### Benefits of Mock Configuration in Provider Functions
+
+- **Cleaner tests**: No `every` blocks cluttering test bodies
+- **Explicit behavior**: Mock behavior is clear from function parameters
+- **Reusability**: Same provider function handles different scenarios
+- **Maintainability**: Changes to mock setup happen in one place
+- **Readability**: Test intent is clearer without mock setup noise
 
 ### Compose UI Tests
 
@@ -666,6 +754,180 @@ module/test/
         └── ExtensionsTest.kt
 ```
 
+## Dependency Injection with Dagger Hilt
+
+### General Principles
+
+- Use Dagger Hilt for dependency injection throughout the project
+- Follow constructor injection pattern for better testability
+- Use `@Singleton` scope for application-level dependencies
+- **Create separate modules per feature following hexagonal architecture**
+- Document all provided dependencies with KDoc
+- Use `@Binds` for interface bindings (more efficient than `@Provides`)
+- Use `@Provides` only when custom creation logic is needed
+
+### Module Organization by Feature
+
+Each feature module should have its own Hilt module in the `{feature}/di/` package:
+
+```
+parser/
+├── di/
+│   └── ParserModule.kt          (Hilt DI configuration)
+├── domain/
+│   ├── ports/                   (Interfaces)
+│   └── service/                 (Business logic)
+├── infrastructure/
+│   ├── adapter/                 (Implementations)
+│   └── mapper/                  (Type mappers)
+└── application/
+    └── ParserFacade.kt          (Coordination)
+```
+
+### Hexagonal Architecture with Hilt
+
+Follow the **Ports and Adapters** pattern with Hilt:
+
+```kotlin
+// Domain Port (Interface)
+interface ComponentTypeMapperPort {
+    fun mapType(typeString: String): ComponentType
+    fun isLayoutType(type: ComponentType): Boolean
+}
+
+// Infrastructure Adapter (Implementation)
+class ComponentMapper @Inject constructor() : ComponentTypeMapperPort {
+    override fun mapType(typeString: String): ComponentType {
+        return ComponentType.fromJsonKey(typeString)
+            ?: throw ComponentTypeNotFoundException(typeString)
+    }
+    
+    override fun isLayoutType(type: ComponentType): Boolean {
+        return type.isLayout
+    }
+}
+
+// Hilt Module - Bind interface to implementation
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ParserModule {
+    
+    @Binds
+    @Singleton
+    abstract fun bindComponentTypeMapper(
+        mapper: ComponentMapper
+    ): ComponentTypeMapperPort
+}
+```
+
+### Complete Module Example
+
+Here's a complete example following hexagonal architecture:
+
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ParserModule {
+    
+    /**
+     * Binds the domain service to its port.
+     * Domain depends on ParseComponentPort (abstraction).
+     */
+    @Binds
+    @Singleton
+    abstract fun bindParseComponentPort(
+        service: JsonParserService
+    ): ParseComponentPort
+    
+    /**
+     * Binds the type mapper to its port.
+     * Follows Dependency Inversion Principle.
+     */
+    @Binds
+    @Singleton
+    abstract fun bindComponentTypeMapper(
+        mapper: ComponentMapper
+    ): ComponentTypeMapperPort
+    
+    companion object {
+        /**
+         * Provides list of parser strategies.
+         * Uses @Provides because it requires custom logic.
+         */
+        @Provides
+        @Singleton
+        fun provideParserStrategies(
+            layoutStrategy: LayoutParserStrategy,
+            atomicStrategy: AtomicParserStrategy
+        ): List<@JvmSuppressWildcards ComponentParserStrategyPort> {
+            return listOf(layoutStrategy, atomicStrategy)
+        }
+    }
+}
+```
+
+### Key Principles
+
+1. **Use `@Binds` for interface bindings** (more efficient)
+2. **Use `@Provides` for complex creation logic** (lists, custom initialization)
+3. **Always specify scope** (`@Singleton`, `@ViewModelScoped`, etc.)
+4. **Use `@JvmSuppressWildcards`** for generic types in parameters
+5. **Document all bindings** with KDoc explaining the purpose
+
+### Constructor Injection
+
+- Prefer constructor injection over field injection
+- Use `@Inject` annotation on constructors
+- Keep constructors focused on dependency injection only
+
+```kotlin
+class MyViewModel @Inject constructor(
+    private val parser: JsonParser,
+    private val repository: DataRepository
+) : ViewModel() {
+    // Implementation
+}
+```
+
+### Testing with Hilt
+
+- Use `@HiltAndroidTest` for instrumented tests
+- Use `@UninstallModules` to replace production modules in tests
+- Create test modules with `@TestInstallIn`
+- For unit tests, continue using MockK with provider functions
+
+```kotlin
+@HiltAndroidTest
+@UninstallModules(ParserModule::class)
+class ParserIntegrationTest {
+    
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
+    
+    @Inject
+    lateinit var parser: JsonParser
+    
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
+    
+    @Test
+    fun testParser() {
+        // Test with injected dependencies
+    }
+}
+```
+
+### Best Practices
+
+- Document all `@Provides` functions with KDoc
+- Keep modules focused on a single responsibility
+- Avoid circular dependencies
+- Use qualifiers (`@Named`, custom qualifiers) when providing multiple instances of the same type
+- Prefer `@Singleton` for stateless dependencies
+- Use appropriate scopes for stateful dependencies
+
 ## Resources
 
 - [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
@@ -674,3 +936,5 @@ module/test/
 - [kotlinx.serialization Guide](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/serialization-guide.md)
 - [Hexagonal Architecture Guide](https://medium.com/@edusalguero/arquitectura-hexagonal-59834bb44b7f)
 - [BDD Testing with Given-When-Then](https://martinfowler.com/bliki/GivenWhenThen.html)
+- [Dagger Hilt Documentation](https://dagger.dev/hilt/)
+- [Hilt Testing Guide](https://developer.android.com/training/dependency-injection/hilt-testing)

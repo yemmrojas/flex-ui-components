@@ -45,7 +45,7 @@ dependencies {
 
 ## 📖 Uso Básico
 
-### 1. Configuración Simple
+### 1. Configuración Simple (Sin Hilt)
 
 ```kotlin
 import com.libs.flex.ui.flexui.JsonRenderer
@@ -82,6 +82,42 @@ fun MyScreen() {
             println("Event: $event")
         }
     )
+}
+```
+
+### 1b. Uso con Hilt (Recomendado)
+
+```kotlin
+@HiltViewModel
+class MyViewModel @Inject constructor(
+    private val jsonParser: JsonParser
+) : ViewModel() {
+    
+    private val _uiDescriptor = MutableStateFlow<ComponentDescriptor?>(null)
+    val uiDescriptor = _uiDescriptor.asStateFlow()
+    
+    fun loadUI(jsonConfig: String) {
+        viewModelScope.launch {
+            jsonParser.parse(jsonConfig).fold(
+                onSuccess = { descriptor -> _uiDescriptor.value = descriptor },
+                onFailure = { error -> Log.e("MyViewModel", "Parse error", error) }
+            )
+        }
+    }
+}
+
+@Composable
+fun MyScreen(viewModel: MyViewModel = hiltViewModel()) {
+    val descriptor by viewModel.uiDescriptor.collectAsState()
+    
+    LaunchedEffect(Unit) {
+        viewModel.loadUI(jsonConfig)
+    }
+    
+    descriptor?.let {
+        // Renderizar con descriptor parseado
+        ComponentRenderer(descriptor = it)
+    }
 }
 ```
 
@@ -370,48 +406,222 @@ Ejemplos:
 
 ## 🏗️ Arquitectura
 
+FlexUI sigue una **Arquitectura Hexagonal** (Ports and Adapters) con **Inyección de Dependencias** usando Dagger Hilt.
+
+### Arquitectura Hexagonal
+
 ```
-┌─────────────────────────────────────────┐
-│         Client Application              │
-│  (MainActivity, ViewModels, etc.)       │
-└────────────────┬────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────────┐
-│         JsonRenderer API                │
-│  (Public Composable Function)           │
-└────────────┬───────────────┬────────────┘
-             │               │
-             ▼               ▼
-┌────────────────────┐  ┌──────────────────┐
-│ Interpretation     │  │ Visual           │
-│ Module             │  │ Components       │
-│                    │  │ Module           │
-│ • JsonParser       │  │                  │
-│ • ComponentMapper  │  │ • ComponentFactory│
-│ • ValidationEngine │  │ • Containers     │
-│                    │  │ • Atomic Comps   │
-└────────────────────┘  └──────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                 Client Application                   │
+│           (Activities, ViewModels, etc.)             │
+└──────────────────────┬──────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│              Public API (JsonParser)                 │
+│                  @Inject constructor                 │
+└──────────────────────┬──────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│         Application Layer (JsonParserFacade)         │
+│              Coordinates domain & infra              │
+└──────────────────────┬──────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────┐
+│            Domain Layer (Ports - Interfaces)         │
+│  ┌──────────────────────────────────────────────┐  │
+│  │ • ParseComponentPort                          │  │
+│  │ • ComponentTypeMapperPort                     │  │
+│  │ • ComponentParserStrategyPort                 │  │
+│  └──────────────────────────────────────────────┘  │
+│                       ▲                              │
+│                       │                              │
+│  ┌──────────────────────────────────────────────┐  │
+│  │ JsonParserService (Business Logic)            │  │
+│  └──────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
+                       ▲
+                       │
+┌─────────────────────────────────────────────────────┐
+│      Infrastructure Layer (Adapters - Implementations)│
+│  ┌──────────────────────────────────────────────┐  │
+│  │ • ComponentMapper                             │  │
+│  │ • LayoutParserStrategy                        │  │
+│  │ • AtomicParserStrategy                        │  │
+│  └──────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
 ```
 
-### Módulos Principales
+### Capas de la Arquitectura
 
-**Interpretation Module** (`parser/`)
-- Parseo de JSON con kotlinx.serialization
-- Validación de estructura y propiedades
-- Mapeo de tipos string a enums
-- Construcción del árbol de componentes
+#### 1. **Domain Layer** (Lógica de Negocio)
+- **Ports (Interfaces)**: Contratos que definen qué puede hacer el sistema
+- **Services**: Implementan la lógica de negocio
+- **Sin dependencias** de frameworks o librerías externas
 
-**Visual Components Module** (`components/`)
-- Renderizado de componentes Compose
-- Aplicación de estilos y propiedades
-- Manejo de estado interno
-- Emisión de eventos de interacción
+```kotlin
+// Port (Interface)
+interface ComponentTypeMapperPort {
+    fun mapType(typeString: String): ComponentType
+    fun isLayoutType(type: ComponentType): Boolean
+}
 
-**Event System** (`events/`)
-- Propagación de eventos de usuario
-- Callbacks type-safe
-- Ejecución en hilo principal
+// Service
+class JsonParserService @Inject constructor(
+    private val strategies: List<ComponentParserStrategyPort>,
+    private val componentTypeMapper: ComponentTypeMapperPort
+) : ParseComponentPort
+```
+
+#### 2. **Infrastructure Layer** (Detalles Técnicos)
+- **Adapters**: Implementaciones concretas de los ports
+- **Mappers**: Conversión de tipos
+- **Utilities**: Funciones auxiliares
+
+```kotlin
+// Adapter
+class ComponentMapper @Inject constructor() : ComponentTypeMapperPort {
+    override fun mapType(typeString: String): ComponentType {
+        return ComponentType.fromJsonKey(typeString)
+            ?: throw ComponentTypeNotFoundException(typeString)
+    }
+}
+```
+
+#### 3. **Application Layer** (Coordinación)
+- **Facades**: Coordinan domain e infrastructure
+- **Wiring**: Conectan las piezas
+
+```kotlin
+class JsonParserFacade @Inject constructor(
+    private val parserService: ParseComponentPort
+) {
+    suspend fun parse(jsonString: String): Result<ComponentDescriptor> {
+        return parserService.parse(jsonString)
+    }
+}
+```
+
+#### 4. **Public API** (Punto de Entrada)
+- **API simple** para consumidores
+- **Oculta complejidad** interna
+- **Soporta DI y uso manual**
+
+```kotlin
+class JsonParser @Inject constructor(
+    private val facade: JsonParserFacade
+) {
+    // Constructor secundario para uso sin DI
+    constructor() : this(/* default dependencies */)
+    
+    suspend fun parse(jsonString: String): Result<ComponentDescriptor> {
+        return facade.parse(jsonString)
+    }
+}
+```
+
+### Inyección de Dependencias con Hilt
+
+FlexUI usa **Dagger Hilt** para gestionar dependencias siguiendo el principio de **Dependency Inversion**:
+
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ParserModule {
+    
+    // Vincula interfaces a implementaciones
+    @Binds
+    @Singleton
+    abstract fun bindParseComponentPort(
+        service: JsonParserService
+    ): ParseComponentPort
+    
+    @Binds
+    @Singleton
+    abstract fun bindComponentTypeMapper(
+        mapper: ComponentMapper
+    ): ComponentTypeMapperPort
+    
+    companion object {
+        // Provee listas y objetos complejos
+        @Provides
+        @Singleton
+        fun provideParserStrategies(
+            layoutStrategy: LayoutParserStrategy,
+            atomicStrategy: AtomicParserStrategy
+        ): List<@JvmSuppressWildcards ComponentParserStrategyPort> {
+            return listOf(layoutStrategy, atomicStrategy)
+        }
+    }
+}
+```
+
+### Uso con Hilt en tu App
+
+#### 1. Configurar Hilt en tu aplicación
+
+```kotlin
+// En tu Application class
+@HiltAndroidApp
+class MyApplication : Application()
+
+// En tu build.gradle.kts
+plugins {
+    id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
+}
+
+dependencies {
+    implementation("com.google.dagger:hilt-android:2.51")
+    ksp("com.google.dagger:hilt-compiler:2.51")
+}
+```
+
+#### 2. Inyectar en ViewModels
+
+```kotlin
+@HiltViewModel
+class MyViewModel @Inject constructor(
+    private val jsonParser: JsonParser
+) : ViewModel() {
+    
+    fun loadUI(jsonConfig: String) {
+        viewModelScope.launch {
+            jsonParser.parse(jsonConfig).fold(
+                onSuccess = { descriptor -> _uiState.value = descriptor },
+                onFailure = { error -> _error.value = error }
+            )
+        }
+    }
+}
+```
+
+#### 3. Usar en Composables
+
+```kotlin
+@Composable
+fun MyScreen(
+    viewModel: MyViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    
+    JsonRenderer(
+        jsonString = uiState.jsonConfig,
+        onEvent = { event -> viewModel.handleEvent(event) }
+    )
+}
+```
+
+### Beneficios de esta Arquitectura
+
+✅ **Testabilidad**: Fácil mockear interfaces en tests  
+✅ **Mantenibilidad**: Cambios aislados por capa  
+✅ **Escalabilidad**: Agregar features sin modificar código existente  
+✅ **Flexibilidad**: Reemplazar implementaciones sin afectar dominio  
+✅ **SOLID**: Cumple todos los principios SOLID  
+✅ **Clean Code**: Separación clara de responsabilidades
 
 ## 🔧 Configuración Avanzada
 
@@ -445,28 +655,70 @@ JsonRenderer(jsonString = config) // Segunda vez: usa cache
 
 ## 🧪 Testing
 
-### Unit Tests
+### Unit Tests (Sin Hilt)
 
 ```kotlin
 class JsonParserTest {
     private val parser = JsonParser()
     
     @Test
-    fun `parse should return success when JSON is valid`() = runBlocking {
+    fun `parse should return success when JSON is valid`() = runTest {
+        // Given
         val validJson = """{"id": "test", "type": "componentButton", "text": "Click"}"""
+        
+        // When
         val result = parser.parse(validJson)
         
+        // Then
         assertTrue(result.isSuccess)
         assertEquals("test", result.getOrNull()?.id)
     }
     
     @Test
-    fun `parse should throw ComponentTypeNotFoundException for unknown type`() = runBlocking {
+    fun `parse should throw ComponentTypeNotFoundException for unknown type`() = runTest {
+        // Given
         val invalidJson = """{"id": "test", "type": "unknownType"}"""
+        
+        // When
         val result = parser.parse(invalidJson)
         
+        // Then
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is ComponentTypeNotFoundException)
+    }
+}
+```
+
+### Unit Tests con Mocks (Arquitectura Hexagonal)
+
+```kotlin
+class JsonParserServiceTest {
+    
+    @After
+    fun tearDown() {
+        unmockkAll()
+        clearAllMocks()
+    }
+    
+    @Test
+    fun `parse should delegate to appropriate strategy`() = runTest {
+        // Given
+        val mockMapper = mockk<ComponentTypeMapperPort>().apply {
+            every { mapType("componentButton") } returns ComponentType.COMPONENT_BUTTON
+        }
+        val mockStrategy = mockk<ComponentParserStrategyPort>().apply {
+            every { canParse(ComponentType.COMPONENT_BUTTON) } returns true
+            every { parse(any(), any(), any()) } returns mockDescriptor
+        }
+        val service = JsonParserService(listOf(mockStrategy), mockMapper)
+        
+        // When
+        val result = service.parse(validJson)
+        
+        // Then
+        assertTrue(result.isSuccess)
+        verify { mockMapper.mapType("componentButton") }
+        verify { mockStrategy.parse(any(), any(), any()) }
     }
 }
 ```
