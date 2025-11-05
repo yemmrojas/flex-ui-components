@@ -4,7 +4,7 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsNonEmptyList
 import javax.inject.Inject
 
 /**
@@ -29,8 +29,7 @@ class SelectValidator @Inject constructor() : ComponentValidatorStrategyPort {
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val atomic = descriptor as AtomicDescriptor
 
-        return ValidationUtils.validateNonEmptyList(
-            list = atomic.options,
+        return atomic.options.validateAsNonEmptyList(
             propertyName = "options",
             componentType = "componentSelect",
             componentId = atomic.id

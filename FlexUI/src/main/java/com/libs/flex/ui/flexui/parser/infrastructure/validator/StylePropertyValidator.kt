@@ -4,7 +4,9 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.parser.domain.model.ValidationConstants
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsEnum
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsHexColor
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsPositive
 import javax.inject.Inject
 
 /**
@@ -38,8 +40,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
         return buildList {
             // Validate textStyle
             atomic.textStyle?.let { style ->
-                ValidationUtils.validateEnum(
-                    value = style,
+                style.validateAsEnum(
                     validValues = ValidationConstants.VALID_TEXT_STYLES,
                     propertyName = "textStyle",
                     componentId = atomic.id
@@ -48,8 +49,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate inputStyle
             atomic.inputStyle?.let { style ->
-                ValidationUtils.validateEnum(
-                    value = style,
+                style.validateAsEnum(
                     validValues = ValidationConstants.VALID_INPUT_STYLES,
                     propertyName = "inputStyle",
                     componentId = atomic.id
@@ -58,8 +58,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate buttonStyle
             atomic.buttonStyle?.let { style ->
-                ValidationUtils.validateEnum(
-                    value = style,
+                style.validateAsEnum(
                     validValues = ValidationConstants.VALID_BUTTON_STYLES,
                     propertyName = "buttonStyle",
                     componentId = atomic.id
@@ -68,8 +67,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate contentScale
             atomic.contentScale?.let { scale ->
-                ValidationUtils.validateEnum(
-                    value = scale,
+                scale.validateAsEnum(
                     validValues = ValidationConstants.VALID_CONTENT_SCALES,
                     propertyName = "contentScale",
                     componentId = atomic.id
@@ -78,8 +76,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate loaderStyle
             atomic.loaderStyle?.let { style ->
-                ValidationUtils.validateEnum(
-                    value = style,
+                style.validateAsEnum(
                     validValues = ValidationConstants.VALID_LOADER_STYLES,
                     propertyName = "loaderStyle",
                     componentId = atomic.id
@@ -88,8 +85,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate fontSize
             atomic.fontSize?.let { size ->
-                ValidationUtils.validatePositive(
-                    value = size,
+                size.validateAsPositive(
                     propertyName = "fontSize",
                     componentId = atomic.id
                 )?.let { add(it) }
@@ -97,8 +93,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate maxLines
             atomic.maxLines?.let { lines ->
-                ValidationUtils.validatePositive(
-                    value = lines,
+                lines.validateAsPositive(
                     propertyName = "maxLines",
                     componentId = atomic.id
                 )?.let { add(it) }
@@ -106,8 +101,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate size
             atomic.size?.let { size ->
-                ValidationUtils.validatePositive(
-                    value = size,
+                size.validateAsPositive(
                     propertyName = "size",
                     componentId = atomic.id
                 )?.let { add(it) }
@@ -115,8 +109,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
 
             // Validate color
             atomic.color?.let { color ->
-                ValidationUtils.validateHexColor(
-                    color = color,
+                color.validateAsHexColor(
                     componentId = atomic.id
                 )?.let { add(it) }
             }

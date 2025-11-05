@@ -4,7 +4,8 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsMinInRange
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsRequired
 import javax.inject.Inject
 
 /**
@@ -32,16 +33,14 @@ class SliderCheckValidator @Inject constructor() : ComponentValidatorStrategyPor
 
         return buildList {
             // Validate min
-            ValidationUtils.validateRequired(
-                value = atomic.min,
+            atomic.min.validateAsRequired(
                 propertyName = "min",
                 componentType = "componentSliderCheck",
                 componentId = atomic.id
             )?.let { add(it) }
 
             // Validate max
-            ValidationUtils.validateRequired(
-                value = atomic.max,
+            atomic.max.validateAsRequired(
                 propertyName = "max",
                 componentType = "componentSliderCheck",
                 componentId = atomic.id
@@ -49,8 +48,7 @@ class SliderCheckValidator @Inject constructor() : ComponentValidatorStrategyPor
 
             // Validate range if both are present
             if (atomic.min != null && atomic.max != null) {
-                ValidationUtils.validateRange(
-                    min = atomic.min,
+                atomic.min.validateAsMinInRange(
                     max = atomic.max,
                     componentId = atomic.id
                 )?.let { add(it) }

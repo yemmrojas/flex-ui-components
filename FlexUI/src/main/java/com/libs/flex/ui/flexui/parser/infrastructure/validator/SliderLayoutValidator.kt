@@ -4,7 +4,7 @@ import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsNonEmptyList
 import javax.inject.Inject
 
 /**
@@ -32,8 +32,7 @@ class SliderLayoutValidator @Inject constructor() : ComponentValidatorStrategyPo
         return buildList {
             // Validate items
             addAll(
-                ValidationUtils.validateNonEmptyList(
-                    list = layout.items,
+                layout.items.validateAsNonEmptyList(
                     propertyName = "items",
                     componentType = "contentSlider",
                     componentId = layout.id

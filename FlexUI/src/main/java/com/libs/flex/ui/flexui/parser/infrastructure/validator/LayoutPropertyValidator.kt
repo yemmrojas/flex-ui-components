@@ -4,7 +4,7 @@ import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 import com.libs.flex.ui.flexui.parser.domain.model.ValidationConstants
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsEnum
 import javax.inject.Inject
 
 /**
@@ -33,8 +33,7 @@ class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategy
         return buildList {
             // Validate arrangement
             layout.arrangement?.let { arrangement ->
-                ValidationUtils.validateEnum(
-                    value = arrangement,
+                arrangement.validateAsEnum(
                     validValues = ValidationConstants.VALID_ARRANGEMENTS,
                     propertyName = "arrangement",
                     componentId = layout.id
@@ -43,8 +42,7 @@ class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategy
 
             // Validate alignment
             layout.alignment?.let { alignment ->
-                ValidationUtils.validateEnum(
-                    value = alignment,
+                alignment.validateAsEnum(
                     validValues = ValidationConstants.VALID_ALIGNMENTS,
                     propertyName = "alignment",
                     componentId = layout.id
@@ -53,8 +51,7 @@ class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategy
 
             // Validate scrollDirection
             layout.scrollDirection?.let { direction ->
-                ValidationUtils.validateEnum(
-                    value = direction,
+                direction.validateAsEnum(
                     validValues = ValidationConstants.VALID_SCROLL_DIRECTIONS,
                     propertyName = "scrollDirection",
                     componentId = layout.id
@@ -63,8 +60,7 @@ class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategy
 
             // Validate fabPosition
             layout.fabPosition?.let { position ->
-                ValidationUtils.validateEnum(
-                    value = position,
+                position.validateAsEnum(
                     validValues = ValidationConstants.VALID_FAB_POSITIONS,
                     propertyName = "fabPosition",
                     componentId = layout.id

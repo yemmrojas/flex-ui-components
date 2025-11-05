@@ -4,7 +4,7 @@ import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsNonEmptyList
 import javax.inject.Inject
 
 /**
@@ -27,8 +27,7 @@ class ListLayoutValidator @Inject constructor() : ComponentValidatorStrategyPort
 
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val layout = descriptor as LayoutDescriptor
-        return ValidationUtils.validateNonEmptyList(
-            list = layout.items,
+        return layout.items.validateAsNonEmptyList(
             propertyName = "items",
             componentType = "contentList",
             componentId = layout.id

@@ -4,7 +4,7 @@ import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsRequired
 import javax.inject.Inject
 
 /**
@@ -29,8 +29,7 @@ class FloatingButtonLayoutValidator @Inject constructor() : ComponentValidatorSt
         val layout = descriptor as LayoutDescriptor
 
         return buildList {
-            ValidationUtils.validateRequired(
-                value = layout.fabIcon,
+            layout.fabIcon.validateAsRequired(
                 propertyName = "fabIcon",
                 componentType = "contentWithFloatingButton",
                 componentId = layout.id

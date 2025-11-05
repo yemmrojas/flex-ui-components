@@ -4,7 +4,7 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.infrastructure.util.ValidationUtils
+import com.libs.flex.ui.flexui.parser.infrastructure.util.validateAsRequired
 import javax.inject.Inject
 
 /**
@@ -29,8 +29,7 @@ class ButtonValidator @Inject constructor() : ComponentValidatorStrategyPort {
         val atomic = descriptor as AtomicDescriptor
 
         return buildList {
-            ValidationUtils.validateRequired(
-                value = atomic.text,
+            atomic.text.validateAsRequired(
                 propertyName = "text",
                 componentType = "componentButton",
                 componentId = atomic.id
