@@ -21,15 +21,15 @@ import javax.inject.Inject
  * - min must be less than max
  */
 class SliderCheckValidator @Inject constructor() : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
-        return descriptor is AtomicDescriptor && 
-               descriptor.type == ComponentType.COMPONENT_SLIDER_CHECK
+        return descriptor is AtomicDescriptor &&
+                descriptor.type == ComponentType.COMPONENT_SLIDER_CHECK
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val atomic = descriptor as AtomicDescriptor
-        
+
         return buildList {
             // Validate min
             ValidationUtils.validateRequired(
@@ -38,7 +38,7 @@ class SliderCheckValidator @Inject constructor() : ComponentValidatorStrategyPor
                 componentType = "componentSliderCheck",
                 componentId = atomic.id
             )?.let { add(it) }
-            
+
             // Validate max
             ValidationUtils.validateRequired(
                 value = atomic.max,
@@ -46,7 +46,7 @@ class SliderCheckValidator @Inject constructor() : ComponentValidatorStrategyPor
                 componentType = "componentSliderCheck",
                 componentId = atomic.id
             )?.let { add(it) }
-            
+
             // Validate range if both are present
             if (atomic.min != null && atomic.max != null) {
                 ValidationUtils.validateRange(

@@ -51,7 +51,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class ParserModule {
-    
+
     /**
      * Binds JsonParserService to ParseComponentPort interface.
      *
@@ -62,7 +62,7 @@ abstract class ParserModule {
     abstract fun bindParseComponentPort(
         service: JsonParserService
     ): ParseComponentPort
-    
+
     /**
      * Binds ComponentMapper to ComponentTypeMapperPort interface.
      *
@@ -75,7 +75,7 @@ abstract class ParserModule {
     abstract fun bindComponentTypeMapper(
         mapper: ComponentMapper
     ): ComponentTypeMapperPort
-    
+
     /**
      * Binds ValidationEngine to ValidateComponentPort interface.
      *
@@ -87,7 +87,7 @@ abstract class ParserModule {
     abstract fun bindValidateComponentPort(
         engine: ValidationEngine
     ): ValidateComponentPort
-    
+
     companion object {
         /**
          * Provides a list of all available parser strategies.
@@ -104,7 +104,7 @@ abstract class ParserModule {
         ): List<@JvmSuppressWildcards ComponentParserStrategyPort> {
             return listOf(layoutStrategy, atomicStrategy)
         }
-        
+
         /**
          * Provides a list of all available validator strategies.
          *
@@ -126,18 +126,18 @@ abstract class ParserModule {
             listLayoutValidator: ListLayoutValidator,
             sliderLayoutValidator: SliderLayoutValidator,
             floatingButtonLayoutValidator: FloatingButtonLayoutValidator,
-            
+
             // Atomic component validators
             textViewValidator: TextViewValidator,
             buttonValidator: ButtonValidator,
             imageValidator: ImageValidator,
             selectValidator: SelectValidator,
             sliderCheckValidator: SliderCheckValidator,
-            
+
             // Property validators
             layoutPropertyValidator: LayoutPropertyValidator,
             stylePropertyValidator: StylePropertyValidator,
-            
+
             // Recursive validator
             recursiveChildrenValidator: RecursiveChildrenValidator
         ): List<@JvmSuppressWildcards ComponentValidatorStrategyPort> {
@@ -146,18 +146,18 @@ abstract class ParserModule {
                 listLayoutValidator,
                 sliderLayoutValidator,
                 floatingButtonLayoutValidator,
-                
+
                 // Atomic component validators
                 textViewValidator,
                 buttonValidator,
                 imageValidator,
                 selectValidator,
                 sliderCheckValidator,
-                
+
                 // Property validators
                 layoutPropertyValidator,
                 stylePropertyValidator,
-                
+
                 // Recursive validator (should be last to validate children after parent)
                 recursiveChildrenValidator
             )

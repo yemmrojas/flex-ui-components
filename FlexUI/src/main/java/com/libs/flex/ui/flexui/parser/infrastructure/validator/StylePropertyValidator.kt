@@ -27,14 +27,14 @@ import javax.inject.Inject
  * - color must be valid hex format if specified
  */
 class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
         return descriptor is AtomicDescriptor
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val atomic = descriptor as AtomicDescriptor
-        
+
         return buildList {
             // Validate textStyle
             atomic.textStyle?.let { style ->
@@ -45,7 +45,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate inputStyle
             atomic.inputStyle?.let { style ->
                 ValidationUtils.validateEnum(
@@ -55,7 +55,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate buttonStyle
             atomic.buttonStyle?.let { style ->
                 ValidationUtils.validateEnum(
@@ -65,7 +65,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate contentScale
             atomic.contentScale?.let { scale ->
                 ValidationUtils.validateEnum(
@@ -75,7 +75,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate loaderStyle
             atomic.loaderStyle?.let { style ->
                 ValidationUtils.validateEnum(
@@ -85,7 +85,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate fontSize
             atomic.fontSize?.let { size ->
                 ValidationUtils.validatePositive(
@@ -94,7 +94,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate maxLines
             atomic.maxLines?.let { lines ->
                 ValidationUtils.validatePositive(
@@ -103,7 +103,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate size
             atomic.size?.let { size ->
                 ValidationUtils.validatePositive(
@@ -112,7 +112,7 @@ class StylePropertyValidator @Inject constructor() : ComponentValidatorStrategyP
                     componentId = atomic.id
                 )?.let { add(it) }
             }
-            
+
             // Validate color
             atomic.color?.let { color ->
                 ValidationUtils.validateHexColor(

@@ -4,9 +4,7 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 import com.libs.flex.ui.flexui.model.SelectOption
-import com.libs.flex.ui.flexui.parser.domain.model.ValidationResult
 import com.libs.flex.ui.flexui.parser.domain.ports.ComponentValidatorStrategyPort
-import com.libs.flex.ui.flexui.parser.domain.ports.ValidateComponentPort
 import com.libs.flex.ui.flexui.parser.infrastructure.validator.ButtonValidator
 import com.libs.flex.ui.flexui.parser.infrastructure.validator.FloatingButtonLayoutValidator
 import com.libs.flex.ui.flexui.parser.infrastructure.validator.ImageValidator
@@ -19,7 +17,6 @@ import com.libs.flex.ui.flexui.parser.infrastructure.validator.SliderLayoutValid
 import com.libs.flex.ui.flexui.parser.infrastructure.validator.StylePropertyValidator
 import com.libs.flex.ui.flexui.parser.infrastructure.validator.TextViewValidator
 import io.mockk.clearAllMocks
-import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.After
@@ -661,7 +658,7 @@ class ValidationEngineTest {
     /**
      * Provides a ValidationEngine with all real validators.
      * This creates the complete validation pipeline as it would be in production.
-     * 
+     *
      * @param includeRecursive If true, includes RecursiveChildrenValidator for testing recursive validation
      */
     private fun provideValidationEngine(includeRecursive: Boolean = false): ValidationEngine {
@@ -672,7 +669,7 @@ class ValidationEngineTest {
     /**
      * Provides all validator strategies.
      * This mirrors the production configuration from ParserModule.
-     * 
+     *
      * @param includeRecursive If true, includes RecursiveChildrenValidator
      */
     private fun provideAllValidators(includeRecursive: Boolean = false): List<ComponentValidatorStrategyPort> {
@@ -681,19 +678,19 @@ class ValidationEngineTest {
             ListLayoutValidator(),
             SliderLayoutValidator(),
             FloatingButtonLayoutValidator(),
-            
+
             // Atomic component validators
             TextViewValidator(),
             ButtonValidator(),
             ImageValidator(),
             SelectValidator(),
             SliderCheckValidator(),
-            
+
             // Property validators
             LayoutPropertyValidator(),
             StylePropertyValidator()
         )
-        
+
         return if (includeRecursive) {
             // For recursive tests, we need to create a ValidationEngine and pass it to RecursiveChildrenValidator
             // This creates a circular dependency, so we create the engine first without recursive validator,

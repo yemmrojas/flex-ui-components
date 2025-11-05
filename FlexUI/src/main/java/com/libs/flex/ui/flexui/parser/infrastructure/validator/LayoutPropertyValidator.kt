@@ -22,14 +22,14 @@ import javax.inject.Inject
  * - fabPosition must be in valid set if specified
  */
 class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
         return descriptor is LayoutDescriptor
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val layout = descriptor as LayoutDescriptor
-        
+
         return buildList {
             // Validate arrangement
             layout.arrangement?.let { arrangement ->
@@ -40,7 +40,7 @@ class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategy
                     componentId = layout.id
                 )?.let { add(it) }
             }
-            
+
             // Validate alignment
             layout.alignment?.let { alignment ->
                 ValidationUtils.validateEnum(
@@ -50,7 +50,7 @@ class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategy
                     componentId = layout.id
                 )?.let { add(it) }
             }
-            
+
             // Validate scrollDirection
             layout.scrollDirection?.let { direction ->
                 ValidationUtils.validateEnum(
@@ -60,7 +60,7 @@ class LayoutPropertyValidator @Inject constructor() : ComponentValidatorStrategy
                     componentId = layout.id
                 )?.let { add(it) }
             }
-            
+
             // Validate fabPosition
             layout.fabPosition?.let { position ->
                 ValidationUtils.validateEnum(

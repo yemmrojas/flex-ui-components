@@ -19,15 +19,15 @@ import javax.inject.Inject
  * - Must have 'fabIcon' property
  */
 class FloatingButtonLayoutValidator @Inject constructor() : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
-        return descriptor is LayoutDescriptor && 
-               descriptor.type == ComponentType.CONTENT_WITH_FLOATING_BUTTON
+        return descriptor is LayoutDescriptor &&
+                descriptor.type == ComponentType.CONTENT_WITH_FLOATING_BUTTON
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val layout = descriptor as LayoutDescriptor
-        
+
         return buildList {
             ValidationUtils.validateRequired(
                 value = layout.fabIcon,

@@ -19,15 +19,15 @@ import javax.inject.Inject
  * - Must have 'imageUrl' property
  */
 class ImageValidator @Inject constructor() : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
-        return descriptor is AtomicDescriptor && 
-               descriptor.type == ComponentType.COMPONENT_IMAGE
+        return descriptor is AtomicDescriptor &&
+                descriptor.type == ComponentType.COMPONENT_IMAGE
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val atomic = descriptor as AtomicDescriptor
-        
+
         return buildList {
             ValidationUtils.validateRequired(
                 value = atomic.imageUrl,

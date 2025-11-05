@@ -20,15 +20,15 @@ import javax.inject.Inject
  * - Options list must not be empty
  */
 class SelectValidator @Inject constructor() : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
-        return descriptor is AtomicDescriptor && 
-               descriptor.type == ComponentType.COMPONENT_SELECT
+        return descriptor is AtomicDescriptor &&
+                descriptor.type == ComponentType.COMPONENT_SELECT
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val atomic = descriptor as AtomicDescriptor
-        
+
         return ValidationUtils.validateNonEmptyList(
             list = atomic.options,
             propertyName = "options",

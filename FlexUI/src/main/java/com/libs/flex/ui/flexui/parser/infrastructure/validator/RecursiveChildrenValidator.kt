@@ -21,14 +21,14 @@ import javax.inject.Inject
 class RecursiveChildrenValidator @Inject constructor(
     private val validateComponentPort: ValidateComponentPort
 ) : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
         return descriptor is LayoutDescriptor
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val layout = descriptor as LayoutDescriptor
-        
+
         return buildList {
             // Validate children recursively
             layout.children.forEach { child ->
@@ -37,7 +37,7 @@ class RecursiveChildrenValidator @Inject constructor(
                     addAll(childResult.errorList())
                 }
             }
-            
+
             // Validate itemTemplate recursively
             layout.itemTemplate?.let { template ->
                 val templateResult = validateComponentPort.validate(template)

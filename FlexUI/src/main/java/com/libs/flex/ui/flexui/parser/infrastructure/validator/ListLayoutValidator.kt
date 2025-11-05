@@ -20,11 +20,11 @@ import javax.inject.Inject
  * - Items array must not be empty
  */
 class ListLayoutValidator @Inject constructor() : ComponentValidatorStrategyPort {
-    
+
     override fun canValidate(descriptor: ComponentDescriptor): Boolean {
         return descriptor is LayoutDescriptor && descriptor.type == ComponentType.CONTENT_LIST
     }
-    
+
     override fun validate(descriptor: ComponentDescriptor): List<String> {
         val layout = descriptor as LayoutDescriptor
         return ValidationUtils.validateNonEmptyList(
