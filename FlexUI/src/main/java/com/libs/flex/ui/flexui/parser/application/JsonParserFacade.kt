@@ -1,11 +1,7 @@
 package com.libs.flex.ui.flexui.parser.application
 
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
-import com.libs.flex.ui.flexui.parser.domain.ports.ComponentParserStrategyPort
 import com.libs.flex.ui.flexui.parser.domain.ports.ParseComponentPort
-import com.libs.flex.ui.flexui.parser.domain.service.JsonParserService
-import com.libs.flex.ui.flexui.parser.infrastructure.adapter.AtomicParserStrategy
-import com.libs.flex.ui.flexui.parser.infrastructure.adapter.LayoutParserStrategy
 import javax.inject.Inject
 
 /**
