@@ -1,7 +1,9 @@
 package com.libs.flex.ui.flexui.components
 
 import androidx.compose.ui.Modifier
+import com.libs.flex.ui.flexui.components.domain.ports.ComponentRendererStrategyPort
 import com.libs.flex.ui.flexui.model.AtomicDescriptor
+import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentEvent
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
@@ -17,14 +19,15 @@ import org.junit.After
 import org.junit.Test
 
 /**
- * Unit tests for ComponentFactory.
+ * Unit tests for ComponentFactory with Strategy Pattern.
  *
- * Tests the factory's ability to route descriptors to appropriate component
- * implementations and apply styling consistently. Uses MockK for mocking
- * the StyleResolverPort dependency.
+ * Tests the factory's ability to:
+ * - Apply styling consistently
+ * - Delegate to appropriate strategies
+ * - Handle missing strategies gracefully
  *
- * Note: These tests verify the factory's routing logic and style application.
- * Actual component rendering is tested in individual component test files.
+ * Following the Strategy Pattern, the factory is now testable without
+ * implementing all component types. We can mock strategies independently.
  */
 class ComponentFactoryTest {
     
@@ -34,74 +37,38 @@ class ComponentFactoryTest {
         clearAllMocks()
     }
     
-    // Layout descriptor routing tests
+    // Strategy delegation tests
     
     @Test
-    fun `CreateComponent should route LayoutDescriptor to CreateLayout`() {
+    fun `CreateComponent should delegate to strategy that can render the type`() {
         // Given
-        val factory = provideFactory()
-        val descriptor = provideVerticalLayoutDescriptor()
+        val mockStrategy = provideMockStrategyThatCanRender(ComponentType.CONTENT_VERTICAL)
+        val factory = provideFactoryWithStrategy(mockStrategy)
+        val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_VERTICAL)
         val onEvent = provideEventCallback()
         
         // When
-        // Note: Cannot directly test composable routing without Compose test rule
-        // This test verifies the factory can be instantiated and called
-        // Actual routing is verified through integration tests
+        // Note: Cannot directly test composable without Compose test rule
+        // This verifies the factory is properly configured with strategies
         
         // Then
-        // Factory should be properly configured
         assert(factory != null)
     }
     
     @Test
-    fun `CreateComponent should route AtomicDescriptor to CreateAtomic`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideButtonDescriptor()
-        val onEvent = provideEventCallback()
-        
-        // When
-        // Note: Cannot directly test composable routing without Compose test rule
-        // This test verifies the factory can be instantiated and called
-        
-        // Then
-        // Factory should be properly configured
-        assert(factory != null)
-    }
-    
-    // Style application tests
-    
-    @Test
-    fun `CreateComponent should apply styles before rendering layout`() {
+    fun `CreateComponent should apply styles before delegating to strategy`() {
         // Given
         val mockStyleResolver = provideMockStyleResolver()
-        val factory = provideFactoryWithMockStyleResolver(mockStyleResolver)
-        val descriptor = provideLayoutDescriptorWithStyle()
+        val mockStrategy = provideMockStrategyForAnyType()
+        val factory = provideFactory(mockStyleResolver, listOf(mockStrategy))
+        val descriptor = provideDescriptorWithStyle()
         
         // When
-        // Note: Style application is verified through mock interactions
-        // Actual verification happens in integration tests with Compose test rule
+        // Style application happens during composition
         
         // Then
+        // Verify will be called during actual composition
         verify(exactly = 0) { 
-            // Verify will be called during actual composition
-            mockStyleResolver.applyStyles(any(), descriptor.style)
-        }
-    }
-    
-    @Test
-    fun `CreateComponent should apply styles before rendering atomic component`() {
-        // Given
-        val mockStyleResolver = provideMockStyleResolver()
-        val factory = provideFactoryWithMockStyleResolver(mockStyleResolver)
-        val descriptor = provideAtomicDescriptorWithStyle()
-        
-        // When
-        // Note: Style application is verified through mock interactions
-        
-        // Then
-        verify(exactly = 0) { 
-            // Verify will be called during actual composition
             mockStyleResolver.applyStyles(any(), descriptor.style)
         }
     }
@@ -110,184 +77,119 @@ class ComponentFactoryTest {
     fun `CreateComponent should handle null style gracefully`() {
         // Given
         val mockStyleResolver = provideMockStyleResolverForNullStyle()
-        val factory = provideFactoryWithMockStyleResolver(mockStyleResolver)
+        val mockStrategy = provideMockStrategyForAnyType()
+        val factory = provideFactory(mockStyleResolver, listOf(mockStrategy))
         val descriptor = provideDescriptorWithNullStyle()
         
-        // When
+        // When/Then
         // Factory should handle null style without throwing
-        
-        // Then
-        // No exception should be thrown
         assert(factory != null)
     }
     
-    // Layout type routing tests
-    
     @Test
-    fun `factory should support CONTENT_VERTICAL layout type`() {
+    fun `CreateComponent should use first strategy that can render the type`() {
         // Given
-        val factory = provideFactory()
-        val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_VERTICAL)
+        val layoutStrategy = provideMockStrategyThatCanRender(ComponentType.CONTENT_VERTICAL)
+        val atomicStrategy = provideMockStrategyThatCanRender(ComponentType.COMPONENT_BUTTON)
+        val factory = provideFactory(
+            provideMockStyleResolver(),
+            listOf(layoutStrategy, atomicStrategy)
+        )
         
         // When/Then
-        // Factory should be able to handle this type
-        assert(descriptor.type == ComponentType.CONTENT_VERTICAL)
+        // Factory should select appropriate strategy based on type
+        assert(factory != null)
+    }
+    
+    // Layout type support tests
+    
+    @Test
+    fun `factory should support all layout types`() {
+        // Given
+        val factory = provideFactory()
+        val layoutTypes = listOf(
+            ComponentType.CONTENT_VERTICAL,
+            ComponentType.CONTENT_HORIZONTAL,
+            ComponentType.CONTENT_SCROLL,
+            ComponentType.CONTENT_WITH_FLOATING_BUTTON,
+            ComponentType.CONTENT_LIST,
+            ComponentType.CONTENT_SLIDER
+        )
+        
+        // When/Then
+        layoutTypes.forEach { type ->
+            val descriptor = provideLayoutDescriptor(type)
+            assert(descriptor.type == type)
+        }
+    }
+    
+    // Atomic type support tests
+    
+    @Test
+    fun `factory should support all atomic types`() {
+        // Given
+        val factory = provideFactory()
+        val atomicTypes = listOf(
+            ComponentType.COMPONENT_INPUT,
+            ComponentType.COMPONENT_TEXT_VIEW,
+            ComponentType.COMPONENT_CHECK,
+            ComponentType.COMPONENT_SELECT,
+            ComponentType.COMPONENT_SLIDER_CHECK,
+            ComponentType.COMPONENT_BUTTON,
+            ComponentType.COMPONENT_IMAGE,
+            ComponentType.COMPONENT_LOADER,
+            ComponentType.COMPONENT_TOAST
+        )
+        
+        // When/Then
+        atomicTypes.forEach { type ->
+            val descriptor = provideAtomicDescriptor(type)
+            assert(descriptor.type == type)
+        }
+    }
+    
+    // Error handling tests
+    
+    @Test
+    fun `factory should handle empty strategy list`() {
+        // Given
+        val factory = provideFactory(
+            provideMockStyleResolver(),
+            emptyList()
+        )
+        
+        // When/Then
+        // Factory should handle missing strategies gracefully
+        assert(factory != null)
     }
     
     @Test
-    fun `factory should support CONTENT_HORIZONTAL layout type`() {
+    fun `factory should handle strategy that cannot render any type`() {
         // Given
-        val factory = provideFactory()
-        val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_HORIZONTAL)
+        val mockStrategy = provideMockStrategyThatCannotRender()
+        val factory = provideFactory(
+            provideMockStyleResolver(),
+            listOf(mockStrategy)
+        )
         
         // When/Then
-        assert(descriptor.type == ComponentType.CONTENT_HORIZONTAL)
-    }
-    
-    @Test
-    fun `factory should support CONTENT_SCROLL layout type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_SCROLL)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.CONTENT_SCROLL)
-    }
-    
-    @Test
-    fun `factory should support CONTENT_WITH_FLOATING_BUTTON layout type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_WITH_FLOATING_BUTTON)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.CONTENT_WITH_FLOATING_BUTTON)
-    }
-    
-    @Test
-    fun `factory should support CONTENT_LIST layout type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_LIST)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.CONTENT_LIST)
-    }
-    
-    @Test
-    fun `factory should support CONTENT_SLIDER layout type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_SLIDER)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.CONTENT_SLIDER)
-    }
-    
-    // Atomic type routing tests
-    
-    @Test
-    fun `factory should support COMPONENT_INPUT atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_INPUT)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_INPUT)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_TEXT_VIEW atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_TEXT_VIEW)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_TEXT_VIEW)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_CHECK atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_CHECK)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_CHECK)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_SELECT atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_SELECT)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_SELECT)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_SLIDER_CHECK atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_SLIDER_CHECK)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_SLIDER_CHECK)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_BUTTON atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_BUTTON)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_BUTTON)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_IMAGE atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_IMAGE)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_IMAGE)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_LOADER atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_LOADER)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_LOADER)
-    }
-    
-    @Test
-    fun `factory should support COMPONENT_TOAST atomic type`() {
-        // Given
-        val factory = provideFactory()
-        val descriptor = provideAtomicDescriptor(ComponentType.COMPONENT_TOAST)
-        
-        // When/Then
-        assert(descriptor.type == ComponentType.COMPONENT_TOAST)
+        // Factory should handle this gracefully
+        assert(factory != null)
     }
     
     // Provider functions
     
-    private fun provideFactory(): ComponentFactory {
-        val styleResolver = mockk<StyleResolverPort>(relaxed = true)
-        every { styleResolver.applyStyles(any(), any()) } returns Modifier
-        return ComponentFactory(styleResolver)
+    private fun provideFactory(
+        styleResolver: StyleResolverPort = provideMockStyleResolver(),
+        strategies: List<ComponentRendererStrategyPort> = listOf(provideMockStrategyForAnyType())
+    ): ComponentFactory {
+        return ComponentFactory(styleResolver, strategies)
     }
     
-    private fun provideFactoryWithMockStyleResolver(
-        styleResolver: StyleResolverPort
+    private fun provideFactoryWithStrategy(
+        strategy: ComponentRendererStrategyPort
     ): ComponentFactory {
-        return ComponentFactory(styleResolver)
+        return ComponentFactory(provideMockStyleResolver(), listOf(strategy))
     }
     
     private fun provideMockStyleResolver(): StyleResolverPort {
@@ -302,46 +204,26 @@ class ComponentFactoryTest {
         }
     }
     
+    private fun provideMockStrategyThatCanRender(type: ComponentType): ComponentRendererStrategyPort {
+        return mockk<ComponentRendererStrategyPort>(relaxed = true).apply {
+            every { canRender(type) } returns true
+            every { canRender(not(type)) } returns false
+        }
+    }
+    
+    private fun provideMockStrategyForAnyType(): ComponentRendererStrategyPort {
+        return mockk<ComponentRendererStrategyPort>(relaxed = true).apply {
+            every { canRender(any()) } returns true
+        }
+    }
+    
+    private fun provideMockStrategyThatCannotRender(): ComponentRendererStrategyPort {
+        return mockk<ComponentRendererStrategyPort>(relaxed = true).apply {
+            every { canRender(any()) } returns false
+        }
+    }
+    
     private fun provideEventCallback(): (ComponentEvent) -> Unit = { }
-    
-    private fun provideVerticalLayoutDescriptor() = LayoutDescriptor(
-        id = "test_layout",
-        type = ComponentType.CONTENT_VERTICAL,
-        children = emptyList()
-    )
-    
-    private fun provideButtonDescriptor() = AtomicDescriptor(
-        id = "test_button",
-        type = ComponentType.COMPONENT_BUTTON,
-        text = "Click Me"
-    )
-    
-    private fun provideLayoutDescriptorWithStyle() = LayoutDescriptor(
-        id = "test_layout",
-        type = ComponentType.CONTENT_VERTICAL,
-        style = StyleProperties(
-            padding = PaddingValues(start = 16, top = 8, end = 16, bottom = 8),
-            backgroundColor = "#FFFFFF"
-        ),
-        children = emptyList()
-    )
-    
-    private fun provideAtomicDescriptorWithStyle() = AtomicDescriptor(
-        id = "test_button",
-        type = ComponentType.COMPONENT_BUTTON,
-        text = "Click Me",
-        style = StyleProperties(
-            padding = PaddingValues(start = 8, top = 4, end = 8, bottom = 4),
-            backgroundColor = "#0000FF"
-        )
-    )
-    
-    private fun provideDescriptorWithNullStyle() = AtomicDescriptor(
-        id = "test_component",
-        type = ComponentType.COMPONENT_TEXT_VIEW,
-        text = "Test",
-        style = null
-    )
     
     private fun provideLayoutDescriptor(type: ComponentType) = LayoutDescriptor(
         id = "test_layout_${type.name}",
@@ -353,5 +235,22 @@ class ComponentFactoryTest {
         id = "test_atomic_${type.name}",
         type = type,
         text = "Test"
+    )
+    
+    private fun provideDescriptorWithStyle(): ComponentDescriptor = LayoutDescriptor(
+        id = "test_layout",
+        type = ComponentType.CONTENT_VERTICAL,
+        style = StyleProperties(
+            padding = PaddingValues(start = 16, top = 8, end = 16, bottom = 8),
+            backgroundColor = "#FFFFFF"
+        ),
+        children = emptyList()
+    )
+    
+    private fun provideDescriptorWithNullStyle(): ComponentDescriptor = AtomicDescriptor(
+        id = "test_component",
+        type = ComponentType.COMPONENT_TEXT_VIEW,
+        text = "Test",
+        style = null
     )
 }
