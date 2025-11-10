@@ -2,8 +2,15 @@ package com.libs.flex.ui.flexui.components.infrastructure.adapter
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.libs.flex.ui.flexui.components.ComponentFactory
 import com.libs.flex.ui.flexui.components.ErrorPlaceholder
 import com.libs.flex.ui.flexui.components.domain.ports.ComponentRendererStrategyPort
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.container.FloatingButtonContainer
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.container.HorizontalContainer
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.container.ListContainer
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.container.ScrollContainer
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.container.SliderContainer
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.container.VerticalContainer
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentEvent
 import com.libs.flex.ui.flexui.model.ComponentType
@@ -23,11 +30,14 @@ import javax.inject.Inject
  *
  * Following the Strategy Pattern, this class is responsible only for
  * routing layout descriptors to their appropriate implementations.
+ *
+ * @property componentFactory Factory for creating child components recursively
  */
-class LayoutRendererStrategy @Inject constructor() : ComponentRendererStrategyPort {
+class LayoutRendererStrategy @Inject constructor(
+    private val componentFactory: ComponentFactory
+) : ComponentRendererStrategyPort {
 
     override fun canRender(type: ComponentType): Boolean = type.isLayout
-
 
     @Composable
     override fun Render(
@@ -40,35 +50,23 @@ class LayoutRendererStrategy @Inject constructor() : ComponentRendererStrategyPo
         }
 
         when (descriptor.type) {
-            ComponentType.CONTENT_VERTICAL -> {
-                // TODO: Implement in task 9.1
-                ErrorPlaceholder("VerticalContainer not yet implemented", modifier)
-            }
+            ComponentType.CONTENT_VERTICAL ->
+                VerticalContainer(descriptor, onEvent, modifier, componentFactory)
 
-            ComponentType.CONTENT_HORIZONTAL -> {
-                // TODO: Implement in task 9.2
-                ErrorPlaceholder("HorizontalContainer not yet implemented", modifier)
-            }
+            ComponentType.CONTENT_HORIZONTAL ->
+                HorizontalContainer(descriptor, onEvent, modifier, componentFactory)
 
-            ComponentType.CONTENT_SCROLL -> {
-                // TODO: Implement in task 9.3
-                ErrorPlaceholder("ScrollContainer not yet implemented", modifier)
-            }
+            ComponentType.CONTENT_SCROLL ->
+                ScrollContainer(descriptor, onEvent, modifier, componentFactory)
 
-            ComponentType.CONTENT_WITH_FLOATING_BUTTON -> {
-                // TODO: Implement in task 9.4
-                ErrorPlaceholder("FloatingButtonContainer not yet implemented", modifier)
-            }
+            ComponentType.CONTENT_WITH_FLOATING_BUTTON ->
+                FloatingButtonContainer(descriptor, onEvent, modifier, componentFactory)
 
-            ComponentType.CONTENT_LIST -> {
-                // TODO: Implement in task 9.5
-                ErrorPlaceholder("ListContainer not yet implemented", modifier)
-            }
+            ComponentType.CONTENT_LIST ->
+                ListContainer(descriptor, onEvent, modifier, componentFactory)
 
-            ComponentType.CONTENT_SLIDER -> {
-                // TODO: Implement in task 9.6
-                ErrorPlaceholder("SliderContainer not yet implemented", modifier)
-            }
+            ComponentType.CONTENT_SLIDER ->
+                SliderContainer(descriptor, onEvent, modifier, componentFactory)
 
             else -> ErrorPlaceholder(MESSAGE_ERROR_PLACEHOLDER.format(descriptor.type), modifier)
         }

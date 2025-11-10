@@ -218,16 +218,91 @@ when (event) {
 
 - Use extension functions to add functionality to existing classes
 - Keep extension functions focused and cohesive
-- Place extension functions in appropriate files
+- Place extension functions in appropriate files (typically in `util/` packages)
+- **Avoid wrapping extension functions in objects or classes** - define them directly at the file level
+- Document extension functions with KDoc including `@receiver` parameter
+- Provide usage examples in documentation
+- Use extension functions to eliminate magic strings and centralize mapping logic
 
 ```kotlin
-// Good: Focused extension function
+// Good: Extension functions defined directly in file
+/**
+ * Converts a fabPosition string to FabPosition enum.
+ *
+ * Supported values:
+ * - "center": FabPosition.Center
+ * - "start": FabPosition.Start
+ * - "end": FabPosition.End (default)
+ *
+ * @receiver Nullable string representing the FAB position
+ * @return FabPosition enum value, defaults to End if string is null or unrecognized
+ *
+ * Example:
+ * ```
+ * "center".toFabPosition()  // Returns FabPosition.Center
+ * null.toFabPosition()      // Returns FabPosition.End (default)
+ * ```
+ */
+fun String?.toFabPosition(): FabPosition = when (this) {
+    "center" -> FabPosition.Center
+    "start" -> FabPosition.Start
+    "end" -> FabPosition.End
+    else -> FabPosition.End
+}
+
+/**
+ * Preprocesses a hex color string by trimming whitespace and removing # prefix.
+ *
+ * @receiver Raw hex color string (e.g., " #FF0000 ", "#F00", "FF0000")
+ * @return Preprocessed hex string without # prefix and whitespace
+ *
+ * Example:
+ * ```
+ * " #FF0000 ".preprocessHex() // Returns "FF0000"
+ * "#F00".preprocessHex()      // Returns "F00"
+ * ```
+ */
+fun String.preprocessHex(): String {
+    var hex = this.trim()
+    if (hex.startsWith("#")) {
+        hex = hex.substring(1)
+    }
+    return hex
+}
+
+// Good: Focused extension function for Modifier
 fun Modifier.applyStyleProperties(style: StyleProperties?): Modifier {
     if (style == null) return this
     return this
         .padding(style.padding?.toDp() ?: 0.dp)
         .background(style.backgroundColor?.toColor() ?: Color.Transparent)
 }
+
+// Avoid: Wrapping extension functions in objects
+object LayoutMappers {  // ❌ Don't do this
+    fun String?.toFabPosition(): FabPosition = ...
+}
+```
+
+#### Extension Functions Best Practices
+
+1. **File Organization**: Place related extension functions in dedicated files in `util/` packages
+2. **Naming**: Use descriptive names that clearly indicate the transformation (e.g., `toFabPosition`, `preprocessHex`)
+3. **Null Safety**: Support nullable receivers when appropriate (e.g., `String?.toFabPosition()`)
+4. **Default Values**: Always provide sensible defaults for invalid or null inputs
+5. **Documentation**: Include comprehensive KDoc with examples
+6. **Import Style**: Import extension functions directly, not through object qualifiers
+
+```kotlin
+// Good: Direct import
+import com.libs.flex.ui.flexui.components.infrastructure.util.toFabPosition
+
+descriptor.fabPosition.toFabPosition()
+
+// Avoid: Import through object
+import com.libs.flex.ui.flexui.components.infrastructure.util.LayoutMappers.toFabPosition
+
+descriptor.fabPosition.toFabPosition()
 ```
 
 ## Error Handling
