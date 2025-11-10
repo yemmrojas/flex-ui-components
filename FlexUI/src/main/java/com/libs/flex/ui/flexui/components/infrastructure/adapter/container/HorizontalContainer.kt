@@ -1,11 +1,11 @@
 package com.libs.flex.ui.flexui.components.infrastructure.adapter.container
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.libs.flex.ui.flexui.components.ComponentFactory
+import com.libs.flex.ui.flexui.components.infrastructure.util.toHorizontalArrangement
+import com.libs.flex.ui.flexui.components.infrastructure.util.toVerticalAlignment
 import com.libs.flex.ui.flexui.model.ComponentEvent
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 
@@ -42,27 +42,10 @@ fun HorizontalContainer(
     modifier: Modifier = Modifier,
     componentFactory: ComponentFactory
 ) {
-    val arrangement = when (descriptor.arrangement) {
-        "start" -> Arrangement.Start
-        "center" -> Arrangement.Center
-        "end" -> Arrangement.End
-        "spaceBetween" -> Arrangement.SpaceBetween
-        "spaceAround" -> Arrangement.SpaceAround
-        "spaceEvenly" -> Arrangement.SpaceEvenly
-        else -> Arrangement.Start
-    }
-
-    val alignment = when (descriptor.alignment) {
-        "top" -> Alignment.Top
-        "center" -> Alignment.CenterVertically
-        "bottom" -> Alignment.Bottom
-        else -> Alignment.CenterVertically
-    }
-
     Row(
         modifier = modifier,
-        horizontalArrangement = arrangement,
-        verticalAlignment = alignment
+        horizontalArrangement = descriptor.arrangement.toHorizontalArrangement(),
+        verticalAlignment = descriptor.alignment.toVerticalAlignment()
     ) {
         descriptor.children.forEach { child ->
             componentFactory.CreateComponent(

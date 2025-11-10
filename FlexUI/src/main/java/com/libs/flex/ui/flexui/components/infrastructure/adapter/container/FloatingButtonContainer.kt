@@ -2,7 +2,6 @@ package com.libs.flex.ui.flexui.components.infrastructure.adapter.container
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -12,6 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import com.libs.flex.ui.flexui.R
 import com.libs.flex.ui.flexui.components.ComponentFactory
+import com.libs.flex.ui.flexui.components.infrastructure.util.toFabPosition
 import com.libs.flex.ui.flexui.model.ComponentEvent
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 
@@ -42,13 +42,6 @@ fun FloatingButtonContainer(
     modifier: Modifier = Modifier,
     componentFactory: ComponentFactory
 ) {
-    val fabPosition = when (descriptor.fabPosition) {
-        "center" -> FabPosition.Center
-        "start" -> FabPosition.Start
-        "end" -> FabPosition.End
-        else -> FabPosition.End
-    }
-
     Scaffold(
         modifier = modifier,
         floatingActionButton = {
@@ -69,8 +62,8 @@ fun FloatingButtonContainer(
                 )
             }
         },
-        floatingActionButtonPosition = fabPosition
-    ) {  paddingValues ->
+        floatingActionButtonPosition = descriptor.fabPosition.toFabPosition()
+    ) { paddingValues ->
         // Render children in the content area
         descriptor.children.forEach { child ->
             componentFactory.CreateComponent(
