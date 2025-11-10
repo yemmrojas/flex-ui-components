@@ -109,8 +109,8 @@
   - Animate scroll to next page when autoPlay is enabled
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 20.2_
 
-- [ ] 10. Implement atomic components
-- [ ] 10.1 Create TextViewComponent composable
+- [x] 10. Implement atomic components
+- [x] 10.1 Create TextViewComponent composable
   - Render Text composable with text from descriptor
   - Map textStyle strings (bold, semiBold, italic, normal) to FontWeight and FontStyle
   - Apply fontSize in sp from descriptor
@@ -118,7 +118,7 @@
   - Apply maxLines with TextOverflow.Ellipsis when specified
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ] 10.2 Create InputComponent composable
+- [x] 10.2 Create InputComponent composable
   - Use remember and mutableStateOf for text input state
   - Render OutlinedTextField or TextField based on inputStyle
   - Display label and placeholder from descriptor
@@ -126,21 +126,21 @@
   - Apply enabled state from descriptor
   - _Requirements: 9.1, 9.2, 9.3, 9.5, 18.2, 18.4_
 
-- [ ] 10.3 Create ButtonComponent composable
+- [x] 10.3 Create ButtonComponent composable
   - Render Button or OutlinedButton based on buttonStyle (primary/secondary)
   - Display text from descriptor
   - Emit Click event with componentId and actionId when clicked
   - Apply enabled state from descriptor
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 18.2_
 
-- [ ] 10.4 Create CheckComponent composable
+- [x] 10.4 Create CheckComponent composable
   - Render Row with Checkbox and Text label
   - Use remember and mutableStateOf for checked state initialized from descriptor
   - Emit ValueChange event when checkbox state changes
   - Apply enabled state from descriptor
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 18.2_
 
-- [ ] 10.5 Create SelectComponent composable
+- [x] 10.5 Create SelectComponent composable
   - Render ExposedDropdownMenuBox with TextField and DropdownMenu
   - Use remember and mutableStateOf for expanded and selected value state
   - Populate DropdownMenuItem from options array
@@ -148,7 +148,7 @@
   - Emit Selection event with componentId and selectedValue when option is selected
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 18.2, 18.3_
 
-- [ ] 10.6 Create SliderCheckComponent composable
+- [x] 10.6 Create SliderCheckComponent composable
   - Render Column with Slider and Text showing current value
   - Use remember and mutableStateOf for slider value initialized from descriptor
   - Set valueRange from min and max properties
@@ -156,7 +156,7 @@
   - Display label from descriptor
   - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 18.2_
 
-- [ ] 10.7 Create ImageComponent composable
+- [x] 10.7 Create ImageComponent composable
   - Render AsyncImage from Coil library
   - Load image from imageUrl property
   - Map contentScale strings (fit, crop, fillWidth, fillHeight) to ContentScale
@@ -164,14 +164,14 @@
   - Display placeholder while loading and error image on failure
   - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 20.5_
 
-- [ ] 10.8 Create LoaderComponent composable
+- [x] 10.8 Create LoaderComponent composable
   - Render CircularProgressIndicator or LinearProgressIndicator based on loaderStyle
   - Apply color from descriptor if specified
   - Apply size to CircularProgressIndicator if specified
   - Ensure continuous animation
   - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
 
-- [ ] 10.9 Create ToastComponent composable
+- [x] 10.9 Create ToastComponent composable
   - Render Snackbar with message text
   - Map duration strings (short, long, indefinite) to SnackbarDuration
   - Apply success styling (green accent) when toastType is "success"
