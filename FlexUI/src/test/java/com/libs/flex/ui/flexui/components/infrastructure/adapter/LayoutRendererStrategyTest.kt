@@ -1,7 +1,9 @@
 package com.libs.flex.ui.flexui.components.infrastructure.adapter
 
+import com.libs.flex.ui.flexui.components.ComponentFactory
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
+import io.mockk.mockk
 import org.junit.Test
 
 /**
@@ -10,13 +12,13 @@ import org.junit.Test
  * Tests the strategy's ability to identify and handle layout component types.
  */
 class LayoutRendererStrategyTest {
-    
+
     @Test
     fun `canRender should return true for layout types`() {
         // Given
         val strategy = provideStrategy()
         val layoutTypes = provideAllLayoutTypes()
-        
+
         // When/Then
         layoutTypes.forEach { type ->
             assert(strategy.canRender(type)) {
@@ -24,13 +26,13 @@ class LayoutRendererStrategyTest {
             }
         }
     }
-    
+
     @Test
     fun `canRender should return false for atomic types`() {
         // Given
         val strategy = provideStrategy()
         val atomicTypes = provideAllAtomicTypes()
-        
+
         // When/Then
         atomicTypes.forEach { type ->
             assert(!strategy.canRender(type)) {
@@ -38,12 +40,12 @@ class LayoutRendererStrategyTest {
             }
         }
     }
-    
+
     @Test
     fun `canRender should use ComponentType isLayout property`() {
         // Given
         val strategy = provideStrategy()
-        
+
         // When/Then
         ComponentType.entries.forEach { type ->
             val result = strategy.canRender(type)
@@ -52,71 +54,73 @@ class LayoutRendererStrategyTest {
             }
         }
     }
-    
+
     @Test
     fun `strategy should handle CONTENT_VERTICAL type`() {
         // Given
         val strategy = provideStrategy()
         val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_VERTICAL)
-        
+
         // When/Then
         assert(strategy.canRender(descriptor.type))
     }
-    
+
     @Test
     fun `strategy should handle CONTENT_HORIZONTAL type`() {
         // Given
         val strategy = provideStrategy()
         val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_HORIZONTAL)
-        
+
         // When/Then
         assert(strategy.canRender(descriptor.type))
     }
-    
+
     @Test
     fun `strategy should handle CONTENT_SCROLL type`() {
         // Given
         val strategy = provideStrategy()
         val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_SCROLL)
-        
+
         // When/Then
         assert(strategy.canRender(descriptor.type))
     }
-    
+
     @Test
     fun `strategy should handle CONTENT_WITH_FLOATING_BUTTON type`() {
         // Given
         val strategy = provideStrategy()
         val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_WITH_FLOATING_BUTTON)
-        
+
         // When/Then
         assert(strategy.canRender(descriptor.type))
     }
-    
+
     @Test
     fun `strategy should handle CONTENT_LIST type`() {
         // Given
         val strategy = provideStrategy()
         val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_LIST)
-        
+
         // When/Then
         assert(strategy.canRender(descriptor.type))
     }
-    
+
     @Test
     fun `strategy should handle CONTENT_SLIDER type`() {
         // Given
         val strategy = provideStrategy()
         val descriptor = provideLayoutDescriptor(ComponentType.CONTENT_SLIDER)
-        
+
         // When/Then
         assert(strategy.canRender(descriptor.type))
     }
-    
+
     // Provider functions
-    
-    private fun provideStrategy() = LayoutRendererStrategy()
-    
+
+    private fun provideStrategy() = LayoutRendererStrategy(
+        componentFactory = mockk<ComponentFactory>(relaxed = true)
+    )
+
     private fun provideAllLayoutTypes() = listOf(
         ComponentType.CONTENT_VERTICAL,
         ComponentType.CONTENT_HORIZONTAL,
@@ -125,7 +129,7 @@ class LayoutRendererStrategyTest {
         ComponentType.CONTENT_LIST,
         ComponentType.CONTENT_SLIDER
     )
-    
+
     private fun provideAllAtomicTypes() = listOf(
         ComponentType.COMPONENT_INPUT,
         ComponentType.COMPONENT_TEXT_VIEW,
@@ -137,7 +141,7 @@ class LayoutRendererStrategyTest {
         ComponentType.COMPONENT_LOADER,
         ComponentType.COMPONENT_TOAST
     )
-    
+
     private fun provideLayoutDescriptor(type: ComponentType) = LayoutDescriptor(
         id = "test_layout_${type.name}",
         type = type,
