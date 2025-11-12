@@ -4,6 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.libs.flex.ui.flexui.components.ErrorPlaceholder
 import com.libs.flex.ui.flexui.components.domain.ports.ComponentRendererStrategyPort
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.ButtonComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.CheckComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.ImageComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.InputComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.LoaderComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.SelectComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.SliderCheckComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.TextViewComponent
+import com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic.ToastComponent
 import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentDescriptor
 import com.libs.flex.ui.flexui.model.ComponentEvent
@@ -42,50 +51,32 @@ class AtomicRendererStrategy @Inject constructor() : ComponentRendererStrategyPo
         }
 
         when (descriptor.type) {
-            ComponentType.COMPONENT_INPUT -> {
-                // TODO: Implement in task 10.2
-                ErrorPlaceholder("InputComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_INPUT ->
+                InputComponent(descriptor, onEvent, modifier)
 
-            ComponentType.COMPONENT_TEXT_VIEW -> {
-                // TODO: Implement in task 10.1
-                ErrorPlaceholder("TextViewComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_TEXT_VIEW ->
+                TextViewComponent(descriptor, modifier)
 
-            ComponentType.COMPONENT_CHECK -> {
-                // TODO: Implement in task 10.4
-                ErrorPlaceholder("CheckComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_CHECK ->
+                CheckComponent(descriptor, onEvent, modifier)
 
-            ComponentType.COMPONENT_SELECT -> {
-                // TODO: Implement in task 10.5
-                ErrorPlaceholder("SelectComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_SELECT ->
+                SelectComponent(descriptor, onEvent, modifier)
 
-            ComponentType.COMPONENT_SLIDER_CHECK -> {
-                // TODO: Implement in task 10.6
-                ErrorPlaceholder("SliderCheckComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_SLIDER_CHECK ->
+                SliderCheckComponent(descriptor, onEvent, modifier)
 
-            ComponentType.COMPONENT_BUTTON -> {
-                // TODO: Implement in task 10.3
-                ErrorPlaceholder("ButtonComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_BUTTON ->
+                ButtonComponent(descriptor, onEvent, modifier)
 
-            ComponentType.COMPONENT_IMAGE -> {
-                // TODO: Implement in task 10.7
-                ErrorPlaceholder("ImageComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_IMAGE ->
+                ImageComponent(descriptor, modifier)
 
-            ComponentType.COMPONENT_LOADER -> {
-                // TODO: Implement in task 10.8
-                ErrorPlaceholder("LoaderComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_LOADER ->
+                LoaderComponent(descriptor, modifier)
 
-            ComponentType.COMPONENT_TOAST -> {
-                // TODO: Implement in task 10.9
-                ErrorPlaceholder("ToastComponent not yet implemented", modifier)
-            }
+            ComponentType.COMPONENT_TOAST ->
+                ToastComponent(descriptor, modifier)
 
             else -> ErrorPlaceholder(MESSAGE_ERROR_PLACEHOLDER.format(descriptor.type), modifier)
         }

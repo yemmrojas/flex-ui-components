@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Required for loading images from URLs using Coil in ImageComponent -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
 </manifest>

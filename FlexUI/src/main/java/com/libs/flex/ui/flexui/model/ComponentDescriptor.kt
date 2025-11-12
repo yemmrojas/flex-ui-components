@@ -76,6 +76,8 @@ data class LayoutDescriptor(
  * @property size Size dimension for loader components
  * @property actionId Action identifier for click events
  * @property validation Validation rules for input components
+ * @property toastType Toast type variant (e.g., "success", "error")
+ * @property duration Toast duration (e.g., "short", "long", "indefinite")
  */
 @Serializable
 data class AtomicDescriptor(
@@ -102,5 +104,7 @@ data class AtomicDescriptor(
     val loaderStyle: String? = null,
     val size: Int? = null,
     val actionId: String? = null,
-    val validation: ValidationRules? = null
+    val validation: ValidationRules? = null,
+    val toastType: String? = null,
+    val duration: String? = null
 ) : ComponentDescriptor()
