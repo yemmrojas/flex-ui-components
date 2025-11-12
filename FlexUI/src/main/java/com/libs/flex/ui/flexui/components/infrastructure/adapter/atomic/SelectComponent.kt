@@ -17,16 +17,13 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentEvent
 
 /**
- * Renders a dropdown select component from an AtomicDescriptor.
+ * Renders a dropdown select component.
  *
- * Supports:
- * - ExposedDropdownMenuBox with TextField and DropdownMenu
- * - Expanded and selected value state management
- * - Options population from descriptor.options array
- * - Selected value or placeholder text display
- * - Selection event emission with componentId and selectedValue
+ * This composable creates an ExposedDropdownMenuBox with a text field and
+ * dropdown menu populated from the options array. The selected value is
+ * managed internally and emits Selection events when changed.
  *
- * @param descriptor The atomic descriptor containing select properties
+ * @param descriptor Atomic descriptor containing options and placeholder
  * @param onEvent Callback invoked when an option is selected
  * @param modifier Modifier to be applied to the ExposedDropdownMenuBox
  *
@@ -72,12 +69,7 @@ fun SelectComponent(
                     onClick = {
                         selectedValue = option.value
                         expanded = false
-                        onEvent(
-                            ComponentEvent.Selection(
-                                descriptor.id,
-                                selectedValue = option.value
-                            )
-                        )
+                        onEvent(ComponentEvent.Selection(descriptor.id, selectedValue = option.value))
                     }
                 )
             }

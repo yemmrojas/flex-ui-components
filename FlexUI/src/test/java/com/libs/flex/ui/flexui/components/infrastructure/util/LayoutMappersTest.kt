@@ -3,7 +3,7 @@ package com.libs.flex.ui.flexui.components.infrastructure.util
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.Alignment
-import com.libs.flex.ui.flexui.components.domain.model.LayoutEnum
+import com.libs.flex.ui.flexui.components.domain.model.FexUILayoutOrientation
 import org.junit.Test
 
 /**
@@ -17,7 +17,7 @@ class LayoutMappersTest {
     @Test
     fun `toFabPosition should map center to FabPosition Center`() {
         // Given
-        val position = LayoutEnum.CENTER.value
+        val position = FexUILayoutOrientation.CENTER.value
 
         // When
         val result = position.toFabPosition()
@@ -29,7 +29,7 @@ class LayoutMappersTest {
     @Test
     fun `toFabPosition should map start to FabPosition Start`() {
         // Given
-        val position = LayoutEnum.START.value
+        val position = FexUILayoutOrientation.START.value
 
         // When
         val result = position.toFabPosition()
@@ -41,7 +41,7 @@ class LayoutMappersTest {
     @Test
     fun `toFabPosition should map end to FabPosition End`() {
         // Given
-        val position = LayoutEnum.END.value
+        val position = FexUILayoutOrientation.END.value
 
         // When
         val result = position.toFabPosition()
@@ -77,7 +77,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalArrangement should map top to Arrangement Top`() {
         // Given
-        val arrangement = LayoutEnum.TOP.value
+        val arrangement = FexUILayoutOrientation.TOP.value
 
         // When
         val result = arrangement.toVerticalArrangement()
@@ -89,7 +89,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalArrangement should map center to Arrangement Center`() {
         // Given
-        val arrangement = LayoutEnum.CENTER.value
+        val arrangement = FexUILayoutOrientation.CENTER.value
 
         // When
         val result = arrangement.toVerticalArrangement()
@@ -101,7 +101,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalArrangement should map bottom to Arrangement Bottom`() {
         // Given
-        val arrangement = LayoutEnum.BOTTOM.value
+        val arrangement = FexUILayoutOrientation.BOTTOM.value
 
         // When
         val result = arrangement.toVerticalArrangement()
@@ -113,7 +113,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalArrangement should map spaceBetween to Arrangement SpaceBetween`() {
         // Given
-        val arrangement = LayoutEnum.SPACE_BETWEEN.value
+        val arrangement = FexUILayoutOrientation.SPACE_BETWEEN.value
 
         // When
         val result = arrangement.toVerticalArrangement()
@@ -125,7 +125,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalArrangement should map spaceAround to Arrangement SpaceAround`() {
         // Given
-        val arrangement = LayoutEnum.SPACE_AROUND.value
+        val arrangement = FexUILayoutOrientation.SPACE_AROUND.value
 
         // When
         val result = arrangement.toVerticalArrangement()
@@ -137,7 +137,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalArrangement should map spaceEvenly to Arrangement SpaceEvenly`() {
         // Given
-        val arrangement = LayoutEnum.SPACE_EVENLY.value
+        val arrangement = FexUILayoutOrientation.SPACE_EVENLY.value
 
         // When
         val result = arrangement.toVerticalArrangement()
@@ -161,7 +161,7 @@ class LayoutMappersTest {
     @Test
     fun `toHorizontalArrangement should map start to Arrangement Start`() {
         // Given
-        val arrangement = LayoutEnum.START.value
+        val arrangement = FexUILayoutOrientation.START.value
 
         // When
         val result = arrangement.toHorizontalArrangement()
@@ -173,7 +173,7 @@ class LayoutMappersTest {
     @Test
     fun `toHorizontalArrangement should map center to Arrangement Center`() {
         // Given
-        val arrangement = LayoutEnum.CENTER.value
+        val arrangement = FexUILayoutOrientation.CENTER.value
 
         // When
         val result = arrangement.toHorizontalArrangement()
@@ -185,7 +185,7 @@ class LayoutMappersTest {
     @Test
     fun `toHorizontalArrangement should map end to Arrangement End`() {
         // Given
-        val arrangement = LayoutEnum.END.value
+        val arrangement = FexUILayoutOrientation.END.value
 
         // When
         val result = arrangement.toHorizontalArrangement()
@@ -209,7 +209,7 @@ class LayoutMappersTest {
     @Test
     fun `toHorizontalAlignment should map start to Alignment Start`() {
         // Given
-        val alignment = LayoutEnum.START.value
+        val alignment = FexUILayoutOrientation.START.value
 
         // When
         val result = alignment.toHorizontalAlignment()
@@ -221,7 +221,7 @@ class LayoutMappersTest {
     @Test
     fun `toHorizontalAlignment should map center to Alignment CenterHorizontally`() {
         // Given
-        val alignment = LayoutEnum.CENTER.value
+        val alignment = FexUILayoutOrientation.CENTER.value
 
         // When
         val result = alignment.toHorizontalAlignment()
@@ -233,7 +233,7 @@ class LayoutMappersTest {
     @Test
     fun `toHorizontalAlignment should map end to Alignment End`() {
         // Given
-        val alignment = LayoutEnum.END.value
+        val alignment = FexUILayoutOrientation.END.value
 
         // When
         val result = alignment.toHorizontalAlignment()
@@ -257,7 +257,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalAlignment should map top to Alignment Top`() {
         // Given
-        val alignment = LayoutEnum.TOP.value
+        val alignment = FexUILayoutOrientation.TOP.value
 
         // When
         val result = alignment.toVerticalAlignment()
@@ -269,7 +269,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalAlignment should map center to Alignment CenterVertically`() {
         // Given
-        val alignment = LayoutEnum.CENTER.value
+        val alignment = FexUILayoutOrientation.CENTER.value
 
         // When
         val result = alignment.toVerticalAlignment()
@@ -281,7 +281,7 @@ class LayoutMappersTest {
     @Test
     fun `toVerticalAlignment should map bottom to Alignment Bottom`() {
         // Given
-        val alignment = LayoutEnum.BOTTOM.value
+        val alignment = FexUILayoutOrientation.BOTTOM.value
 
         // When
         val result = alignment.toVerticalAlignment()

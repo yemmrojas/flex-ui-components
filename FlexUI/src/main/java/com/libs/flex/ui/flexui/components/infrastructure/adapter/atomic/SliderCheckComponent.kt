@@ -15,16 +15,13 @@ import com.libs.flex.ui.flexui.model.ComponentEvent
 import kotlinx.serialization.json.jsonPrimitive
 
 /**
- * Renders a slider component with label and current value display from an AtomicDescriptor.
+ * Renders a slider component with label and value display.
  *
- * Supports:
- * - Column layout with Slider and Text showing current value
- * - Slider value state management with remember and mutableStateOf
- * - Value range from min and max properties
- * - ValueChange event emission when slider value changes
- * - Label display from descriptor
+ * This composable creates a Column containing a label, slider control, and
+ * current value display. The slider value is managed internally and emits
+ * ValueChange events when adjusted.
  *
- * @param descriptor The atomic descriptor containing slider properties
+ * @param descriptor Atomic descriptor containing slider range and initial value
  * @param onEvent Callback invoked when slider value changes
  * @param modifier Modifier to be applied to the Column
  *
@@ -42,9 +39,6 @@ fun SliderCheckComponent(
 
     var sliderValue by remember { mutableFloatStateOf(initialValue) }
 
-    val minValue = descriptor.min ?: 0f
-    val maxValue = descriptor.max ?: 100f
-
     Column(modifier = modifier) {
         descriptor.label?.let { label ->
             Text(text = label)
@@ -56,7 +50,7 @@ fun SliderCheckComponent(
                 sliderValue = newValue
                 onEvent(ComponentEvent.ValueChange(descriptor.id, value = newValue))
             },
-            valueRange = minValue..maxValue,
+            valueRange = (descriptor.min ?: 0f)..(descriptor.max ?: 100f),
             modifier = Modifier.fillMaxWidth()
         )
 

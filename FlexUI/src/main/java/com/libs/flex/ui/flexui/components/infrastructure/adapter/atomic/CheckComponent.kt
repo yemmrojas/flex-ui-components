@@ -17,15 +17,13 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentEvent
 
 /**
- * Renders a checkbox component with label from an AtomicDescriptor.
+ * Renders a checkbox component with label.
  *
- * Supports:
- * - Row layout with Checkbox and Text label
- * - Checked state management with remember and mutableStateOf
- * - ValueChange event emission when checkbox state changes
- * - Enabled/disabled state
+ * This composable creates a Row containing a Checkbox and Text label.
+ * The checked state is managed internally and emits ValueChange events
+ * when the checkbox state changes.
  *
- * @param descriptor The atomic descriptor containing checkbox properties
+ * @param descriptor Atomic descriptor containing checkbox properties
  * @param onEvent Callback invoked when checkbox state changes
  * @param modifier Modifier to be applied to the Row
  *

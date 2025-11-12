@@ -3,7 +3,7 @@ package com.libs.flex.ui.flexui.components.infrastructure.util
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.Alignment
-import com.libs.flex.ui.flexui.components.domain.model.LayoutEnum
+import com.libs.flex.ui.flexui.components.domain.model.FexUILayoutOrientation
 
 /**
  * Converts a fabPosition string to FabPosition enum.
@@ -24,9 +24,9 @@ import com.libs.flex.ui.flexui.components.domain.model.LayoutEnum
  * ```
  */
 fun String?.toFabPosition(): FabPosition = when (this) {
-    LayoutEnum.CENTER.value -> FabPosition.Center
-    LayoutEnum.START.value -> FabPosition.Start
-    LayoutEnum.END.value -> FabPosition.End
+    FexUILayoutOrientation.CENTER.value -> FabPosition.Center
+    FexUILayoutOrientation.START.value -> FabPosition.Start
+    FexUILayoutOrientation.END.value -> FabPosition.End
     else -> FabPosition.End
 }
 
@@ -51,14 +51,17 @@ fun String?.toFabPosition(): FabPosition = when (this) {
  * null.toVerticalArrangement()           // Returns Arrangement.Top (default)
  * ```
  */
-fun String?.toVerticalArrangement(): Arrangement.Vertical = when (this) {
-    LayoutEnum.TOP.value -> Arrangement.Top
-    LayoutEnum.CENTER.value -> Arrangement.Center
-    LayoutEnum.BOTTOM.value -> Arrangement.Bottom
-    LayoutEnum.SPACE_BETWEEN.value -> Arrangement.SpaceBetween
-    LayoutEnum.SPACE_AROUND.value -> Arrangement.SpaceAround
-    LayoutEnum.SPACE_EVENLY.value -> Arrangement.SpaceEvenly
-    else -> Arrangement.Top
+fun String?.toVerticalArrangement(): Arrangement.Vertical {
+    val layoutOrientation = getLayoutOrientation(this)
+    return when (layoutOrientation) {
+        FexUILayoutOrientation.TOP -> Arrangement.Top
+        FexUILayoutOrientation.CENTER -> Arrangement.Center
+        FexUILayoutOrientation.BOTTOM -> Arrangement.Bottom
+        FexUILayoutOrientation.SPACE_BETWEEN -> Arrangement.SpaceBetween
+        FexUILayoutOrientation.SPACE_AROUND -> Arrangement.SpaceAround
+        FexUILayoutOrientation.SPACE_EVENLY -> Arrangement.SpaceEvenly
+        else -> Arrangement.Top
+    }
 }
 
 /**
@@ -82,14 +85,17 @@ fun String?.toVerticalArrangement(): Arrangement.Vertical = when (this) {
  * null.toHorizontalArrangement()           // Returns Arrangement.Start (default)
  * ```
  */
-fun String?.toHorizontalArrangement(): Arrangement.Horizontal = when (this) {
-    LayoutEnum.START.value -> Arrangement.Start
-    LayoutEnum.CENTER.value -> Arrangement.Center
-    LayoutEnum.END.value -> Arrangement.End
-    LayoutEnum.SPACE_BETWEEN.value -> Arrangement.SpaceBetween
-    LayoutEnum.SPACE_AROUND.value -> Arrangement.SpaceAround
-    LayoutEnum.SPACE_EVENLY.value -> Arrangement.SpaceEvenly
-    else -> Arrangement.Start
+fun String?.toHorizontalArrangement(): Arrangement.Horizontal {
+    val layoutOrientation = getLayoutOrientation(this)
+    return when (layoutOrientation) {
+        FexUILayoutOrientation.START -> Arrangement.Start
+        FexUILayoutOrientation.CENTER -> Arrangement.Center
+        FexUILayoutOrientation.END -> Arrangement.End
+        FexUILayoutOrientation.SPACE_BETWEEN -> Arrangement.SpaceBetween
+        FexUILayoutOrientation.SPACE_AROUND -> Arrangement.SpaceAround
+        FexUILayoutOrientation.SPACE_EVENLY -> Arrangement.SpaceEvenly
+        else -> Arrangement.Start
+    }
 }
 
 /**
@@ -110,11 +116,14 @@ fun String?.toHorizontalArrangement(): Arrangement.Horizontal = when (this) {
  * null.toHorizontalAlignment()      // Returns Alignment.Start (default)
  * ```
  */
-fun String?.toHorizontalAlignment(): Alignment.Horizontal = when (this) {
-    LayoutEnum.START.value -> Alignment.Start
-    LayoutEnum.CENTER.value -> Alignment.CenterHorizontally
-    LayoutEnum.END.value -> Alignment.End
-    else -> Alignment.Start
+fun String?.toHorizontalAlignment(): Alignment.Horizontal {
+    val layoutOrientation = getLayoutOrientation(this)
+    return when (layoutOrientation) {
+        FexUILayoutOrientation.START -> Alignment.Start
+        FexUILayoutOrientation.CENTER -> Alignment.CenterHorizontally
+        FexUILayoutOrientation.END -> Alignment.End
+        else -> Alignment.Start
+    }
 }
 
 /**
@@ -135,9 +144,16 @@ fun String?.toHorizontalAlignment(): Alignment.Horizontal = when (this) {
  * null.toVerticalAlignment()      // Returns Alignment.CenterVertically (default)
  * ```
  */
-fun String?.toVerticalAlignment(): Alignment.Vertical = when (this) {
-    LayoutEnum.TOP.value -> Alignment.Top
-    LayoutEnum.CENTER.value -> Alignment.CenterVertically
-    LayoutEnum.BOTTOM.value -> Alignment.Bottom
-    else -> Alignment.CenterVertically
+fun String?.toVerticalAlignment(): Alignment.Vertical {
+    val layoutOrientation = getLayoutOrientation(this)
+    return when (layoutOrientation) {
+        FexUILayoutOrientation.TOP -> Alignment.Top
+        FexUILayoutOrientation.CENTER -> Alignment.CenterVertically
+        FexUILayoutOrientation.BOTTOM -> Alignment.Bottom
+        else -> Alignment.CenterVertically
+    }
+}
+
+private fun getLayoutOrientation(value: String?): FexUILayoutOrientation {
+    return FexUILayoutOrientation.fromValue(value)
 }

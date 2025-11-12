@@ -9,15 +9,16 @@ import com.libs.flex.ui.flexui.model.AtomicDescriptor
 import com.libs.flex.ui.flexui.model.ComponentEvent
 
 /**
- * Renders a button component from an AtomicDescriptor.
+ * Renders a button component.
  *
- * Supports:
- * - Button or OutlinedButton based on buttonStyle (primary/secondary)
- * - Text display from descriptor
- * - Click event emission with componentId and actionId
- * - Enabled/disabled state
+ * This composable creates a button that emits Click events when pressed.
+ * Supports both primary (filled) and secondary (outlined) button styles.
  *
- * @param descriptor The atomic descriptor containing button properties
+ * Supported buttonStyle values:
+ * - "secondary": OutlinedButton with border
+ * - "primary" or any other value: Standard filled Button (default)
+ *
+ * @param descriptor Atomic descriptor containing button properties
  * @param onEvent Callback invoked when button is clicked
  * @param modifier Modifier to be applied to the Button
  *
