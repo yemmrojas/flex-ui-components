@@ -14,16 +14,17 @@ import com.libs.flex.ui.flexui.model.ComponentEvent
 import kotlinx.serialization.json.jsonPrimitive
 
 /**
- * Renders a text input field component from an AtomicDescriptor.
+ * Renders a text input field component.
  *
- * Supports:
- * - Text input state management with remember and mutableStateOf
- * - OutlinedTextField or TextField based on inputStyle
- * - Label and placeholder text
- * - ValueChange event emission on text change
- * - Enabled/disabled state
+ * This composable creates a text input field with state management,
+ * supporting both outlined and filled styles. It emits ValueChange events
+ * when the text changes.
  *
- * @param descriptor The atomic descriptor containing input properties
+ * Supported inputStyle values:
+ * - "outlined": OutlinedTextField with border
+ * - Any other value: Standard TextField (default)
+ *
+ * @param descriptor Atomic descriptor containing input properties
  * @param onEvent Callback invoked when input value changes
  * @param modifier Modifier to be applied to the TextField
  *
