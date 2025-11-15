@@ -1,0 +1,270 @@
+{
+  "id": "complex_screen",
+  "type": "contentScroll",
+  "style": {
+    "backgroundColor": "#FAFAFA"
+  },
+  "children": [
+    {
+      "id": "hero_section",
+      "type": "contentVertical",
+      "arrangement": "center",
+      "alignment": "center",
+      "style": {
+        "padding": {
+          "start": 16,
+          "top": 32,
+          "end": 16,
+          "bottom": 32
+        },
+        "backgroundColor": "#1976D2"
+      },
+      "children": [
+        {
+          "id": "hero_title",
+          "type": "componentTextView",
+          "text": "Welcome to FlexUI",
+          "textStyle": "bold",
+          "fontSize": 28,
+          "color": "#FFFFFF",
+          "style": {
+            "padding": {
+              "bottom": 8
+            }
+          }
+        },
+        {
+          "id": "hero_subtitle",
+          "type": "componentTextView",
+          "text": "Build dynamic UIs from JSON",
+          "textStyle": "normal",
+          "fontSize": 16,
+          "color": "#E3F2FD"
+        }
+      ]
+    },
+    {
+      "id": "features_section",
+      "type": "contentVertical",
+      "arrangement": "top",
+      "style": {
+        "padding": {
+          "start": 16,
+          "top": 24,
+          "end": 16,
+          "bottom": 16
+        }
+      },
+      "children": [
+        {
+          "id": "features_title",
+          "type": "componentTextView",
+          "text": "Key Features",
+          "textStyle": "bold",
+          "fontSize": 20,
+          "color": "#212121",
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
+        },
+        {
+          "id": "feature_cards",
+          "type": "contentVertical",
+          "arrangement": "top",
+          "children": [
+            {
+              "id": "feature_1",
+              "type": "contentHorizontal",
+              "arrangement": "start",
+              "style": {
+                "padding": {
+                  "start": 12,
+                  "top": 12,
+                  "end": 12,
+                  "bottom": 12
+                },
+                "backgroundColor": "#FFFFFF",
+                "borderRadius": 8,
+                "elevation": 2
+              },
+              "children": [
+                {
+                  "id": "feature_1_icon",
+                  "type": "componentTextView",
+                  "text": "✓",
+                  "textStyle": "bold",
+                  "fontSize": 24,
+                  "color": "#4CAF50",
+                  "style": {
+                    "padding": {
+                      "end": 12
+                    }
+                  }
+                },
+                {
+                  "id": "feature_1_text",
+                  "type": "componentTextView",
+                  "text": "Dynamic component rendering",
+                  "fontSize": 16,
+                  "color": "#424242"
+                }
+              ]
+            },
+            {
+              "id": "spacer_1",
+              "type": "componentTextView",
+              "text": "",
+              "style": {
+                "height": "12dp"
+              }
+            },
+            {
+              "id": "feature_2",
+              "type": "contentHorizontal",
+              "arrangement": "start",
+              "style": {
+                "padding": {
+                  "start": 12,
+                  "top": 12,
+                  "end": 12,
+                  "bottom": 12
+                },
+                "backgroundColor": "#FFFFFF",
+                "borderRadius": 8,
+                "elevation": 2
+              },
+              "children": [
+                {
+                  "id": "feature_2_icon",
+                  "type": "componentTextView",
+                  "text": "✓",
+                  "textStyle": "bold",
+                  "fontSize": 24,
+                  "color": "#4CAF50",
+                  "style": {
+                    "padding": {
+                      "end": 12
+                    }
+                  }
+                },
+                {
+                  "id": "feature_2_text",
+                  "type": "componentTextView",
+                  "text": "Event handling system",
+                  "fontSize": 16,
+                  "color": "#424242"
+                }
+              ]
+            },
+            {
+              "id": "spacer_2",
+              "type": "componentTextView",
+              "text": "",
+              "style": {
+                "height": "12dp"
+              }
+            },
+            {
+              "id": "feature_3",
+              "type": "contentHorizontal",
+              "arrangement": "start",
+              "style": {
+                "padding": {
+                  "start": 12,
+                  "top": 12,
+                  "end": 12,
+                  "bottom": 12
+                },
+                "backgroundColor": "#FFFFFF",
+                "borderRadius": 8,
+                "elevation": 2
+              },
+              "children": [
+                {
+                  "id": "feature_3_icon",
+                  "type": "componentTextView",
+                  "text": "✓",
+                  "textStyle": "bold",
+                  "fontSize": 24,
+                  "color": "#4CAF50",
+                  "style": {
+                    "padding": {
+                      "end": 12
+                    }
+                  }
+                },
+                {
+                  "id": "feature_3_text",
+                  "type": "componentTextView",
+                  "text": "Flexible styling options",
+                  "fontSize": 16,
+                  "color": "#424242"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "demo_section",
+      "type": "contentVertical",
+      "arrangement": "top",
+      "style": {
+        "padding": {
+          "start": 16,
+          "top": 24,
+          "end": 16,
+          "bottom": 24
+        }
+      },
+      "children": [
+        {
+          "id": "demo_title",
+          "type": "componentTextView",
+          "text": "Try It Out",
+          "textStyle": "bold",
+          "fontSize": 20,
+          "color": "#212121",
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
+        },
+        {
+          "id": "demo_input",
+          "type": "componentInput",
+          "label": "Your Name",
+          "placeholder": "Enter your name",
+          "inputStyle": "outlined",
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
+        },
+        {
+          "id": "demo_check",
+          "type": "componentCheck",
+          "label": "I agree to the terms",
+          "checked": false,
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
+        },
+        {
+          "id": "demo_button",
+          "type": "componentButton",
+          "text": "Get Started",
+          "buttonStyle": "primary",
+          "actionId": "get_started"
+        }
+      ]
+    }
+  ]
+}

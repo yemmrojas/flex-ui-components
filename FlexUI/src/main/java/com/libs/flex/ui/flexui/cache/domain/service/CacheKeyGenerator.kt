@@ -1,6 +1,8 @@
 package com.libs.flex.ui.flexui.cache.domain.service
 
 import java.security.MessageDigest
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Service responsible for generating cache keys from JSON strings.
@@ -9,7 +11,8 @@ import java.security.MessageDigest
  * MD5 is chosen for its speed and sufficient uniqueness for cache keys.
  * Collision probability is negligible for this use case.
  */
-class CacheKeyGenerator {
+@Singleton
+class CacheKeyGenerator @Inject constructor() {
     /**
      * Generates an MD5 hash key from a JSON string.
      *

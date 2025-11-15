@@ -1,0 +1,55 @@
+{
+  "id": "slider_screen",
+  "type": "contentVertical",
+  "arrangement": "top",
+  "children": [
+    {
+      "id": "slider_header",
+      "type": "componentTextView",
+      "text": "Image Slider Demo",
+      "textStyle": "bold",
+      "fontSize": 22,
+      "color": "#D32F2F",
+      "style": {
+        "padding": {
+          "start": 16,
+          "top": 16,
+          "end": 16,
+          "bottom": 16
+        }
+      }
+    },
+    {
+      "id": "image_slider",
+      "type": "contentSlider",
+      "autoPlay": true,
+      "autoPlayInterval": 3000,
+      "items": [
+        "https://picsum.photos/800/400?random=1",
+        "https://picsum.photos/800/400?random=2",
+        "https://picsum.photos/800/400?random=3",
+        "https://picsum.photos/800/400?random=4"
+      ],
+      "style": {
+        "height": "250dp"
+      }
+    },
+    {
+      "id": "slider_description",
+      "type": "componentTextView",
+      "text": "Swipe left or right to navigate. Auto-play enabled with 3 second intervals.",
+      "textStyle": "normal",
+      "fontSize": 14,
+      "color": "#666666",
+      "maxLines": 2,
+      "style": {
+        "padding": {
+          "start": 16,
+          "top": 16,
+          "end": 16,
+          "bottom": 16
+        }
+      }
+    }
+  ]
+}

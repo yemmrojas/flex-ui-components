@@ -16,6 +16,7 @@ import com.libs.flex.ui.flexui.model.ComponentEvent
 import com.libs.flex.ui.flexui.model.ComponentType
 import com.libs.flex.ui.flexui.model.LayoutDescriptor
 import javax.inject.Inject
+import javax.inject.Provider
 
 /**
  * Strategy for rendering layout container components.
@@ -31,10 +32,12 @@ import javax.inject.Inject
  * Following the Strategy Pattern, this class is responsible only for
  * routing layout descriptors to their appropriate implementations.
  *
- * @property componentFactory Factory for creating child components recursively
+ * Uses Provider to break circular dependency with ComponentFactory.
+ *
+ * @property componentFactoryProvider Provider for ComponentFactory to render children
  */
 class LayoutRendererStrategy @Inject constructor(
-    private val componentFactory: ComponentFactory
+    private val componentFactoryProvider: Provider<ComponentFactory>
 ) : ComponentRendererStrategyPort {
 
     override fun canRender(type: ComponentType): Boolean = type.isLayout
@@ -48,6 +51,8 @@ class LayoutRendererStrategy @Inject constructor(
         require(descriptor is LayoutDescriptor) {
             MESSAGE_ERROR_LAYOUT.format(descriptor::class.simpleName)
         }
+
+        val componentFactory = componentFactoryProvider.get()
 
         when (descriptor.type) {
             ComponentType.CONTENT_VERTICAL ->
