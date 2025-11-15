@@ -185,7 +185,7 @@
   - Store parsed ComponentDescriptor in memory cache
   - _Requirements: 20.4_
 
-- [ ] 12. Create main JsonRenderer composable API
+- [x] 12. Create main JsonRenderer composable API
   - Implement JsonRenderer composable function with jsonString, onEvent, modifier, and errorContent parameters
   - Use remember for ComponentCache instance
   - Calculate JSON hash with remember(jsonString)
