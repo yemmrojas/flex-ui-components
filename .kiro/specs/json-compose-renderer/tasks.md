@@ -197,7 +197,7 @@
   - Render ComponentFactory.CreateComponent on success
   - _Requirements: 1.2, 1.3, 1.4, 19.1, 19.2, 20.1, 20.4_
 
-- [ ] 13. Create demo app integration
+- [x] 13. Create demo app integration
   - Create sample JSON file in app/src/main/assets with complex UI hierarchy
   - Update MainActivity to use JsonRenderer composable
   - Implement onEvent callback to handle Click, ValueChange, and Selection events

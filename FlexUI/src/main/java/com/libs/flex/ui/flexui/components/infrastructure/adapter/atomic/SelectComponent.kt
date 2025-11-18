@@ -1,5 +1,6 @@
 package com.libs.flex.ui.flexui.components.infrastructure.adapter.atomic
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -56,7 +57,9 @@ fun SelectComponent(
             readOnly = true,
             label = descriptor.label?.let { { Text(it) } },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
         )
 
         ExposedDropdownMenu(
@@ -69,7 +72,12 @@ fun SelectComponent(
                     onClick = {
                         selectedValue = option.value
                         expanded = false
-                        onEvent(ComponentEvent.Selection(descriptor.id, selectedValue = option.value))
+                        onEvent(
+                            ComponentEvent.Selection(
+                                descriptor.id,
+                                selectedValue = option.value
+                            )
+                        )
                     }
                 )
             }

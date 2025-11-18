@@ -14,11 +14,11 @@ import javax.inject.Singleton
  *
  * Thread-safe implementation using synchronized blocks.
  *
- * @param maxSize Maximum number of entries to store (default: 50)
+ * @param maxSize Maximum number of entries to store
  */
 @Singleton
 class InMemoryComponentCache @Inject constructor(
-    private val maxSize: Int = DEFAULT_MAX_SIZE
+    private val maxSize: Int
 ) : ComponentCachePort {
 
     private val cache = object : LinkedHashMap<String, CacheEntry>(
@@ -63,7 +63,6 @@ class InMemoryComponentCache @Inject constructor(
     }
 
     companion object {
-        private const val DEFAULT_MAX_SIZE = 50
         private const val LOAD_FACTOR = 0.75f
     }
 }

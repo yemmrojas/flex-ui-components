@@ -117,9 +117,12 @@ class LayoutRendererStrategyTest {
 
     // Provider functions
 
-    private fun provideStrategy() = LayoutRendererStrategy(
-        componentFactory = mockk<ComponentFactory>(relaxed = true)
-    )
+    private fun provideStrategy(): LayoutRendererStrategy {
+        val mockFactory = mockk<ComponentFactory>(relaxed = true)
+        val mockProvider = mockk<javax.inject.Provider<ComponentFactory>>()
+        io.mockk.every { mockProvider.get() } returns mockFactory
+        return LayoutRendererStrategy(mockProvider)
+    }
 
     private fun provideAllLayoutTypes() = listOf(
         ComponentType.CONTENT_VERTICAL,

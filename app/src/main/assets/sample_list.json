@@ -1,0 +1,92 @@
+{
+  "id": "list_screen",
+  "type": "contentVertical",
+  "arrangement": "top",
+  "style": {
+    "padding": {
+      "start": 16,
+      "top": 16,
+      "end": 16,
+      "bottom": 16
+    }
+  },
+  "children": [
+    {
+      "id": "list_header",
+      "type": "componentTextView",
+      "text": "Product List Demo",
+      "textStyle": "bold",
+      "fontSize": 22,
+      "color": "#2E7D32",
+      "style": {
+        "padding": {
+          "bottom": 16
+        }
+      }
+    },
+    {
+      "id": "product_list",
+      "type": "contentList",
+      "items": [
+        {
+          "id": "1",
+          "name": "Laptop",
+          "price": "$999"
+        },
+        {
+          "id": "2",
+          "name": "Smartphone",
+          "price": "$699"
+        },
+        {
+          "id": "3",
+          "name": "Tablet",
+          "price": "$499"
+        },
+        {
+          "id": "4",
+          "name": "Headphones",
+          "price": "$199"
+        },
+        {
+          "id": "5",
+          "name": "Smartwatch",
+          "price": "$299"
+        }
+      ],
+      "itemTemplate": {
+        "id": "list_item",
+        "type": "contentHorizontal",
+        "arrangement": "spaceBetween",
+        "style": {
+          "padding": {
+            "start": 8,
+            "top": 12,
+            "end": 8,
+            "bottom": 12
+          },
+          "backgroundColor": "#FFFFFF",
+          "borderRadius": 8
+        },
+        "children": [
+          {
+            "id": "item_name",
+            "type": "componentTextView",
+            "text": "{{name}}",
+            "textStyle": "semiBold",
+            "fontSize": 16,
+            "color": "#000000"
+          },
+          {
+            "id": "item_price",
+            "type": "componentTextView",
+            "text": "{{price}}",
+            "textStyle": "normal",
+            "fontSize": 16,
+            "color": "#1976D2"
+          }
+        ]
+      }
+    }
+  ]
+}

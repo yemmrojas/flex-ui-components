@@ -1,6 +1,8 @@
 package com.libs.flex.ui.flexui.styling.domain.service
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -79,12 +81,17 @@ class StyleResolverService @Inject constructor(
 
         // Apply width using injected dimension parser
         style.width?.let { width ->
-            result = result.width(dimensionParser.parse(width))
+            result = when (width) {
+                "match_parent" -> result.fillMaxWidth()
+                else -> result.width(dimensionParser.parse(width))
+            }
         }
 
-        // Apply height using injected dimension parser
         style.height?.let { height ->
-            result = result.height(dimensionParser.parse(height))
+            result = when (height) {
+                "match_parent" -> result.fillMaxSize()
+                else -> result.height(dimensionParser.parse(height))
+            }
         }
 
         // Apply border radius (must be before shadow for proper clipping)
