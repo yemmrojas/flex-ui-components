@@ -28,6 +28,7 @@ data class PaddingValues(
  * @property elevation Shadow elevation in dp
  * @property width Width dimension (e.g., "100dp", "match_parent", "wrap_content")
  * @property height Height dimension (e.g., "100dp", "match_parent", "wrap_content")
+ * @property weight Weight for proportional sizing in Row/Column layouts (accepts Int or Float)
  */
 @Serializable
 data class StyleProperties(
@@ -37,5 +38,6 @@ data class StyleProperties(
     val borderRadius: Int? = null,
     val elevation: Int? = null,
     val width: String? = null,
-    val height: String? = null
+    val height: String? = null,
+    val weight: Int? = null
 )

@@ -17,7 +17,8 @@
           "end": 16,
           "bottom": 32
         },
-        "backgroundColor": "#1976D2"
+        "backgroundColor": "#1976D2",
+        "width": "match_parent"
       },
       "children": [
         {
@@ -29,7 +30,8 @@
           "color": "#FFFFFF",
           "style": {
             "padding": {
-              "bottom": 8
+              "bottom": 8,
+              "top": 16
             }
           }
         },
@@ -39,7 +41,12 @@
           "text": "Build dynamic UIs from JSON",
           "textStyle": "normal",
           "fontSize": 16,
-          "color": "#E3F2FD"
+          "color": "#E3F2FD",
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
         }
       ]
     },
@@ -86,8 +93,7 @@
                   "bottom": 12
                 },
                 "backgroundColor": "#FFFFFF",
-                "borderRadius": 8,
-                "elevation": 2
+                "borderRadius": 8
               },
               "children": [
                 {
@@ -178,8 +184,7 @@
                   "bottom": 12
                 },
                 "backgroundColor": "#FFFFFF",
-                "borderRadius": 8,
-                "elevation": 2
+                "borderRadius": 8
               },
               "children": [
                 {
@@ -243,7 +248,8 @@
           "style": {
             "padding": {
               "bottom": 16
-            }
+            },
+            "width": "match_parent"
           }
         },
         {
@@ -262,7 +268,10 @@
           "type": "componentButton",
           "text": "Get Started",
           "buttonStyle": "primary",
-          "actionId": "get_started"
+          "actionId": "get_started",
+            "style": {
+                "width": "match_parent"
+            }
         }
       ]
     }

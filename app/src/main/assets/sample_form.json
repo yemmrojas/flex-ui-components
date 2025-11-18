@@ -47,7 +47,8 @@
           "style": {
             "padding": {
               "bottom": 16
-            }
+            },
+            "width": "match_parent"
           }
         },
         {
@@ -59,7 +60,8 @@
           "style": {
             "padding": {
               "bottom": 16
-            }
+            },
+            "width": "match_parent"
           }
         },
         {
@@ -81,11 +83,26 @@
           "label": "Country",
           "placeholder": "Select your country",
           "options": [
-            {"label": "United States", "value": "us"},
-            {"label": "Canada", "value": "ca"},
-            {"label": "Mexico", "value": "mx"},
-            {"label": "United Kingdom", "value": "uk"},
-            {"label": "Germany", "value": "de"}
+            {
+              "label": "United States",
+              "value": "us"
+            },
+            {
+              "label": "Canada",
+              "value": "ca"
+            },
+            {
+              "label": "Mexico",
+              "value": "mx"
+            },
+            {
+              "label": "United Kingdom",
+              "value": "uk"
+            },
+            {
+              "label": "Germany",
+              "value": "de"
+            }
           ],
           "style": {
             "padding": {
@@ -107,21 +124,33 @@
         {
           "id": "buttons_container",
           "type": "contentHorizontal",
-          "arrangement": "spaceEvenly",
+          "arrangement": "spaceBetween",
+          "style": {
+            "width": "match_parent"
+          },
           "children": [
             {
               "id": "cancel_button",
               "type": "componentButton",
               "text": "Cancel",
               "buttonStyle": "secondary",
-              "actionId": "cancel_action"
+              "actionId": "cancel_action",
+              "style": {
+                "weight": 1,
+                "padding": {
+                  "end": 8
+                }
+              }
             },
             {
               "id": "submit_button",
               "type": "componentButton",
               "text": "Submit",
               "buttonStyle": "primary",
-              "actionId": "submit_action"
+              "actionId": "submit_action",
+              "style": {
+                "weight": 1
+              }
             }
           ]
         }
