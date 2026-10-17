@@ -36,13 +36,13 @@ class ValidationRulesTest {
 
         @Test
         fun `empty selection fails`() {
-            val result = rule.validate(FieldValue.Selection(emptySet()))
+            val result = rule.validate(FieldValue.Selection(emptyList()))
             assertTrue(result.isLeft)
         }
 
         @Test
         fun `non-empty selection passes`() {
-            val result = rule.validate(FieldValue.Selection(setOf(1)))
+            val result = rule.validate(FieldValue.Selection(listOf(1)))
             assertTrue(result.isRight)
         }
 
@@ -55,7 +55,13 @@ class ValidationRulesTest {
 
     @Nested
     inner class MinLengthRuleTests {
-        private val rule = MinLengthRule(min = 3)
+        private val rule = MinLengthRule.of(min = 3).getOrNull()!!
+
+        @Test
+        fun `invalid min length fails creation`() {
+            val invalid = MinLengthRule.of(min = -1)
+            assertTrue(invalid.isLeft)
+        }
 
         @Test
         fun `null value passes (optional if not required)`() {
@@ -113,7 +119,13 @@ class ValidationRulesTest {
 
     @Nested
     inner class RegexRuleTests {
-        private val rule = RegexRule(pattern = "^[0-9]+$")
+        private val rule = RegexRule.of(pattern = "^[0-9]+$").getOrNull()!!
+
+        @Test
+        fun `invalid regex pattern fails creation`() {
+            val invalid = RegexRule.of(pattern = "[unclosed")
+            assertTrue(invalid.isLeft)
+        }
 
         @Test
         fun `null value passes`() {

@@ -1,9 +1,10 @@
 package com.libs.flex.ui.core.domain.validation
 
+import com.libs.flex.ui.core.domain.error.DomainError
 import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.value.FieldValue
 
-public data class MinLengthRule(
+public class MinLengthRule private constructor(
     public val min: Int,
     public val customMessage: String? = null
 ) : ValidationRule {
@@ -22,5 +23,14 @@ public data class MinLengthRule(
         }
 
         else -> Either.Left(ValidationError.InvalidType("Text"))
+    }
+
+    public companion object {
+        public fun of(
+            min: Int,
+            customMessage: String? = null
+        ): Either<DomainError.Value.InvalidValidationRule, MinLengthRule> =
+            if (min >= 0) Either.Right(MinLengthRule(min, customMessage))
+            else Either.Left(DomainError.Value.InvalidValidationRule("min length must be >= 0"))
     }
 }

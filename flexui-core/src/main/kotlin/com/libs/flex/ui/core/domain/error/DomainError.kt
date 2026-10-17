@@ -1,9 +1,11 @@
 package com.libs.flex.ui.core.domain.error
 
 import com.libs.flex.ui.core.domain.value.ComponentId
+import com.libs.flex.ui.core.domain.value.NodeKey
 import com.libs.flex.ui.core.domain.value.SessionId
 
 public sealed interface DomainError {
+
     public sealed interface Structural : DomainError {
         public data class DuplicateComponentId(public val id: ComponentId) : Structural
         public data class MaxNestingDepthExceeded(public val id: ComponentId, public val depth: Int) : Structural
@@ -17,6 +19,7 @@ public sealed interface DomainError {
         public data class InvalidIdentifier(public val raw: String) : Value
         public data class InvalidNumberRange(public val reason: String) : Value
         public data class InvalidDimension(public val reason: String) : Value
+        public data class InvalidValidationRule(public val reason: String) : Value
         public data class InvalidRegexPattern(public val pattern: String, public val reason: String) : Value
         public data class ValueTypeMismatch(public val expected: String, public val actual: String) : Value
         public data class InvalidOptionSelected(public val value: String) : Value
@@ -25,7 +28,7 @@ public sealed interface DomainError {
     }
 
     public sealed interface Interaction : DomainError {
-        public data class SessionNotFound(public val sessionId: SessionId) : Interaction
+        public data class SessionNotFound(public val id: SessionId) : Interaction
         public data class ComponentNotFound(public val id: ComponentId) : Interaction
         public data class ComponentNotInputCapable(public val id: ComponentId) : Interaction
         public data class ComponentNotInteractive(public val id: ComponentId) : Interaction

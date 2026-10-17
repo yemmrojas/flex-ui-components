@@ -1,13 +1,14 @@
 package com.libs.flex.ui.core.domain.validation
 
+import com.libs.flex.ui.core.domain.error.DomainError
 import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.value.FieldValue
 
-public data class RegexRule(
+public class RegexRule private constructor(
     public val pattern: String,
+    private val compiledRegex: Regex,
     public val customMessage: String? = null
 ) : ValidationRule {
-    private val compiledRegex: Regex = Regex(pattern)
 
     override fun validate(value: FieldValue?): Either<ValidationError, Unit> = when (value) {
         null -> Either.Right(Unit)
@@ -18,5 +19,16 @@ public data class RegexRule(
         }
 
         else -> Either.Left(ValidationError.InvalidType("Text"))
+    }
+
+    public companion object {
+        public fun of(
+            pattern: String,
+            customMessage: String? = null
+        ): Either<DomainError.Value.InvalidRegexPattern, RegexRule> = try {
+            Either.Right(RegexRule(pattern, Regex(pattern), customMessage))
+        } catch (e: Exception) {
+            Either.Left(DomainError.Value.InvalidRegexPattern(pattern, e.message ?: "Invalid regex pattern"))
+        }
     }
 }
