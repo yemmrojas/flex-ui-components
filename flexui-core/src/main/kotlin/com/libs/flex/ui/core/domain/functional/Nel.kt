@@ -21,5 +21,9 @@ public data class Nel<out E>(
 
     public companion object {
         public fun <E> of(head: E, vararg tail: E): Nel<E> = Nel(head, tail.toList())
+
+        public fun <E> fromListOrNull(list: List<E>): Nel<E>? =
+            if (list.isEmpty()) null
+            else Nel(list.first(), list.drop(1))
     }
 }
