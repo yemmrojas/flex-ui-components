@@ -62,7 +62,7 @@ public class LayoutDocumentTest {
             current = VerticalLayoutNode(id = id, children = listOf(current))
         }
 
-        val limits = LayoutLimits(maxDepth = 10, maxNodes = 500, maxErrors = 5)
+        val limits = LayoutLimits.of(maxDepth = 10, maxNodes = 500, maxErrors = 5).getOrNull()!!
         val result = LayoutDocument.create(SchemaVersion.CURRENT, current, limits = limits)
 
         assertTrue(result.isLeft)
@@ -250,7 +250,7 @@ public class LayoutDocumentTest {
         )
 
         // root + 3 children = 4 nodes in total. Setting maxNodes = 2 should trigger MaxNodesExceeded and stop traversal
-        val limits = LayoutLimits(maxNodes = 2)
+        val limits = LayoutLimits.of(maxNodes = 2).getOrNull()!!
         val result = LayoutDocument.create(
             schemaVersion = SchemaVersion.CURRENT,
             root = root,

@@ -26,6 +26,7 @@ public sealed interface DomainError {
         public data class InvalidOptionSelected(public val value: String) : Value
         public data class ValueOutOfRange(public val value: Double, public val min: Double, public val max: Double) : Value
         public data class InvalidStepValue(public val value: Double, public val step: Double) : Value
+        public data class InvalidLayoutLimit(public val reason: String) : Value
     }
 
     public sealed interface Interaction : DomainError {
