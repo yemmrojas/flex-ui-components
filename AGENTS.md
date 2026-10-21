@@ -106,6 +106,11 @@ public class Dimension private constructor(public val value: Float) {
 * **Command Bus:** `InMemoryCommandBus` registra handlers por `KClass<out Command<*>>`, valida que no existan handlers duplicados ni colisiones de `commandName`, y envuelve la ejecución en una cadena de `CommandMiddleware`.
 * **Serialización de Concurrencia:** `SessionLockMiddleware` utiliza un `Mutex` indexado por `sessionId` para garantizar que comandos concurrentes sobre el mismo formulario se ejecuten estrictamente en serie, sin pisar el estado.
 
+### 3.5 Preservación de Valores Nativos en Comandos (`FieldValue`)
+* `UpdateInputValueCommand` transporta directamente un `FieldValue` fuertemente tipado (`FieldValue.Text`, `FieldValue.Bool`, `FieldValue.Number`, `FieldValue.Selection`) para evitar `ValueTypeMismatch` en controles no textuales (`CheckNode`, `SliderNode`, `SelectNode`).
+* Dispone de factorías convenientes (`UpdateInputValueCommand.bool()`, `.number()`, `.selection()`, `.text()`) y constructor de compatibilidad para `rawValue: String`.
+* `FormSession.updateInput()` decodifica de forma segura valores textuales crudos al tipo nativo esperado por el nodo si fuera necesario, rechazando con `DomainError.Value.ValueTypeMismatch` únicamente cuando el valor no es convertible o es de un tipo incompatible.
+
 ---
 
 ## 4. Arquitectura de Renderizado y UI (`:flexui-runtime` / `:FlexUI`)

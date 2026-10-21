@@ -24,8 +24,7 @@ public class UpdateInputValueHandler(
             is Either.Right -> res.value
         }
         val key = NodeKey(compId, command.instanceIndex)
-        val value = FieldValue.Text(command.rawValue)
 
-        return useCase.execute(sessionId, key, value)
+        return useCase.execute(sessionId, key, command.value)
     }
 }

@@ -5,6 +5,9 @@ import com.libs.flex.ui.core.domain.event.DomainEvent
 import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.model.node.CheckNode
 import com.libs.flex.ui.core.domain.model.node.InputCapableNode
+import com.libs.flex.ui.core.domain.model.node.InputNode
+import com.libs.flex.ui.core.domain.model.node.SelectNode
+import com.libs.flex.ui.core.domain.model.node.SliderNode
 import com.libs.flex.ui.core.domain.ports.ActionResult
 import com.libs.flex.ui.core.domain.ports.ClockPort
 import com.libs.flex.ui.core.domain.ports.UserAction
@@ -38,14 +41,42 @@ public class FormSession private constructor(
             return Either.Left(DomainError.Interaction.ComponentNotInputCapable(key.componentId))
         }
 
-        when (val acceptResult = node.accept(value)) {
+        val resolvedValue = decodeRawValueIfNeeded(node, value)
+
+        when (val acceptResult = node.accept(resolvedValue)) {
             is Either.Left -> return Either.Left(acceptResult.value)
             is Either.Right -> { /* Accepted by node invariants */ }
         }
 
-        val stateOutcome = state.update(key, value, node, occurredAt)
+        val stateOutcome = state.update(key, resolvedValue, node, occurredAt)
         val newSession = copyWith(stateOutcome.state)
         return Either.Right(FormOutcome(newSession, stateOutcome.events))
+    }
+
+    private fun decodeRawValueIfNeeded(node: InputCapableNode, value: FieldValue): FieldValue {
+        if (value !is FieldValue.Text) return value
+        val raw = value.value.trim()
+        return when (node) {
+            is CheckNode -> when {
+                raw.equals("true", ignoreCase = true) || raw == "1" -> FieldValue.Bool(true)
+                raw.equals("false", ignoreCase = true) || raw == "0" -> FieldValue.Bool(false)
+                else -> value
+            }
+            is SliderNode -> {
+                val number = raw.toDoubleOrNull()
+                if (number != null) FieldValue.Number(number) else value
+            }
+            is SelectNode -> {
+                if (raw.isEmpty()) {
+                    FieldValue.Selection(emptyList())
+                } else {
+                    val indices = raw.split(",").mapNotNull { it.trim().toIntOrNull() }
+                    if (indices.isNotEmpty()) FieldValue.Selection(indices) else value
+                }
+            }
+            is InputNode -> value
+            else -> value
+        }
     }
 
     public fun requestAction(

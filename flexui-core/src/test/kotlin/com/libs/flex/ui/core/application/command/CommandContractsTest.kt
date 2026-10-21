@@ -5,6 +5,7 @@ import com.libs.flex.ui.core.domain.error.DomainError
 import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.model.FormSession
 import com.libs.flex.ui.core.domain.ports.ActionResult
+import com.libs.flex.ui.core.domain.value.FieldValue
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -40,6 +41,7 @@ class CommandContractsTest {
             rawValue = "Jane Doe"
         )
         assertNull(cmdWithNullIndex.instanceIndex)
+        assertEquals(FieldValue.Text("Jane Doe"), cmdWithNullIndex.value)
 
         val cmdWithIndex = UpdateInputValueCommand(
             sessionId = "session-123",
@@ -55,7 +57,21 @@ class CommandContractsTest {
         assertEquals("session-123", cmdWithIndex.sessionId)
         assertEquals("input-item", cmdWithIndex.componentId)
         assertEquals("Item 2", cmdWithIndex.rawValue)
+        assertEquals(FieldValue.Text("Item 2"), cmdWithIndex.value)
         assertEquals(2, cmdWithIndex.instanceIndex)
+
+        // Native typed commands
+        val boolCmd = UpdateInputValueCommand.bool("session-123", "check-agree", true)
+        assertEquals(FieldValue.Bool(true), boolCmd.value)
+        assertEquals("true", boolCmd.rawValue)
+
+        val numCmd = UpdateInputValueCommand.number("session-123", "slider-price", 49.99)
+        assertEquals(FieldValue.Number(49.99), numCmd.value)
+        assertEquals("49.99", numCmd.rawValue)
+
+        val selCmd = UpdateInputValueCommand.selection("session-123", "select-tags", listOf(0, 2))
+        assertEquals(FieldValue.Selection(listOf(0, 2)), selCmd.value)
+        assertEquals("0,2", selCmd.rawValue)
     }
 
     @Test

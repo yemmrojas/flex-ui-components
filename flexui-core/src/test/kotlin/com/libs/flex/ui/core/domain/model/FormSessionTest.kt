@@ -415,4 +415,69 @@ class FormSessionTest {
         assertEquals(errors, session.formErrors)
         assertFalse(session.isValid)
     }
+
+    @Test
+    fun `updateInput preserves native FieldValue Bool for CheckNode`() {
+        val document = createSampleDocument()
+        val session = FormSession.start(sessionId, document, clock).session
+        val key = NodeKey(checkOptId)
+
+        val result = session.updateInput(key, FieldValue.Bool(true), 6000L)
+
+        assertTrue(result.isRight)
+        val outcome = (result as Either.Right).value
+        assertEquals(FieldValue.Bool(true), outcome.session.formValues[key])
+    }
+
+    @Test
+    fun `updateInput preserves native FieldValue Number for SliderNode`() {
+        val document = createSampleDocument()
+        val session = FormSession.start(sessionId, document, clock).session
+        val key = NodeKey(sliderAgeId)
+
+        val result = session.updateInput(key, FieldValue.Number(35.0), 6000L)
+
+        assertTrue(result.isRight)
+        val outcome = (result as Either.Right).value
+        assertEquals(FieldValue.Number(35.0), outcome.session.formValues[key])
+    }
+
+    @Test
+    fun `updateInput decodes raw text true to FieldValue Bool for CheckNode`() {
+        val document = createSampleDocument()
+        val session = FormSession.start(sessionId, document, clock).session
+        val key = NodeKey(checkOptId)
+
+        val result = session.updateInput(key, FieldValue.Text("true"), 6000L)
+
+        assertTrue(result.isRight)
+        val outcome = (result as Either.Right).value
+        assertEquals(FieldValue.Bool(true), outcome.session.formValues[key])
+    }
+
+    @Test
+    fun `updateInput decodes raw text number to FieldValue Number for SliderNode`() {
+        val document = createSampleDocument()
+        val session = FormSession.start(sessionId, document, clock).session
+        val key = NodeKey(sliderAgeId)
+
+        val result = session.updateInput(key, FieldValue.Text("42.5"), 6000L)
+
+        assertTrue(result.isRight)
+        val outcome = (result as Either.Right).value
+        assertEquals(FieldValue.Number(42.5), outcome.session.formValues[key])
+    }
+
+    @Test
+    fun `updateInput returns ValueTypeMismatch when string cannot be decoded for non-text node`() {
+        val document = createSampleDocument()
+        val session = FormSession.start(sessionId, document, clock).session
+        val key = NodeKey(sliderAgeId)
+
+        val result = session.updateInput(key, FieldValue.Text("not-a-number"), 6000L)
+
+        assertTrue(result.isLeft)
+        val error = (result as Either.Left).value
+        assertTrue(error is DomainError.Value.ValueTypeMismatch)
+    }
 }
