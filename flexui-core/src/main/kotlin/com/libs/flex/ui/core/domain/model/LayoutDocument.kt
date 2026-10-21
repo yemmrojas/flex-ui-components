@@ -61,10 +61,6 @@ public class LayoutDocument private constructor(
 
             // Validar límites globales y referencias si no se alcanzó el tope de errores
             if (errors.size < limits.maxErrors) {
-                if (scan.nodeMap.size > limits.maxNodes) {
-                    errors.add(DomainError.Structural.MaxNodesExceeded(scan.nodeMap.size, limits.maxNodes))
-                }
-
                 // Validar que los itemTemplateId de listas existan en el mapa de templates y no sean reutilizados
                 val usedTemplates = mutableSetOf<ComponentId>()
                 scan.listNodes.forEach { listNode ->
@@ -150,6 +146,11 @@ internal class LayoutTreeScan private constructor(
                 if (nodeMap.containsKey(node.id)) {
                     errors.add(DomainError.Structural.DuplicateComponentId(node.id))
                     continue
+                }
+
+                if (nodeMap.size >= limits.maxNodes) {
+                    errors.add(DomainError.Structural.MaxNodesExceeded(nodeMap.size + 1, limits.maxNodes))
+                    break
                 }
 
                 nodeMap[node.id] = node

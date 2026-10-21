@@ -232,4 +232,35 @@ public class LayoutDocumentTest {
 
         assertTrue(result.isRight)
     }
+
+    @Test
+    public fun `create returns MaxNodesExceeded and stops traversal when maxNodes is reached`() {
+        val rootId = ComponentId.of("root").getOrNull()!!
+        val text1Id = ComponentId.of("text_1").getOrNull()!!
+        val text2Id = ComponentId.of("text_2").getOrNull()!!
+        val text3Id = ComponentId.of("text_3").getOrNull()!!
+
+        val root = VerticalLayoutNode(
+            id = rootId,
+            children = listOf(
+                TextNode(id = text1Id, text = "1"),
+                TextNode(id = text2Id, text = "2"),
+                TextNode(id = text3Id, text = "3")
+            )
+        )
+
+        // root + 3 children = 4 nodes in total. Setting maxNodes = 2 should trigger MaxNodesExceeded and stop traversal
+        val limits = LayoutLimits(maxNodes = 2)
+        val result = LayoutDocument.create(
+            schemaVersion = SchemaVersion.CURRENT,
+            root = root,
+            limits = limits
+        )
+
+        assertTrue(result.isLeft)
+        val errors = (result as Either.Left).value
+        val maxNodesError = errors.head as? DomainError.Structural.MaxNodesExceeded
+        assertNotNull(maxNodesError)
+        assertEquals(2, maxNodesError?.max)
+    }
 }
