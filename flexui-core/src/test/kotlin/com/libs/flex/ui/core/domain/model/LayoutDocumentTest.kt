@@ -1,6 +1,7 @@
 package com.libs.flex.ui.core.domain.model
 
 import com.libs.flex.ui.core.domain.error.DomainError
+import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.model.node.ButtonNode
 import com.libs.flex.ui.core.domain.model.node.FloatingButtonLayoutNode
 import com.libs.flex.ui.core.domain.model.node.InputNode
@@ -171,5 +172,64 @@ public class LayoutDocumentTest {
         assertEquals(rootInputId, doc.standaloneInputNodes().first().id)
         assertTrue(doc.isTemplateNode(templateInputId))
         kotlin.test.assertFalse(doc.isTemplateNode(rootInputId))
+    }
+
+    @Test
+    public fun `create returns DuplicateTemplateUsage when multiple lists reuse the same templateId`() {
+        val list1Id = ComponentId.of("list_1").getOrNull()!!
+        val list2Id = ComponentId.of("list_2").getOrNull()!!
+        val sharedTemplateId = ComponentId.of("shared_tmpl").getOrNull()!!
+        val templateInputId = ComponentId.of("tmpl_input").getOrNull()!!
+
+        val list1 = ListLayoutNode(id = list1Id, itemTemplateId = sharedTemplateId)
+        val list2 = ListLayoutNode(id = list2Id, itemTemplateId = sharedTemplateId)
+        val templateRoot = InputNode(id = templateInputId, label = "Template Input")
+
+        val root = VerticalLayoutNode(
+            id = ComponentId.of("root").getOrNull()!!,
+            children = listOf(list1, list2)
+        )
+
+        val result = LayoutDocument.create(
+            schemaVersion = SchemaVersion.CURRENT,
+            root = root,
+            templates = mapOf(sharedTemplateId to templateRoot)
+        )
+
+        assertTrue(result.isLeft)
+        val errors = (result as Either.Left).value
+        val duplicateError = errors.head as? DomainError.Structural.DuplicateTemplateUsage
+        assertNotNull(duplicateError)
+        assertEquals(list2Id, duplicateError?.listId)
+        assertEquals(sharedTemplateId, duplicateError?.templateId)
+    }
+
+    @Test
+    public fun `create succeeds when multiple lists reference distinct templates`() {
+        val list1Id = ComponentId.of("list_1").getOrNull()!!
+        val list2Id = ComponentId.of("list_2").getOrNull()!!
+        val tmpl1Id = ComponentId.of("tmpl_1").getOrNull()!!
+        val tmpl2Id = ComponentId.of("tmpl_2").getOrNull()!!
+        val input1Id = ComponentId.of("input_1").getOrNull()!!
+        val input2Id = ComponentId.of("input_2").getOrNull()!!
+
+        val list1 = ListLayoutNode(id = list1Id, itemTemplateId = tmpl1Id)
+        val list2 = ListLayoutNode(id = list2Id, itemTemplateId = tmpl2Id)
+
+        val root = VerticalLayoutNode(
+            id = ComponentId.of("root").getOrNull()!!,
+            children = listOf(list1, list2)
+        )
+
+        val result = LayoutDocument.create(
+            schemaVersion = SchemaVersion.CURRENT,
+            root = root,
+            templates = mapOf(
+                tmpl1Id to InputNode(id = input1Id, label = "Input 1"),
+                tmpl2Id to InputNode(id = input2Id, label = "Input 2")
+            )
+        )
+
+        assertTrue(result.isRight)
     }
 }

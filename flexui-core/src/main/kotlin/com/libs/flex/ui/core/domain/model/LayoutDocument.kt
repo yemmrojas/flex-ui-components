@@ -65,7 +65,8 @@ public class LayoutDocument private constructor(
                     errors.add(DomainError.Structural.MaxNodesExceeded(scan.nodeMap.size, limits.maxNodes))
                 }
 
-                // Validar que los itemTemplateId de listas existan en el mapa de templates
+                // Validar que los itemTemplateId de listas existan en el mapa de templates y no sean reutilizados
+                val usedTemplates = mutableSetOf<ComponentId>()
                 scan.listNodes.forEach { listNode ->
                     if (errors.size >= limits.maxErrors) return@forEach
                     if (!templates.containsKey(listNode.itemTemplateId)) {
@@ -73,6 +74,13 @@ public class LayoutDocument private constructor(
                             DomainError.Structural.InvalidComponentReference(
                                 id = listNode.id,
                                 referenceId = listNode.itemTemplateId
+                            )
+                        )
+                    } else if (!usedTemplates.add(listNode.itemTemplateId)) {
+                        errors.add(
+                            DomainError.Structural.DuplicateTemplateUsage(
+                                listId = listNode.id,
+                                templateId = listNode.itemTemplateId
                             )
                         )
                     }

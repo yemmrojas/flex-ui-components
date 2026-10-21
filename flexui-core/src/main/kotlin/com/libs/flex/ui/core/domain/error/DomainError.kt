@@ -11,6 +11,7 @@ public sealed interface DomainError {
         public data class MaxNestingDepthExceeded(public val id: ComponentId, public val depth: Int) : Structural
         public data class MaxNodesExceeded(public val count: Int, public val max: Int) : Structural
         public data class InvalidComponentReference(public val id: ComponentId, public val referenceId: ComponentId) : Structural
+        public data class DuplicateTemplateUsage(public val listId: ComponentId, public val templateId: ComponentId) : Structural
         public data class UnsupportedSchemaVersion(public val version: String, public val supportedMin: String, public val supportedMax: String) : Structural
     }
 
