@@ -43,4 +43,36 @@ class HexagonalArchitectureTest {
                 }
             }
     }
+
+    @Test
+    fun `core module should never depend on dependency injection frameworks`() {
+        Konsist
+            .scopeFromProject()
+            .files
+            .withPackage("com.libs.flex.ui.core..")
+            .assertTrue { file ->
+                file.imports.none {
+                    it.name.startsWith("dagger.") ||
+                        it.name.startsWith("com.google.dagger.") ||
+                        it.name.startsWith("javax.inject.") ||
+                        it.name.startsWith("hilt.") ||
+                        it.name.startsWith("koin.") ||
+                        it.name.startsWith("org.koin.")
+                }
+            }
+    }
+
+    @Test
+    fun `core production classes and interfaces should have explicit visibility modifier`() {
+        Konsist
+            .scopeFromProduction()
+            .classesAndInterfaces()
+            .withPackage("com.libs.flex.ui.core..")
+            .assertTrue { declaration ->
+                declaration.hasPublicModifier ||
+                    declaration.hasInternalModifier ||
+                    declaration.hasPrivateModifier ||
+                    declaration.hasProtectedModifier
+            }
+    }
 }

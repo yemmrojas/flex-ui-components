@@ -115,11 +115,11 @@ Este documento desglosa el plan de implementación incremental para `:flexui-cor
 
 ## Bloque 6: Verificación de Arquitectura y Configuración del Módulo
 
-- [ ] **14. Pruebas de Arquitectura con Konsist** (ref: design §11)
-  - Regla: `core.domain` no importa `core.application`.
-  - Regla: `:flexui-core` no importa `android.*`, `androidx.compose.*`, ni librerías de DI (`dagger.*`, `hilt.*`).
-  - Regla: Visibilidad explícita validada (`explicitApi()`).
+- [x] **14. Pruebas de Arquitectura con Konsist** (ref: design §11)
+  - [x] Regla: `core.domain` no importa `core.application`.
+  - [x] Regla: `:flexui-core` no importa `android.*`, `androidx.compose.*`, ni librerías de DI (`dagger.*`, `hilt.*`).
+  - [x] Regla: Visibilidad explícita validada (`explicitApi()`).
 
-- [ ] **15. Configuración de Build y Verificación Final**
-  - Ajustar `build.gradle.kts` de `:flexui-core` con `kotlin("jvm")`, `explicitApi()` y dependencias de test.
-  - Ejecutar suite completa de tests (`./gradlew :flexui-core:test`).
+- [x] **15. Configuración de Build y Verificación Final**
+  - [x] Ajustar `build.gradle.kts` de `:flexui-core` con `kotlin("jvm")`, `explicitApi()` y dependencias de test.
+  - [x] Ejecutar suite completa de tests (`./gradlew :flexui-core:test`).

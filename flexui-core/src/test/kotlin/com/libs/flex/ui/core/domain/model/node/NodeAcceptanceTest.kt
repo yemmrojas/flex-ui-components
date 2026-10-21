@@ -98,8 +98,8 @@ public class NodeAcceptanceTest {
             requiresValidation = false
         )
 
-        assertTrue(fab is LayoutNode)
-        assertTrue(fab is InteractiveNode)
+        assertTrue((fab as UIComponentNode) is LayoutNode)
+        assertTrue((fab as UIComponentNode) is InteractiveNode)
         assertEquals("create_item", fab.actionId.value)
         assertFalse(fab.requiresValidation)
     }
