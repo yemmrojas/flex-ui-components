@@ -52,7 +52,7 @@ class UpdateInputValueHandlerTest {
         val useCase = UpdateInputValueUseCase(sessionPort, eventPublisher, clock)
         val handler = UpdateInputValueHandler(useCase)
 
-        val command = UpdateInputValueCommand(sessionId = "", componentId = "input-1", rawValue = "John")
+        val command = UpdateInputValueCommand(sessionId = "", componentId = "input-1", value = FieldValue.Text("John"))
         val result = handler.handle(command)
 
         assertIs<Either.Left<DomainError>>(result)
@@ -67,7 +67,7 @@ class UpdateInputValueHandlerTest {
         val useCase = UpdateInputValueUseCase(sessionPort, eventPublisher, clock)
         val handler = UpdateInputValueHandler(useCase)
 
-        val command = UpdateInputValueCommand(sessionId = "session-1", componentId = "", rawValue = "John")
+        val command = UpdateInputValueCommand(sessionId = "session-1", componentId = "", value = FieldValue.Text("John"))
         val result = handler.handle(command)
 
         assertIs<Either.Left<DomainError>>(result)
@@ -129,7 +129,7 @@ class UpdateInputValueHandlerTest {
         val command = UpdateInputValueCommand(
             sessionId = "session-1",
             componentId = "input-name",
-            rawValue = "Alice Cooper"
+            value = FieldValue.Text("Alice Cooper")
         )
         val result = handler.handle(command)
 
@@ -155,7 +155,7 @@ class UpdateInputValueHandlerTest {
         val useCase = UpdateInputValueUseCase(sessionPort, eventPublisher, clock)
         val handler = UpdateInputValueHandler(useCase)
 
-        val command = UpdateInputValueCommand.bool("session-1", "check-agree", true)
+        val command = UpdateInputValueCommand("session-1", "check-agree", FieldValue.Bool(true))
         val result = handler.handle(command)
 
         val updatedSession = assertIs<Either.Right<FormSession>>(result).value
@@ -180,7 +180,7 @@ class UpdateInputValueHandlerTest {
         val useCase = UpdateInputValueUseCase(sessionPort, eventPublisher, clock)
         val handler = UpdateInputValueHandler(useCase)
 
-        val command = UpdateInputValueCommand.number("session-1", "slider-vol", 75.0)
+        val command = UpdateInputValueCommand("session-1", "slider-vol", FieldValue.Number(75.0))
         val result = handler.handle(command)
 
         val updatedSession = assertIs<Either.Right<FormSession>>(result).value
@@ -205,11 +205,11 @@ class UpdateInputValueHandlerTest {
         val useCase = UpdateInputValueUseCase(sessionPort, eventPublisher, clock)
         val handler = UpdateInputValueHandler(useCase)
 
-        // Raw string passed via legacy constructor
+        // Text value targeting checkbox is decoded automatically in domain
         val command = UpdateInputValueCommand(
             sessionId = "session-1",
             componentId = "check-agree",
-            rawValue = "true"
+            value = FieldValue.Text("true")
         )
         val result = handler.handle(command)
 

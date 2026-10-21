@@ -38,7 +38,7 @@ class CommandContractsTest {
         val cmdWithNullIndex = UpdateInputValueCommand(
             sessionId = "session-123",
             componentId = "input-name",
-            rawValue = "Jane Doe"
+            value = FieldValue.Text("Jane Doe")
         )
         assertNull(cmdWithNullIndex.instanceIndex)
         assertEquals(FieldValue.Text("Jane Doe"), cmdWithNullIndex.value)
@@ -46,7 +46,7 @@ class CommandContractsTest {
         val cmdWithIndex = UpdateInputValueCommand(
             sessionId = "session-123",
             componentId = "input-item",
-            rawValue = "Item 2",
+            value = FieldValue.Text("Item 2"),
             instanceIndex = 2
         )
 
@@ -56,22 +56,18 @@ class CommandContractsTest {
         assertEquals(UpdateInputValueCommand.COMMAND_NAME, cmdWithIndex.commandName)
         assertEquals("session-123", cmdWithIndex.sessionId)
         assertEquals("input-item", cmdWithIndex.componentId)
-        assertEquals("Item 2", cmdWithIndex.rawValue)
         assertEquals(FieldValue.Text("Item 2"), cmdWithIndex.value)
         assertEquals(2, cmdWithIndex.instanceIndex)
 
-        // Native typed commands
-        val boolCmd = UpdateInputValueCommand.bool("session-123", "check-agree", true)
+        // Native typed values
+        val boolCmd = UpdateInputValueCommand("session-123", "check-agree", FieldValue.Bool(true))
         assertEquals(FieldValue.Bool(true), boolCmd.value)
-        assertEquals("true", boolCmd.rawValue)
 
-        val numCmd = UpdateInputValueCommand.number("session-123", "slider-price", 49.99)
+        val numCmd = UpdateInputValueCommand("session-123", "slider-price", FieldValue.Number(49.99))
         assertEquals(FieldValue.Number(49.99), numCmd.value)
-        assertEquals("49.99", numCmd.rawValue)
 
-        val selCmd = UpdateInputValueCommand.selection("session-123", "select-tags", listOf(0, 2))
+        val selCmd = UpdateInputValueCommand("session-123", "select-tags", FieldValue.Selection(listOf(0, 2)))
         assertEquals(FieldValue.Selection(listOf(0, 2)), selCmd.value)
-        assertEquals("0,2", selCmd.rawValue)
     }
 
     @Test

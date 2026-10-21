@@ -107,9 +107,9 @@ public class Dimension private constructor(public val value: Float) {
 * **Serialización de Concurrencia:** `SessionLockMiddleware` utiliza un `Mutex` indexado por `sessionId` para garantizar que comandos concurrentes sobre el mismo formulario se ejecuten estrictamente en serie, sin pisar el estado.
 
 ### 3.5 Preservación de Valores Nativos en Comandos (`FieldValue`)
-* `UpdateInputValueCommand` transporta directamente un `FieldValue` fuertemente tipado (`FieldValue.Text`, `FieldValue.Bool`, `FieldValue.Number`, `FieldValue.Selection`) para evitar `ValueTypeMismatch` en controles no textuales (`CheckNode`, `SliderNode`, `SelectNode`).
-* Dispone de factorías convenientes (`UpdateInputValueCommand.bool()`, `.number()`, `.selection()`, `.text()`) y constructor de compatibilidad para `rawValue: String`.
-* `FormSession.updateInput()` decodifica de forma segura valores textuales crudos al tipo nativo esperado por el nodo si fuera necesario, rechazando con `DomainError.Value.ValueTypeMismatch` únicamente cuando el valor no es convertible o es de un tipo incompatible.
+* `UpdateInputValueCommand` es un DTO inmutable y puro que transporta directamente un `value: FieldValue` fuertemente tipado (`FieldValue.Text`, `FieldValue.Bool`, `FieldValue.Number`, `FieldValue.Selection`) para evitar `ValueTypeMismatch` en controles no textuales (`CheckNode`, `SliderNode`, `SelectNode`).
+* Cada componente de UI o capa de presentación es responsable de empaquetar su valor nativo en el `FieldValue` correspondiente al despachar el comando.
+* Como salvaguarda defensiva en el dominio, `FormSession.updateInput()` decodifica de forma segura valores textuales crudos al tipo nativo esperado por el nodo si fuera necesario (ej. `"true"` a `FieldValue.Bool`), rechazando con `DomainError.Value.ValueTypeMismatch` únicamente cuando el valor no es convertible o es de un tipo incompatible.
 
 ---
 
