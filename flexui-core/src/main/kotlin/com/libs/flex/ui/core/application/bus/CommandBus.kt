@@ -8,4 +8,9 @@ public interface CommandBus {
     public suspend fun <R> dispatch(command: Command<R>): Either<DomainError, R>
 }
 
-public typealias CommandMiddleware = suspend (Command<*>, suspend (Command<*>) -> Either<DomainError, Any?>) -> Either<DomainError, Any?>
+public fun interface CommandMiddleware {
+    public suspend fun intercept(
+        command: Command<*>,
+        next: suspend (Command<*>) -> Either<DomainError, Any?>
+    ): Either<DomainError, Any?>
+}
