@@ -7,6 +7,7 @@ import com.libs.flex.ui.core.domain.functional.Nel
 import com.libs.flex.ui.core.domain.model.node.ButtonNode
 import com.libs.flex.ui.core.domain.model.node.CheckNode
 import com.libs.flex.ui.core.domain.model.node.InputNode
+import com.libs.flex.ui.core.domain.model.node.ListLayoutNode
 import com.libs.flex.ui.core.domain.model.node.SliderNode
 import com.libs.flex.ui.core.domain.model.node.TextNode
 import com.libs.flex.ui.core.domain.model.node.VerticalLayoutNode
@@ -479,5 +480,100 @@ class FormSessionTest {
         assertTrue(result.isLeft)
         val error = (result as Either.Left).value
         assertTrue(error is DomainError.Value.ValueTypeMismatch)
+    }
+
+    @Test
+    fun `requestAction ignores uninstantiated template inputs during validation and dispatches successfully`() {
+        val rootInputId = ComponentId.of("root_name").getOrNull()!!
+        val templateId = ComponentId.of("tmpl_row").getOrNull()!!
+        val templateInputId = ComponentId.of("tmpl_required_input").getOrNull()!!
+        val listId = ComponentId.of("items_list").getOrNull()!!
+        val submitId = ComponentId.of("btn_submit_list").getOrNull()!!
+        val actionId = ActionId.of("action.submit_list").getOrNull()!!
+
+        val rootInput = InputNode(
+            id = rootInputId,
+            label = "Name",
+            validationRules = listOf(RequiredRule("Name required"))
+        )
+        val templateInput = InputNode(
+            id = templateInputId,
+            label = "Template Item Field",
+            validationRules = listOf(RequiredRule("Item field required"))
+        )
+        val listNode = ListLayoutNode(id = listId, itemTemplateId = templateId)
+        val submitBtn = ButtonNode(id = submitId, text = "Submit", actionId = actionId, requiresValidation = true)
+
+        val rootLayout = VerticalLayoutNode(
+            id = ComponentId.of("root_layout").getOrNull()!!,
+            children = listOf(rootInput, listNode, submitBtn)
+        )
+
+        val document = LayoutDocument.create(
+            schemaVersion = SchemaVersion.CURRENT,
+            root = rootLayout,
+            templates = mapOf(templateId to templateInput)
+        ).getOrNull()!!
+
+        var session = FormSession.start(sessionId, document, clock).session
+        session = (session.updateInput(NodeKey(rootInputId), FieldValue.Text("John Doe"), 6000L) as Either.Right).value.session
+
+        val result = session.requestAction(NodeKey(submitId), 7000L)
+        assertTrue(result.isRight)
+        val decision = (result as Either.Right).value
+        assertTrue(decision is ActionDecision.Dispatch)
+    }
+
+    @Test
+    fun `requestAction validates instantiated template inputs and blocks if invalid`() {
+        val rootInputId = ComponentId.of("root_name").getOrNull()!!
+        val templateId = ComponentId.of("tmpl_row").getOrNull()!!
+        val templateInputId = ComponentId.of("tmpl_required_input").getOrNull()!!
+        val listId = ComponentId.of("items_list").getOrNull()!!
+        val submitId = ComponentId.of("btn_submit_list").getOrNull()!!
+        val actionId = ActionId.of("action.submit_list").getOrNull()!!
+
+        val rootInput = InputNode(
+            id = rootInputId,
+            label = "Name",
+            validationRules = listOf(RequiredRule("Name required"))
+        )
+        val templateInput = InputNode(
+            id = templateInputId,
+            label = "Template Item Field",
+            validationRules = listOf(RequiredRule("Item field required"))
+        )
+        val listNode = ListLayoutNode(id = listId, itemTemplateId = templateId)
+        val submitBtn = ButtonNode(id = submitId, text = "Submit", actionId = actionId, requiresValidation = true)
+
+        val rootLayout = VerticalLayoutNode(
+            id = ComponentId.of("root_layout").getOrNull()!!,
+            children = listOf(rootInput, listNode, submitBtn)
+        )
+
+        val document = LayoutDocument.create(
+            schemaVersion = SchemaVersion.CURRENT,
+            root = rootLayout,
+            templates = mapOf(templateId to templateInput)
+        ).getOrNull()!!
+
+        var session = FormSession.start(sessionId, document, clock).session
+        session = (session.updateInput(NodeKey(rootInputId), FieldValue.Text("John Doe"), 6000L) as Either.Right).value.session
+
+        val rowKey = NodeKey(templateInputId, instanceIndex = 0)
+        session = (session.updateInput(rowKey, FieldValue.Text(""), 6500L) as Either.Right).value.session
+
+        val blockedResult = session.requestAction(NodeKey(submitId), 7000L)
+        assertTrue(blockedResult.isRight)
+        val blockedDecision = (blockedResult as Either.Right).value
+        assertTrue(blockedDecision is ActionDecision.Blocked)
+        val blocked = blockedDecision as ActionDecision.Blocked
+        assertTrue(blocked.outcome.session.formErrors.containsKey(rowKey))
+
+        session = (session.updateInput(rowKey, FieldValue.Text("Valid item value"), 7500L) as Either.Right).value.session
+        val validResult = session.requestAction(NodeKey(submitId), 8000L)
+        assertTrue(validResult.isRight)
+        val validDecision = (validResult as Either.Right).value
+        assertTrue(validDecision is ActionDecision.Dispatch)
     }
 }

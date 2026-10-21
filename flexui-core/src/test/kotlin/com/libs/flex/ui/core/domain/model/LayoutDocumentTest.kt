@@ -143,4 +143,33 @@ public class LayoutDocumentTest {
         assertNotNull(document.findInteractiveNode(fabId))
         assertNotNull(document.findNode(textId))
     }
+
+    @Test
+    public fun `standaloneInputNodes separates root inputs from template inputs`() {
+        val rootInputId = ComponentId.of("root_input").getOrNull()!!
+        val templateId = ComponentId.of("row_tmpl").getOrNull()!!
+        val templateInputId = ComponentId.of("tmpl_input").getOrNull()!!
+        val listId = ComponentId.of("list").getOrNull()!!
+
+        val rootInput = InputNode(id = rootInputId, label = "Root")
+        val listNode = ListLayoutNode(id = listId, itemTemplateId = templateId)
+        val templateRoot = InputNode(id = templateInputId, label = "Template Input")
+
+        val root = VerticalLayoutNode(
+            id = ComponentId.of("root").getOrNull()!!,
+            children = listOf(rootInput, listNode)
+        )
+
+        val doc = LayoutDocument.create(
+            schemaVersion = SchemaVersion.CURRENT,
+            root = root,
+            templates = mapOf(templateId to templateRoot)
+        ).getOrNull()!!
+
+        assertEquals(2, doc.allInputNodes().size)
+        assertEquals(1, doc.standaloneInputNodes().size)
+        assertEquals(rootInputId, doc.standaloneInputNodes().first().id)
+        assertTrue(doc.isTemplateNode(templateInputId))
+        kotlin.test.assertFalse(doc.isTemplateNode(rootInputId))
+    }
 }

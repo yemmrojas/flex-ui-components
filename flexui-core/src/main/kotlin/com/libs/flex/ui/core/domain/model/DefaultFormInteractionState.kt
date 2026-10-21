@@ -61,7 +61,7 @@ internal class DefaultFormInteractionState internal constructor(
             }
         }
 
-        document.allInputNodes().forEach { node ->
+        document.standaloneInputNodes().forEach { node ->
             validateKey(node, NodeKey(node.id))
         }
 

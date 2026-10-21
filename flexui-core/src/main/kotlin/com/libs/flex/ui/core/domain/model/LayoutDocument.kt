@@ -27,6 +27,11 @@ public class LayoutDocument private constructor(
 
     public fun allInputNodes(): List<InputCapableNode> = inputNodesList
 
+    public fun isTemplateNode(id: ComponentId): Boolean = templateScopeOf.containsKey(id)
+
+    public fun standaloneInputNodes(): List<InputCapableNode> =
+        inputNodesList.filter { !isTemplateNode(it.id) }
+
     public val totalNodesCount: Int get() = nodeIndex.size
 
     public companion object {

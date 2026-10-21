@@ -141,7 +141,7 @@ public class FormSession private constructor(
             clock: ClockPort
         ): FormOutcome {
             val initialValues = mutableMapOf<NodeKey, FieldValue>()
-            document.allInputNodes().forEach { node ->
+            document.standaloneInputNodes().forEach { node ->
                 if (node is CheckNode && node.defaultChecked) {
                     initialValues[NodeKey(node.id)] = FieldValue.Bool(true)
                 }
