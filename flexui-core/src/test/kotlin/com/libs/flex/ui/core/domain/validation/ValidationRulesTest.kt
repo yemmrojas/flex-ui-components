@@ -94,7 +94,15 @@ class ValidationRulesTest {
 
     @Nested
     inner class MaxLengthRuleTests {
-        private val rule = MaxLengthRule(max = 5)
+        private val rule = MaxLengthRule.of(max = 5).getOrNull()!!
+
+        @Test
+        fun `negative max length fails creation`() {
+            val invalid = MaxLengthRule.of(max = -1)
+            assertTrue(invalid.isLeft)
+            val error = invalid.leftOrNull()!!
+            assertTrue(error.reason.contains("max length"))
+        }
 
         @Test
         fun `null value passes`() {
