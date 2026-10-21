@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "Flex UI  components"
 include(":app")
 include(":FlexUI")
+include(":flexui-core")
