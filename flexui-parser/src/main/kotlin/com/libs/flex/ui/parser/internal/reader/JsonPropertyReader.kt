@@ -15,8 +15,13 @@ import com.libs.flex.ui.parser.ParserWarning
 import com.libs.flex.ui.parser.internal.mapper.validation.ValidationRuleMapper
 import com.libs.flex.ui.parser.internal.model.CommonProperties
 import com.libs.flex.ui.parser.internal.util.IdSanitizer
+import com.libs.flex.ui.core.domain.model.node.UIComponentNode
+import com.libs.flex.ui.parser.internal.model.ChildrenResult
+import com.libs.flex.ui.parser.internal.model.MappedNode
+import com.libs.flex.ui.parser.internal.scope.MappingScope
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
@@ -391,6 +396,70 @@ internal class JsonPropertyReader(
             },
             onRight = { Either.Right(it) }
         )
+    }
+
+    override fun readChildren(
+        scope: MappingScope,
+        primaryKey: String,
+        vararg aliases: String
+    ): Either<Nel<ParserError>, ChildrenResult> {
+        val entry = findElement(primaryKey, *aliases) ?: return Either.Right(ChildrenResult())
+        val element = entry.second
+        if (element is JsonNull) return Either.Right(ChildrenResult())
+
+        val array = element as? JsonArray
+        if (array == null) {
+            val error = ParserError.InvalidPropertyValue(
+                path = path,
+                property = entry.first,
+                reason = "Expected JSON array for children, but found ${element::class.simpleName}"
+            )
+            return policy.handleNonNullOptionalError(path, entry.first, error, ChildrenResult(), onWarn)
+        }
+
+        val children = mutableListOf<UIComponentNode>()
+        val templates = mutableListOf<UIComponentNode>()
+        val errors = mutableListOf<ParserError>()
+
+        array.forEachIndexed { index, childElement ->
+            val segment = "${entry.first}[$index]"
+            when (val mapped = scope.mapChild(childElement, segment)) {
+                is Either.Left -> errors.addAll(mapped.value.toList())
+                is Either.Right -> {
+                    children.add(mapped.value.node)
+                    templates.addAll(mapped.value.templates)
+                }
+            }
+        }
+
+        return if (errors.isNotEmpty()) {
+            Either.Left(Nel.fromListOrNull(errors)!!)
+        } else {
+            Either.Right(ChildrenResult(children = children, templates = templates))
+        }
+    }
+
+    override fun readChild(
+        scope: MappingScope,
+        primaryKey: String,
+        vararg aliases: String
+    ): Either<Nel<ParserError>, MappedNode?> {
+        val entry = findElement(primaryKey, *aliases) ?: return Either.Right(null)
+        val element = entry.second
+        if (element is JsonNull) return Either.Right(null)
+
+        return scope.mapChild(element, entry.first).map { it }
+    }
+
+    override fun optionalListSize(primaryKey: String, vararg aliases: String): Int? {
+        val entry = findElement(primaryKey, *aliases) ?: return null
+        return (entry.second as? JsonArray)?.size
+    }
+
+    override fun optionalStringList(primaryKey: String, vararg aliases: String): List<String> {
+        val entry = findElement(primaryKey, *aliases) ?: return emptyList()
+        val array = entry.second as? JsonArray ?: return emptyList()
+        return array.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }
     }
 
     // =========================================================================

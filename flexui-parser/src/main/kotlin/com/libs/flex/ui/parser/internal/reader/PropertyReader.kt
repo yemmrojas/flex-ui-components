@@ -133,4 +133,41 @@ internal interface PropertyReader {
         defaultMax: Double = 100.0,
         defaultStep: Double = 1.0
     ): Either<Nel<ParserError>, NumberRange>
+
+    /**
+     * Lee los nodos hijos bajo [primaryKey] (por defecto "children") o sus [aliases],
+     * delegando recursivamente a [scope.mapChild].
+     */
+    fun readChildren(
+        scope: com.libs.flex.ui.parser.internal.scope.MappingScope,
+        primaryKey: String = "children",
+        vararg aliases: String
+    ): Either<Nel<ParserError>, com.libs.flex.ui.parser.internal.model.ChildrenResult>
+
+    /**
+     * Lee un único componente hijo (ej. "itemTemplate") o sus [aliases],
+     * delegando a [scope.mapChild].
+     */
+    fun readChild(
+        scope: com.libs.flex.ui.parser.internal.scope.MappingScope,
+        primaryKey: String,
+        vararg aliases: String
+    ): Either<Nel<ParserError>, com.libs.flex.ui.parser.internal.model.MappedNode?>
+
+    /**
+     * Retorna el tamaño de una lista/array JSON bajo [primaryKey] o [aliases], o null si no existe.
+     */
+    fun optionalListSize(
+        primaryKey: String,
+        vararg aliases: String
+    ): Int?
+
+    /**
+     * Lee una lista opcional de strings bajo [primaryKey] o [aliases].
+     */
+    fun optionalStringList(
+        primaryKey: String,
+        vararg aliases: String
+    ): List<String>
 }
+

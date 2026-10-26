@@ -31,6 +31,17 @@ internal interface ErrorPolicy {
         onWarn: (ParserWarning) -> Unit
     ): Either<Nel<ParserError>, T?>
 
+    /**
+     * Resuelve un error detectado al deserializar una propiedad opcional con valor por defecto no nulo.
+     */
+    fun <T : Any> handleNonNullOptionalError(
+        path: String,
+        property: String,
+        error: ParserError,
+        default: T,
+        onWarn: (ParserWarning) -> Unit
+    ): Either<Nel<ParserError>, T>
+
     companion object {
         fun of(mode: ParserMode): ErrorPolicy = when (mode) {
             ParserMode.STRICT -> StrictErrorPolicy
@@ -52,6 +63,16 @@ internal object StrictErrorPolicy : ErrorPolicy {
     ): Either<Nel<ParserError>, T?> {
         return Either.Left(Nel.of(error))
     }
+
+    override fun <T : Any> handleNonNullOptionalError(
+        path: String,
+        property: String,
+        error: ParserError,
+        default: T,
+        onWarn: (ParserWarning) -> Unit
+    ): Either<Nel<ParserError>, T> {
+        return Either.Left(Nel.of(error))
+    }
 }
 
 /**
@@ -68,6 +89,23 @@ internal object TolerantErrorPolicy : ErrorPolicy {
         default: T?,
         onWarn: (ParserWarning) -> Unit
     ): Either<Nel<ParserError>, T?> {
+        onWarn(
+            ParserWarning(
+                path = path,
+                code = CODE_INVALID_OPTIONAL_PROPERTY,
+                message = "Optional property '$property' at '$path' was invalid: ${error.message}. Defaulting to $default"
+            )
+        )
+        return Either.Right(default)
+    }
+
+    override fun <T : Any> handleNonNullOptionalError(
+        path: String,
+        property: String,
+        error: ParserError,
+        default: T,
+        onWarn: (ParserWarning) -> Unit
+    ): Either<Nel<ParserError>, T> {
         onWarn(
             ParserWarning(
                 path = path,

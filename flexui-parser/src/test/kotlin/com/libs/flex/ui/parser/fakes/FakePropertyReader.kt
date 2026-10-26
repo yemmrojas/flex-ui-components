@@ -31,7 +31,11 @@ internal class FakePropertyReader(
     private val selectOptions: List<SelectOption> = emptyList(),
     private val numberRange: NumberRange? = null,
     private val id: String? = "test_id",
-    private val style: StyleProperties = StyleProperties()
+    private val style: StyleProperties = StyleProperties(),
+    private val childrenResult: Either<Nel<ParserError>, com.libs.flex.ui.parser.internal.model.ChildrenResult> = Either.Right(com.libs.flex.ui.parser.internal.model.ChildrenResult()),
+    private val childMap: Map<String, Either<Nel<ParserError>, com.libs.flex.ui.parser.internal.model.MappedNode?>> = emptyMap(),
+    private val listSizes: Map<String, Int> = emptyMap(),
+    private val stringLists: Map<String, List<String>> = emptyMap()
 ) : PropertyReader {
 
     override fun requiredString(primaryKey: String, vararg aliases: String): Either<Nel<ParserError>, String> {
@@ -45,7 +49,11 @@ internal class FakePropertyReader(
         vararg aliases: String,
         default: String?
     ): Either<Nel<ParserError>, String?> {
-        val value = strings[primaryKey] ?: aliases.firstNotNullOfOrNull { strings[it] } ?: default
+        val value = if (primaryKey == "id") {
+            id ?: strings["id"] ?: aliases.firstNotNullOfOrNull { strings[it] } ?: default
+        } else {
+            strings[primaryKey] ?: aliases.firstNotNullOfOrNull { strings[it] } ?: default
+        }
         return Either.Right(value)
     }
 
@@ -151,4 +159,30 @@ internal class FakePropertyReader(
             )
         }
     }
+
+    override fun readChildren(
+        scope: com.libs.flex.ui.parser.internal.scope.MappingScope,
+        primaryKey: String,
+        vararg aliases: String
+    ): Either<Nel<ParserError>, com.libs.flex.ui.parser.internal.model.ChildrenResult> {
+        return childrenResult
+    }
+
+    override fun readChild(
+        scope: com.libs.flex.ui.parser.internal.scope.MappingScope,
+        primaryKey: String,
+        vararg aliases: String
+    ): Either<Nel<ParserError>, com.libs.flex.ui.parser.internal.model.MappedNode?> {
+        val entry = childMap[primaryKey] ?: aliases.firstNotNullOfOrNull { childMap[it] }
+        return entry ?: Either.Right(null)
+    }
+
+    override fun optionalListSize(primaryKey: String, vararg aliases: String): Int? {
+        return listSizes[primaryKey] ?: aliases.firstNotNullOfOrNull { listSizes[it] }
+    }
+
+    override fun optionalStringList(primaryKey: String, vararg aliases: String): List<String> {
+        return stringLists[primaryKey] ?: aliases.firstNotNullOfOrNull { stringLists[it] } ?: emptyList()
+    }
 }
+
