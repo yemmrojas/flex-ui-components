@@ -2,8 +2,12 @@ package com.libs.flex.ui.parser.internal.reader
 
 import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.functional.Nel
+import com.libs.flex.ui.core.domain.model.node.SelectOption
+import com.libs.flex.ui.core.domain.validation.ValidationRule
 import com.libs.flex.ui.core.domain.value.Dimension
+import com.libs.flex.ui.core.domain.value.FontSize
 import com.libs.flex.ui.core.domain.value.HexColor
+import com.libs.flex.ui.core.domain.value.NumberRange
 import com.libs.flex.ui.parser.ParserError
 import com.libs.flex.ui.parser.internal.model.CommonProperties
 
@@ -93,4 +97,40 @@ internal interface PropertyReader {
      * Extrae las propiedades comunes del componente: identificador saneado y estilos.
      */
     fun readCommonProperties(): Either<Nel<ParserError>, CommonProperties>
+
+    /**
+     * Lee un tamaño de fuente tipado [FontSize] opcional.
+     */
+    fun optionalFontSize(
+        primaryKey: String = "fontSize",
+        vararg aliases: String
+    ): Either<Nel<ParserError>, FontSize?>
+
+    /**
+     * Lee una lista de reglas de validación [ValidationRule].
+     */
+    fun readValidationRules(
+        primaryKey: String = "validationRules",
+        vararg aliases: String = arrayOf("validations", "rules")
+    ): Either<Nel<ParserError>, List<ValidationRule>>
+
+    /**
+     * Lee una lista no vacía de opciones [SelectOption].
+     */
+    fun readSelectOptions(
+        primaryKey: String = "options",
+        vararg aliases: String = arrayOf("items")
+    ): Either<Nel<ParserError>, Nel<SelectOption>>
+
+    /**
+     * Lee un rango numérico [NumberRange] a partir de min, max y step.
+     */
+    fun readNumberRange(
+        minKey: String = "min",
+        maxKey: String = "max",
+        stepKey: String = "step",
+        defaultMin: Double = 0.0,
+        defaultMax: Double = 100.0,
+        defaultStep: Double = 1.0
+    ): Either<Nel<ParserError>, NumberRange>
 }

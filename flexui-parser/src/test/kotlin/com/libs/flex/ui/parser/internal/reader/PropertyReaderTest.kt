@@ -137,4 +137,68 @@ class PropertyReaderTest {
             (it as com.libs.flex.ui.parser.internal.model.CommonProperties).id.value
         })
     }
+
+    @Test
+    fun `optionalFontSize returns FontSize on valid float`() {
+        val json = parseJsonObject("""{"fontSize": 16.5}""")
+        val reader: PropertyReader = JsonPropertyReader(json, "root.text", StrictErrorPolicy) {}
+
+        val result = reader.optionalFontSize("fontSize")
+        val fontSize = assertIs<Either.Right<com.libs.flex.ui.core.domain.value.FontSize?>>(result).value
+        assertNotNull(fontSize)
+        assertEquals(16.5f, fontSize.value)
+    }
+
+    @Test
+    fun `readSelectOptions parses array of options`() {
+        val json = parseJsonObject(
+            """
+            {
+                "options": [
+                    {"label": "Option 1", "value": "opt_1"},
+                    {"label": "Option 2", "value": "opt_2"}
+                ]
+            }
+            """.trimIndent()
+        )
+        val reader: PropertyReader = JsonPropertyReader(json, "root.select", StrictErrorPolicy) {}
+
+        val result = reader.readSelectOptions("options")
+        val options = assertIs<Either.Right<*>>(result).value as com.libs.flex.ui.core.domain.functional.Nel<*>
+        assertEquals(2, options.size)
+        val first = options.head as com.libs.flex.ui.core.domain.model.node.SelectOption
+        assertEquals("opt_1", first.value)
+        assertEquals("Option 1", first.label)
+    }
+
+    @Test
+    fun `readNumberRange parses min max step`() {
+        val json = parseJsonObject("""{"min": 10.0, "max": 50.0, "step": 5.0}""")
+        val reader: PropertyReader = JsonPropertyReader(json, "root.slider", StrictErrorPolicy) {}
+
+        val result = reader.readNumberRange("min", "max", "step")
+        val range = assertIs<Either.Right<com.libs.flex.ui.core.domain.value.NumberRange>>(result).value
+        assertEquals(10.0, range.min)
+        assertEquals(50.0, range.max)
+        assertEquals(5.0, range.step)
+    }
+
+    @Test
+    fun `readValidationRules parses rules array`() {
+        val json = parseJsonObject(
+            """
+            {
+                "validations": [
+                    {"type": "required", "message": "Field required"}
+                ]
+            }
+            """.trimIndent()
+        )
+        val reader: PropertyReader = JsonPropertyReader(json, "root.input", StrictErrorPolicy) {}
+
+        val result = reader.readValidationRules("validations")
+        val rules = assertIs<Either.Right<List<*>>>(result).value
+        assertEquals(1, rules.size)
+        assertIs<com.libs.flex.ui.core.domain.validation.RequiredRule>(rules.first())
+    }
 }
