@@ -6,6 +6,7 @@ import com.libs.flex.ui.parser.ParserError
 import com.libs.flex.ui.parser.ParserOptions
 import com.libs.flex.ui.parser.ParserWarning
 import com.libs.flex.ui.parser.internal.model.MappedNode
+import com.libs.flex.ui.parser.internal.util.kindName
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
@@ -42,7 +43,7 @@ internal class DefaultMappingScope(
                     ParserError.InvalidPropertyValue(
                         path = childPath,
                         property = segment,
-                        reason = "Expected JSON object for component, but found ${json::class.simpleName}"
+                        reason = "Expected JSON object for component, but found ${json.kindName()}"
                     )
                 )
             )
@@ -80,6 +81,11 @@ internal class DefaultMappingScope(
     }
 
     private fun resolveChildPath(segment: String): String {
-        return if (path.isEmpty()) segment else "$path.$segment"
+        return when {
+            path.isEmpty() -> segment
+            segment.startsWith("[") -> "$path$segment"
+            else -> "$path.$segment"
+        }
     }
 }
+

@@ -21,7 +21,7 @@ class PropertyReaderTest {
     @Test
     fun `requiredString resolves with primary key or alias`() {
         val json = parseJsonObject("""{"label": "Submit Form"}""")
-        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", StrictErrorPolicy()) {}
 
         val result = reader.requiredString("text", "label")
         val value = assertIs<Either.Right<String>>(result).value
@@ -31,7 +31,7 @@ class PropertyReaderTest {
     @Test
     fun `requiredString returns Left when missing`() {
         val json = parseJsonObject("""{"id": "btn_1"}""")
-        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", StrictErrorPolicy()) {}
 
         val result = reader.requiredString("text", "label")
         val left = assertIs<Either.Left<*>>(result)
@@ -43,7 +43,7 @@ class PropertyReaderTest {
     @Test
     fun `requiredString returns Left without exception when value is not a primitive string`() {
         val json = parseJsonObject("""{"text": [1, 2, 3]}""")
-        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", StrictErrorPolicy()) {}
 
         val result = reader.requiredString("text")
         val left = assertIs<Either.Left<*>>(result)
@@ -54,12 +54,12 @@ class PropertyReaderTest {
     @Test
     fun `optionalBoolean resolves alias checked and defaultChecked`() {
         val jsonChecked = parseJsonObject("""{"checked": true}""")
-        val reader1: PropertyReader = JsonPropertyReader(jsonChecked, "root.check", StrictErrorPolicy) {}
+        val reader1: PropertyReader = JsonPropertyReader(jsonChecked, "root.check", StrictErrorPolicy()) {}
         val val1 = assertIs<Either.Right<Boolean>>(reader1.optionalBoolean("defaultChecked", "checked")).value
         assertTrue(val1)
 
         val jsonDefaultChecked = parseJsonObject("""{"defaultChecked": true}""")
-        val reader2: PropertyReader = JsonPropertyReader(jsonDefaultChecked, "root.check", StrictErrorPolicy) {}
+        val reader2: PropertyReader = JsonPropertyReader(jsonDefaultChecked, "root.check", StrictErrorPolicy()) {}
         val val2 = assertIs<Either.Right<Boolean>>(reader2.optionalBoolean("defaultChecked", "checked")).value
         assertTrue(val2)
     }
@@ -67,7 +67,7 @@ class PropertyReaderTest {
     @Test
     fun `optionalColor in STRICT mode returns Left on invalid hex`() {
         val json = parseJsonObject("""{"color": "not-a-color"}""")
-        val reader: PropertyReader = JsonPropertyReader(json, "root.text", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.text", StrictErrorPolicy()) {}
 
         val result = reader.optionalColor("color")
         assertIs<Either.Left<*>>(result)
@@ -77,7 +77,7 @@ class PropertyReaderTest {
     fun `optionalColor in TOLERANT mode returns default and emits warning`() {
         val json = parseJsonObject("""{"color": "not-a-color"}""")
         val warnings = mutableListOf<ParserWarning>()
-        val reader: PropertyReader = JsonPropertyReader(json, "root.text", TolerantErrorPolicy) { warnings.add(it) }
+        val reader: PropertyReader = JsonPropertyReader(json, "root.text", TolerantErrorPolicy()) { warnings.add(it) }
 
         val result = reader.optionalColor("color")
         val right = assertIs<Either.Right<*>>(result)
@@ -100,7 +100,7 @@ class PropertyReaderTest {
             }
             """.trimIndent()
         )
-        val reader: PropertyReader = JsonPropertyReader(json, "root.header", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.header", StrictErrorPolicy()) {}
 
         val result = reader.readCommonProperties()
         val common = assertIs<Either.Right<*>>(result).value as com.libs.flex.ui.parser.internal.model.CommonProperties
@@ -114,7 +114,7 @@ class PropertyReaderTest {
     @Test
     fun `readCommonProperties generates safe id when missing`() {
         val json = parseJsonObject("""{}""")
-        val reader: PropertyReader = JsonPropertyReader(json, "root.children_0", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.children_0", StrictErrorPolicy()) {}
 
         val result = reader.readCommonProperties()
         val common = assertIs<Either.Right<*>>(result).value as com.libs.flex.ui.parser.internal.model.CommonProperties
@@ -141,7 +141,7 @@ class PropertyReaderTest {
     @Test
     fun `optionalFontSize returns FontSize on valid float`() {
         val json = parseJsonObject("""{"fontSize": 16.5}""")
-        val reader: PropertyReader = JsonPropertyReader(json, "root.text", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.text", StrictErrorPolicy()) {}
 
         val result = reader.optionalFontSize("fontSize")
         val fontSize = assertIs<Either.Right<com.libs.flex.ui.core.domain.value.FontSize?>>(result).value
@@ -161,7 +161,7 @@ class PropertyReaderTest {
             }
             """.trimIndent()
         )
-        val reader: PropertyReader = JsonPropertyReader(json, "root.select", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.select", StrictErrorPolicy()) {}
 
         val result = reader.readSelectOptions("options")
         val options = assertIs<Either.Right<*>>(result).value as com.libs.flex.ui.core.domain.functional.Nel<*>
@@ -174,7 +174,7 @@ class PropertyReaderTest {
     @Test
     fun `readNumberRange parses min max step`() {
         val json = parseJsonObject("""{"min": 10.0, "max": 50.0, "step": 5.0}""")
-        val reader: PropertyReader = JsonPropertyReader(json, "root.slider", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.slider", StrictErrorPolicy()) {}
 
         val result = reader.readNumberRange("min", "max", "step")
         val range = assertIs<Either.Right<com.libs.flex.ui.core.domain.value.NumberRange>>(result).value
@@ -194,7 +194,7 @@ class PropertyReaderTest {
             }
             """.trimIndent()
         )
-        val reader: PropertyReader = JsonPropertyReader(json, "root.input", StrictErrorPolicy) {}
+        val reader: PropertyReader = JsonPropertyReader(json, "root.input", StrictErrorPolicy()) {}
 
         val result = reader.readValidationRules("validations")
         val rules = assertIs<Either.Right<List<*>>>(result).value

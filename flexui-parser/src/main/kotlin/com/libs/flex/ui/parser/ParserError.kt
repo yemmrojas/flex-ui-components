@@ -107,4 +107,15 @@ public sealed class ParserError {
             }
         }
     }
+
+    /**
+     * Error interno inesperado ocurrido durante el proceso de parsing o mapeo.
+     */
+    public data class InternalError(
+        override val path: String,
+        public val cause: Throwable
+    ) : ParserError() {
+        override val message: String = "Internal parser error at '$path': ${cause.message ?: cause::class.simpleName}"
+    }
 }
+

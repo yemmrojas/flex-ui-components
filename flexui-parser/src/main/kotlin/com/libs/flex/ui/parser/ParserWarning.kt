@@ -15,3 +15,15 @@ public data class ParserWarning(
     public val code: String,
     public val message: String
 )
+
+/**
+ * Códigos estandarizados para advertencias emitidas por el parser.
+ */
+public object WarningCode {
+    public const val UNKNOWN_COMPONENT: String = "UNKNOWN_COMPONENT"
+    public const val MISSING_TYPE: String = "MISSING_TYPE"
+    public const val INVALID_OPTIONAL_PROPERTY: String = "INVALID_OPTIONAL_PROPERTY"
+    public const val LEGACY_ROOT_KEY: String = "LEGACY_ROOT_KEY"
+    public const val INVALID_TEMPLATE: String = "INVALID_TEMPLATE"
+}
+

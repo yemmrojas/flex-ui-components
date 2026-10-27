@@ -2,7 +2,6 @@ package com.libs.flex.ui.parser
 
 import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.functional.Nel
-import com.libs.flex.ui.parser.internal.DefaultLayoutParser
 
 /**
  * Fachada principal del módulo `:flexui-parser` (Dependency Inversion Principle).
@@ -24,11 +23,4 @@ public interface LayoutParser {
         jsonString: String,
         options: ParserOptions = ParserOptions.DEFAULT
     ): Either<Nel<ParserError>, ParseResult>
-
-    public companion object {
-        /**
-         * Crea una nueva instancia de la implementación predeterminada de [LayoutParser].
-         */
-        public fun create(): LayoutParser = DefaultLayoutParser()
-    }
 }

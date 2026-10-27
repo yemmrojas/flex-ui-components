@@ -15,7 +15,7 @@ class LayoutParserTest {
 
     @Test
     fun `LayoutParser factory creates default implementation`() {
-        val parser = LayoutParser.create()
+        val parser = LayoutParserFactory.create()
         assertNotNull(parser)
     }
 

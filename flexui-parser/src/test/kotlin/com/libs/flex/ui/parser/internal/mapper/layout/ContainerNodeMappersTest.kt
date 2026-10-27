@@ -55,7 +55,7 @@ class ContainerNodeMappersTest {
 
     private fun givenJsonReader(jsonStr: String, path: String = "root"): JsonPropertyReader {
         val json = Json.parseToJsonElement(jsonStr).jsonObject
-        return JsonPropertyReader(json, path, StrictErrorPolicy) {}
+        return JsonPropertyReader(json, path, StrictErrorPolicy()) {}
     }
 
     // =========================================================================
@@ -487,7 +487,7 @@ class ContainerNodeMappersTest {
 
         fun resolveComponent(jsonObj: JsonObject, scope: MappingScope): Either<Nel<ParserError>, MappedNode> {
             val type = (jsonObj["type"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: ""
-            val reader = JsonPropertyReader(jsonObj, scope.path, StrictErrorPolicy) {}
+            val reader = JsonPropertyReader(jsonObj, scope.path, StrictErrorPolicy()) {}
             return when {
                 type in verticalMapper.types -> verticalMapper.map(reader, scope)
                 type in listMapper.types -> listMapper.map(reader, scope)

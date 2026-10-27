@@ -29,7 +29,7 @@ class ValidationRuleMapperTest {
     @Test
     fun `maps required rule with custom message`() {
         val json = parseJsonObject("""{"type": "required", "message": "Email is required"}""")
-        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy) {}
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy()) {}
 
         val rule = assertIs<Either.Right<RequiredRule>>(result).value
         assertEquals("Email is required", rule.customMessage)
@@ -38,7 +38,7 @@ class ValidationRuleMapperTest {
     @Test
     fun `maps minLength rule with min property`() {
         val json = parseJsonObject("""{"type": "minLength", "min": 5, "message": "Min 5 chars"}""")
-        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy) {}
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy()) {}
 
         val rule = assertIs<Either.Right<MinLengthRule>>(result).value
         assertEquals(5, rule.min)
@@ -48,7 +48,7 @@ class ValidationRuleMapperTest {
     @Test
     fun `maps maxLength rule with max property`() {
         val json = parseJsonObject("""{"type": "maxLength", "max": 20}""")
-        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy) {}
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy()) {}
 
         val rule = assertIs<Either.Right<MaxLengthRule>>(result).value
         assertEquals(20, rule.max)
@@ -57,7 +57,7 @@ class ValidationRuleMapperTest {
     @Test
     fun `maps regex pattern rule`() {
         val json = parseJsonObject("""{"type": "regex", "pattern": "^[0-9]+$", "message": "Only numbers"}""")
-        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy) {}
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy()) {}
 
         val rule = assertIs<Either.Right<RegexRule>>(result).value
         assertEquals("^[0-9]+$", rule.pattern)
@@ -66,7 +66,7 @@ class ValidationRuleMapperTest {
     @Test
     fun `regex with invalid pattern returns Left in STRICT mode`() {
         val json = parseJsonObject("""{"type": "regex", "pattern": "["}""")
-        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy) {}
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy()) {}
 
         assertIs<Either.Left<*>>(result)
     }
@@ -74,7 +74,7 @@ class ValidationRuleMapperTest {
     @Test
     fun `maps numberRange rule`() {
         val json = parseJsonObject("""{"type": "numberRange", "min": 0.0, "max": 100.0, "step": 1.0}""")
-        val result = ValidationRuleMapper.mapRule(json, "root.slider.validations[0]", StrictErrorPolicy) {}
+        val result = ValidationRuleMapper.mapRule(json, "root.slider.validations[0]", StrictErrorPolicy()) {}
 
         val rule = assertIs<Either.Right<NumberRangeRule>>(result).value
         assertEquals(0.0, rule.range.min)
@@ -94,7 +94,7 @@ class ValidationRuleMapperTest {
             """.trimIndent()
         )
 
-        val result = ValidationRuleMapper.mapRules(jsonArray, "root.input.validations", StrictErrorPolicy) {}
+        val result = ValidationRuleMapper.mapRules(jsonArray, "root.input.validations", StrictErrorPolicy()) {}
         val rules = assertIs<Either.Right<List<*>>>(result).value
 
         assertEquals(3, rules.size)
@@ -108,7 +108,7 @@ class ValidationRuleMapperTest {
         val json = parseJsonObject("""{"type": "magicValidationRule"}""")
         val warnings = mutableListOf<com.libs.flex.ui.parser.ParserWarning>()
 
-        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", TolerantErrorPolicy) {
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", TolerantErrorPolicy()) {
             warnings.add(it)
         }
 

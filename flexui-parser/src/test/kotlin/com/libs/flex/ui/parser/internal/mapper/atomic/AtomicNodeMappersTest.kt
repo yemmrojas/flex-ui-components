@@ -46,7 +46,7 @@ class AtomicNodeMappersTest {
 
     private fun givenJsonReader(jsonStr: String, path: String = "root.node"): JsonPropertyReader {
         val json = Json.parseToJsonElement(jsonStr).jsonObject
-        return JsonPropertyReader(json, path, StrictErrorPolicy) {}
+        return JsonPropertyReader(json, path, StrictErrorPolicy()) {}
     }
 
     // =========================================================================

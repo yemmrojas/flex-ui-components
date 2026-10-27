@@ -17,9 +17,11 @@ class ErrorPolicyTest {
         reason = "Invalid hex color format"
     )
 
+    private val factory: ErrorPolicyFactory = DefaultErrorPolicyFactory()
+
     @Test
     fun `StrictErrorPolicy returns Left with Nel containing error`() {
-        val policy = ErrorPolicy.of(ParserMode.STRICT)
+        val policy = factory.create(ParserMode.STRICT)
         var warningEmitted: ParserWarning? = null
 
         val result = policy.handleOptionalError<String>(
@@ -37,7 +39,7 @@ class ErrorPolicyTest {
 
     @Test
     fun `TolerantErrorPolicy returns Right with default and emits warning`() {
-        val policy = ErrorPolicy.of(ParserMode.TOLERANT)
+        val policy = factory.create(ParserMode.TOLERANT)
         var warningEmitted: ParserWarning? = null
 
         val result = policy.handleOptionalError(
@@ -57,7 +59,7 @@ class ErrorPolicyTest {
 
     @Test
     fun `TolerantErrorPolicy handles null default value gracefully`() {
-        val policy = ErrorPolicy.of(ParserMode.TOLERANT)
+        val policy = factory.create(ParserMode.TOLERANT)
         var warningEmitted: ParserWarning? = null
 
         val result = policy.handleOptionalError<Int?>(
