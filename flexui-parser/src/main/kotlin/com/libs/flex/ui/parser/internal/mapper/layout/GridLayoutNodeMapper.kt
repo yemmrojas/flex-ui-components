@@ -18,6 +18,8 @@ private val ALIASES = setOf("grid")
  */
 internal class GridLayoutNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -35,9 +37,5 @@ internal class GridLayoutNodeMapper : NodeMapper {
                 templates = children.templates
             )
         }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
     }
 }

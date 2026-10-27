@@ -95,7 +95,7 @@ class ContainerNodeMappersTest {
     fun `VerticalLayoutNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexVertical", "contentVertical", "vertical"),
-            VerticalLayoutNodeMapper.SUPPORTED_TYPES
+            VerticalLayoutNodeMapper().types
         )
     }
 
@@ -127,7 +127,7 @@ class ContainerNodeMappersTest {
     fun `HorizontalLayoutNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexHorizontal", "contentHorizontal", "horizontal"),
-            HorizontalLayoutNodeMapper.SUPPORTED_TYPES
+            HorizontalLayoutNodeMapper().types
         )
     }
 
@@ -175,7 +175,7 @@ class ContainerNodeMappersTest {
     fun `ScrollLayoutNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexScroll", "contentScroll", "scroll"),
-            ScrollLayoutNodeMapper.SUPPORTED_TYPES
+            ScrollLayoutNodeMapper().types
         )
     }
 
@@ -206,7 +206,7 @@ class ContainerNodeMappersTest {
     fun `CardContainerNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexCard", "cardContainer", "card"),
-            CardContainerNodeMapper.SUPPORTED_TYPES
+            CardContainerNodeMapper().types
         )
     }
 
@@ -237,7 +237,7 @@ class ContainerNodeMappersTest {
     fun `GridLayoutNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexGrid", "grid"),
-            GridLayoutNodeMapper.SUPPORTED_TYPES
+            GridLayoutNodeMapper().types
         )
     }
 
@@ -301,7 +301,7 @@ class ContainerNodeMappersTest {
     fun `CarouselLayoutNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexCarousel", "flexSlider", "contentSlider", "imageSlider"),
-            CarouselLayoutNodeMapper.SUPPORTED_TYPES
+            CarouselLayoutNodeMapper().types
         )
     }
 
@@ -362,7 +362,7 @@ class ContainerNodeMappersTest {
     fun `FloatingButtonLayoutNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexFloatingButton", "contentWithFloatingButton"),
-            FloatingButtonLayoutNodeMapper.SUPPORTED_TYPES
+            FloatingButtonLayoutNodeMapper().types
         )
     }
 
@@ -447,7 +447,7 @@ class ContainerNodeMappersTest {
     fun `ListLayoutNodeMapper supported types match spec`() {
         assertEquals(
             setOf("flexList", "contentList", "list", "componentListView"),
-            ListLayoutNodeMapper.SUPPORTED_TYPES
+            ListLayoutNodeMapper().types
         )
     }
 
@@ -489,8 +489,8 @@ class ContainerNodeMappersTest {
             val type = (jsonObj["type"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: ""
             val reader = JsonPropertyReader(jsonObj, scope.path, StrictErrorPolicy) {}
             return when {
-                type in VerticalLayoutNodeMapper.SUPPORTED_TYPES -> verticalMapper.map(reader, scope)
-                type in ListLayoutNodeMapper.SUPPORTED_TYPES -> listMapper.map(reader, scope)
+                type in verticalMapper.types -> verticalMapper.map(reader, scope)
+                type in listMapper.types -> listMapper.map(reader, scope)
                 type == "componentTextView" -> {
                     val id = (jsonObj["id"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: "text"
                     val text = (jsonObj["text"] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: ""

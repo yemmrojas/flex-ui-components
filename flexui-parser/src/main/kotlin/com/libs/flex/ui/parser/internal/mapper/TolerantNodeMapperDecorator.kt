@@ -9,6 +9,8 @@ import com.libs.flex.ui.parser.internal.reader.PropertyReader
 import com.libs.flex.ui.parser.internal.scope.MappingScope
 import com.libs.flex.ui.parser.internal.util.IdSanitizer
 
+import com.libs.flex.ui.parser.ParserMode
+
 private const val KEY_TYPE = "type"
 private const val KEY_ID = "id"
 private const val DEFAULT_TYPE = "unknown"
@@ -19,17 +21,33 @@ private const val WARN_CODE_NODE_FALLBACK = "NODE_FALLBACK"
  * Decorador que intercepta cualquier fallo devuelto por un [NodeMapper] delegado
  * y lo transforma en un [UnsupportedFallbackNode] inofensivo, registrando un warning en el [scope].
  *
- * Garantiza que en modo tolerante ([com.libs.flex.ui.parser.ParserMode.TOLERANT])
- * un nodo inválido nunca interrumpa el parsing del resto del árbol.
+ * Evalúa dinámicamente [com.libs.flex.ui.parser.ParserOptions.mode] en tiempo de ejecución:
+ * - En modo estricto ([ParserMode.STRICT]), delega directamente sin interceptar fallos.
+ * - En modo tolerante ([ParserMode.TOLERANT]), captura fallos y excepciones para evitar caídas del árbol.
  */
 internal class TolerantNodeMapperDecorator(
-    private val delegate: NodeMapper
+    val delegate: NodeMapper
 ) : NodeMapper {
+
+    override val types: Set<String> get() = delegate.types
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other is TolerantNodeMapperDecorator) return delegate == other.delegate
+        return delegate == other
+    }
+
+    override fun hashCode(): Int = delegate.hashCode()
 
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
     ): Either<Nel<ParserError>, MappedNode> {
+        // En modo estricto, no intercepta fallos; delega directamente al mapper original
+        if (scope.options.mode != ParserMode.TOLERANT) {
+            return delegate.map(reader, scope)
+        }
+
         return try {
             when (val result = delegate.map(reader, scope)) {
                 is Either.Right -> result

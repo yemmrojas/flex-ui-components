@@ -30,6 +30,8 @@ private const val DEFAULT_REQUIRES_VALIDATION = false
  */
 internal class FloatingButtonLayoutNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -86,8 +88,5 @@ internal class FloatingButtonLayoutNodeMapper : NodeMapper {
             )
         }
     }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
-    }
 }
+

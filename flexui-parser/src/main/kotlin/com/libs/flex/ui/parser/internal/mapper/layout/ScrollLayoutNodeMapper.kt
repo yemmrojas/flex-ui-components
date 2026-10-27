@@ -21,6 +21,8 @@ private const val DEFAULT_ORIENTATION = "vertical"
  */
 internal class ScrollLayoutNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -42,9 +44,5 @@ internal class ScrollLayoutNodeMapper : NodeMapper {
                     templates = children.templates
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
     }
 }

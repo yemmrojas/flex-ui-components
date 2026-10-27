@@ -18,6 +18,8 @@ import com.libs.flex.ui.parser.internal.util.Quad
  */
 internal class CheckNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexCheck", "checkbox", "componentCheckbox", "componentCheck", "check")
+
     override fun map(reader: PropertyReader, scope: MappingScope): Either<Nel<ParserError>, MappedNode> {
         val commonResult = reader.readCommonProperties()
         val labelResult = reader.requiredString("label", "text")
@@ -41,9 +43,5 @@ internal class CheckNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexCheck", "checkbox", "componentCheckbox", "componentCheck", "check")
     }
 }

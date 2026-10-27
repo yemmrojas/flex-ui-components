@@ -21,6 +21,8 @@ import com.libs.flex.ui.parser.internal.util.Quint
  */
 internal class ButtonNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexButton", "button", "componentButton")
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -74,8 +76,5 @@ internal class ButtonNodeMapper : NodeMapper {
         "text" -> ButtonVariant.Text
         else -> ButtonVariant.Primary
     }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexButton", "button", "componentButton")
-    }
 }
+

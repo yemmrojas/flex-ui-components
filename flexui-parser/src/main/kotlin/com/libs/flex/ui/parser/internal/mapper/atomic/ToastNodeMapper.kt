@@ -17,6 +17,8 @@ import com.libs.flex.ui.parser.internal.scope.MappingScope
  */
 internal class ToastNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexToast", "componentToast", "toast")
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -40,9 +42,5 @@ internal class ToastNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexToast", "componentToast", "toast")
     }
 }

@@ -110,9 +110,10 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `TextNodeMapper declares supported types`() {
-        assertTrue(TextNodeMapper.SUPPORTED_TYPES.contains("flexText"))
-        assertTrue(TextNodeMapper.SUPPORTED_TYPES.contains("componentTextView"))
-        assertTrue(TextNodeMapper.SUPPORTED_TYPES.contains("text"))
+        val types = TextNodeMapper().types
+        assertTrue(types.contains("flexText"))
+        assertTrue(types.contains("componentTextView"))
+        assertTrue(types.contains("text"))
     }
 
     // =========================================================================
@@ -194,9 +195,10 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `ButtonNodeMapper declares supported types`() {
-        assertTrue(ButtonNodeMapper.SUPPORTED_TYPES.contains("flexButton"))
-        assertTrue(ButtonNodeMapper.SUPPORTED_TYPES.contains("button"))
-        assertTrue(ButtonNodeMapper.SUPPORTED_TYPES.contains("componentButton"))
+        val types = ButtonNodeMapper().types
+        assertTrue(types.contains("flexButton"))
+        assertTrue(types.contains("button"))
+        assertTrue(types.contains("componentButton"))
     }
 
     // =========================================================================
@@ -254,10 +256,11 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `InputNodeMapper declares supported types`() {
-        assertTrue(InputNodeMapper.SUPPORTED_TYPES.contains("flexInput"))
-        assertTrue(InputNodeMapper.SUPPORTED_TYPES.contains("input"))
-        assertTrue(InputNodeMapper.SUPPORTED_TYPES.contains("componentTextInput"))
-        assertTrue(InputNodeMapper.SUPPORTED_TYPES.contains("componentInput"))
+        val types = InputNodeMapper().types
+        assertTrue(types.contains("flexInput"))
+        assertTrue(types.contains("input"))
+        assertTrue(types.contains("componentTextInput"))
+        assertTrue(types.contains("componentInput"))
     }
 
     // =========================================================================
@@ -294,11 +297,12 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `CheckNodeMapper declares supported types`() {
-        assertTrue(CheckNodeMapper.SUPPORTED_TYPES.contains("flexCheck"))
-        assertTrue(CheckNodeMapper.SUPPORTED_TYPES.contains("checkbox"))
-        assertTrue(CheckNodeMapper.SUPPORTED_TYPES.contains("componentCheckbox"))
-        assertTrue(CheckNodeMapper.SUPPORTED_TYPES.contains("componentCheck"))
-        assertTrue(CheckNodeMapper.SUPPORTED_TYPES.contains("check"))
+        val types = CheckNodeMapper().types
+        assertTrue(types.contains("flexCheck"))
+        assertTrue(types.contains("checkbox"))
+        assertTrue(types.contains("componentCheckbox"))
+        assertTrue(types.contains("componentCheck"))
+        assertTrue(types.contains("check"))
     }
 
     // =========================================================================
@@ -344,10 +348,11 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `SelectNodeMapper declares supported types`() {
-        assertTrue(SelectNodeMapper.SUPPORTED_TYPES.contains("flexSelect"))
-        assertTrue(SelectNodeMapper.SUPPORTED_TYPES.contains("select"))
-        assertTrue(SelectNodeMapper.SUPPORTED_TYPES.contains("dropdown"))
-        assertTrue(SelectNodeMapper.SUPPORTED_TYPES.contains("componentSelect"))
+        val types = SelectNodeMapper().types
+        assertTrue(types.contains("flexSelect"))
+        assertTrue(types.contains("select"))
+        assertTrue(types.contains("dropdown"))
+        assertTrue(types.contains("componentSelect"))
     }
 
     // =========================================================================
@@ -375,9 +380,10 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `RadioGroupNodeMapper declares supported types`() {
-        assertTrue(RadioGroupNodeMapper.SUPPORTED_TYPES.contains("flexRadioGroup"))
-        assertTrue(RadioGroupNodeMapper.SUPPORTED_TYPES.contains("radioGroup"))
-        assertTrue(RadioGroupNodeMapper.SUPPORTED_TYPES.contains("componentRadioGroup"))
+        val types = RadioGroupNodeMapper().types
+        assertTrue(types.contains("flexRadioGroup"))
+        assertTrue(types.contains("radioGroup"))
+        assertTrue(types.contains("componentRadioGroup"))
     }
 
     // =========================================================================
@@ -429,10 +435,10 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `SliderNodeMapper declares supported types`() {
-        assertTrue(SliderNodeMapper.SUPPORTED_TYPES.contains("flexSliderCheck"))
-        assertTrue(SliderNodeMapper.SUPPORTED_TYPES.contains("componentSliderCheck"))
-        assertTrue(SliderNodeMapper.SUPPORTED_TYPES.contains("slider"))
-        assertTrue(SliderNodeMapper.SUPPORTED_TYPES.contains("flexSlider"))
+        assertEquals(
+            setOf("flexSliderCheck", "componentSliderCheck", "slider"),
+            SliderNodeMapper().types
+        )
     }
 
     // =========================================================================
@@ -457,10 +463,11 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `SwitchNodeMapper declares supported types`() {
-        assertTrue(SwitchNodeMapper.SUPPORTED_TYPES.contains("flexSwitch"))
-        assertTrue(SwitchNodeMapper.SUPPORTED_TYPES.contains("switch"))
-        assertTrue(SwitchNodeMapper.SUPPORTED_TYPES.contains("toggle"))
-        assertTrue(SwitchNodeMapper.SUPPORTED_TYPES.contains("componentSwitch"))
+        val types = SwitchNodeMapper().types
+        assertTrue(types.contains("flexSwitch"))
+        assertTrue(types.contains("switch"))
+        assertTrue(types.contains("toggle"))
+        assertTrue(types.contains("componentSwitch"))
     }
 
     // =========================================================================
@@ -496,10 +503,11 @@ class AtomicNodeMappersTest {
 
     @Test
     fun `ImageNodeMapper declares supported types`() {
-        assertTrue(ImageNodeMapper.SUPPORTED_TYPES.contains("flexImage"))
-        assertTrue(ImageNodeMapper.SUPPORTED_TYPES.contains("image"))
-        assertTrue(ImageNodeMapper.SUPPORTED_TYPES.contains("componentImageView"))
-        assertTrue(ImageNodeMapper.SUPPORTED_TYPES.contains("componentImage"))
+        val types = ImageNodeMapper().types
+        assertTrue(types.contains("flexImage"))
+        assertTrue(types.contains("image"))
+        assertTrue(types.contains("componentImageView"))
+        assertTrue(types.contains("componentImage"))
     }
 
     // =========================================================================

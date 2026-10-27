@@ -6,11 +6,14 @@ import com.libs.flex.ui.core.domain.model.node.TextNode
 import com.libs.flex.ui.core.domain.model.node.UnsupportedFallbackNode
 import com.libs.flex.ui.core.domain.value.ComponentId
 import com.libs.flex.ui.parser.ParserError
+import com.libs.flex.ui.parser.ParserMode
 import com.libs.flex.ui.parser.ParserOptions
 import com.libs.flex.ui.parser.ParserWarning
 import com.libs.flex.ui.parser.fakes.FakePropertyReader
 import com.libs.flex.ui.parser.internal.model.MappedNode
+import com.libs.flex.ui.parser.internal.reader.PropertyReader
 import com.libs.flex.ui.parser.internal.scope.DefaultMappingScope
+import com.libs.flex.ui.parser.internal.scope.MappingScope
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -26,13 +29,23 @@ class TolerantNodeMapperDecoratorTest {
     private fun givenTextNode(id: String = "text_node", text: String = "Hello"): TextNode =
         TextNode(id = givenComponentId(id), text = text)
 
+    private fun givenMapper(
+        types: Set<String> = setOf("testComponent"),
+        mapperFn: (PropertyReader, MappingScope) -> Either<Nel<ParserError>, MappedNode>
+    ): NodeMapper = object : NodeMapper {
+        override val types: Set<String> = types
+        override fun map(reader: PropertyReader, scope: MappingScope): Either<Nel<ParserError>, MappedNode> =
+            mapperFn(reader, scope)
+    }
+
     private fun givenScope(
         path: String = "root.node",
+        mode: ParserMode = ParserMode.TOLERANT,
         warnings: MutableList<ParserWarning> = mutableListOf()
     ): DefaultMappingScope = DefaultMappingScope(
         path = path,
         depth = 1,
-        options = ParserOptions.DEFAULT,
+        options = ParserOptions(mode = mode),
         nodeResolver = { _, _ -> Either.Right(MappedNode(givenTextNode())) },
         onWarn = { warnings.add(it) }
     )
@@ -42,9 +55,26 @@ class TolerantNodeMapperDecoratorTest {
     // =========================================================================
 
     @Test
+    fun `in STRICT mode, does not intercept failure and delegates directly returning Left`() {
+        val delegate = givenMapper { reader, _ ->
+            Either.Left(Nel.of(ParserError.MissingRequiredProperty(reader.path, "requiredField")))
+        }
+        val decorator = TolerantNodeMapperDecorator(delegate)
+
+        val warnings = mutableListOf<ParserWarning>()
+        val strictScope = givenScope(mode = ParserMode.STRICT, warnings = warnings)
+        val reader = FakePropertyReader(path = "root.broken_node")
+
+        val result = decorator.map(reader, strictScope)
+
+        assertIs<Either.Left<Nel<ParserError>>>(result)
+        assertTrue(warnings.isEmpty())
+    }
+
+    @Test
     fun `when delegate succeeds, returns Right with delegate node untouched and no warnings`() {
         val expectedNode = givenTextNode("title", "Flex UI")
-        val delegate = NodeMapper { _, _ -> Either.Right(MappedNode(expectedNode)) }
+        val delegate = givenMapper { _, _ -> Either.Right(MappedNode(expectedNode)) }
         val decorator = TolerantNodeMapperDecorator(delegate)
 
         val warnings = mutableListOf<ParserWarning>()
@@ -60,7 +90,7 @@ class TolerantNodeMapperDecoratorTest {
 
     @Test
     fun `when delegate fails, returns Right with UnsupportedFallbackNode and emits warning`() {
-        val delegate = NodeMapper { reader, _ ->
+        val delegate = givenMapper { reader, _ ->
             Either.Left(Nel.of(ParserError.MissingRequiredProperty(reader.path, "requiredField")))
         }
         val decorator = TolerantNodeMapperDecorator(delegate)
@@ -90,7 +120,7 @@ class TolerantNodeMapperDecoratorTest {
 
     @Test
     fun `when delegate fails and ID is missing or blank, generates safe fallback ID from scope path`() {
-        val delegate = NodeMapper { _, _ ->
+        val delegate = givenMapper { _, _ ->
             Either.Left(Nel.of(ParserError.InvalidPropertyValue("root.section.item", "value", "Corrupt value")))
         }
         val decorator = TolerantNodeMapperDecorator(delegate)
@@ -115,7 +145,7 @@ class TolerantNodeMapperDecoratorTest {
 
     @Test
     fun `when delegate fails with multiple errors, combines reasons in fallback node`() {
-        val delegate = NodeMapper { _, _ ->
+        val delegate = givenMapper { _, _ ->
             Either.Left(
                 Nel.of(
                     ParserError.MissingRequiredProperty("root.node", "field1"),
@@ -140,7 +170,7 @@ class TolerantNodeMapperDecoratorTest {
 
     @Test
     fun `when delegate throws unexpected exception, captures it safely without crashing`() {
-        val delegate = NodeMapper { _, _ ->
+        val delegate = givenMapper { _, _ ->
             throw IllegalStateException("Unexpected crash in third party mapper")
         }
         val decorator = TolerantNodeMapperDecorator(delegate)
@@ -165,7 +195,7 @@ class TolerantNodeMapperDecoratorTest {
 
     @Test
     fun `when raw ID contains invalid characters, sanitizes it to valid ComponentId`() {
-        val delegate = NodeMapper { _, _ ->
+        val delegate = givenMapper { _, _ ->
             Either.Left(Nel.of(ParserError.MissingRequiredProperty("root.node", "text")))
         }
         val decorator = TolerantNodeMapperDecorator(delegate)
@@ -188,7 +218,7 @@ class TolerantNodeMapperDecoratorTest {
         val mainNode = givenTextNode("main_list", "List")
         val expectedMapped = MappedNode(node = mainNode, templates = listOf(childTemplate))
 
-        val delegate = NodeMapper { _, _ -> Either.Right(expectedMapped) }
+        val delegate = givenMapper { _, _ -> Either.Right(expectedMapped) }
         val decorator = TolerantNodeMapperDecorator(delegate)
 
         val result = decorator.map(FakePropertyReader(), givenScope())
@@ -198,4 +228,3 @@ class TolerantNodeMapperDecoratorTest {
         assertEquals(listOf(childTemplate), right.value.templates)
     }
 }
-

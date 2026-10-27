@@ -17,6 +17,8 @@ import com.libs.flex.ui.parser.internal.scope.MappingScope
  */
 internal class RadioGroupNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexRadioGroup", "radioGroup", "componentRadioGroup", "radio")
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -40,9 +42,5 @@ internal class RadioGroupNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexRadioGroup", "radioGroup", "componentRadioGroup")
     }
 }

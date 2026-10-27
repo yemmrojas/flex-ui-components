@@ -17,6 +17,8 @@ import com.libs.flex.ui.parser.internal.scope.MappingScope
  */
 internal class ImageNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexImage", "image", "componentImageView", "componentImage")
+
     override fun map(reader: PropertyReader, scope: MappingScope): Either<Nel<ParserError>, MappedNode> {
         val commonResult = reader.readCommonProperties()
         val urlResult = reader.requiredString("url", "src", "imageUrl")
@@ -37,9 +39,5 @@ internal class ImageNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexImage", "image", "componentImageView", "componentImage")
     }
 }

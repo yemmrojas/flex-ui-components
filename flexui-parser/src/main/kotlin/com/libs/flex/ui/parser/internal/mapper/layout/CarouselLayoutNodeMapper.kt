@@ -30,6 +30,8 @@ private const val DEFAULT_INTERVAL_MS = 3000L
  */
 internal class CarouselLayoutNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -76,8 +78,5 @@ internal class CarouselLayoutNodeMapper : NodeMapper {
             )
         }
     }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
-    }
 }
+

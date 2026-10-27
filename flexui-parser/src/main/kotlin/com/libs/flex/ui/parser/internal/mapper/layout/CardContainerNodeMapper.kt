@@ -20,6 +20,8 @@ private val ALIASES = setOf("cardContainer", "card")
  */
 internal class CardContainerNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -37,9 +39,5 @@ internal class CardContainerNodeMapper : NodeMapper {
                 templates = children.templates
             )
         }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
     }
 }

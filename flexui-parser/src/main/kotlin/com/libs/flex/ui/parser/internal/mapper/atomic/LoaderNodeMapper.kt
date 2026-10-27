@@ -17,6 +17,8 @@ import com.libs.flex.ui.parser.internal.scope.MappingScope
  */
 internal class LoaderNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexLoader", "componentLoader", "loader")
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -37,9 +39,5 @@ internal class LoaderNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexLoader", "componentLoader", "loader")
     }
 }

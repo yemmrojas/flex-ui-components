@@ -30,6 +30,8 @@ private const val KEY_ITEMS = "items"
  */
 internal class ListLayoutNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -111,8 +113,5 @@ internal class ListLayoutNodeMapper : NodeMapper {
             )
         }
     }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf(PRIMARY_TYPE) + ALIASES
-    }
 }
+

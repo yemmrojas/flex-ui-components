@@ -17,6 +17,8 @@ import com.libs.flex.ui.parser.internal.scope.MappingScope
  */
 internal class CustomNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexCustom", "custom")
+
     override fun map(reader: PropertyReader, scope: MappingScope): Either<Nel<ParserError>, MappedNode> {
         val commonResult = reader.readCommonProperties()
         val typeResult = reader.requiredString("type")
@@ -31,9 +33,5 @@ internal class CustomNodeMapper : NodeMapper {
                 )
             )
         }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexCustom", "custom")
     }
 }

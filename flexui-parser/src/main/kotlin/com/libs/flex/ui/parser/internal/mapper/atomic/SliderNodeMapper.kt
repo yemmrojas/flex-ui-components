@@ -18,6 +18,8 @@ import com.libs.flex.ui.parser.internal.util.Quad
  */
 internal class SliderNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexSliderCheck", "componentSliderCheck", "slider")
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -44,9 +46,5 @@ internal class SliderNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexSliderCheck", "componentSliderCheck", "slider", "flexSlider")
     }
 }

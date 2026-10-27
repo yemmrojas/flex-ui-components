@@ -17,6 +17,8 @@ import com.libs.flex.ui.parser.internal.scope.MappingScope
  */
 internal class SelectNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexSelect", "select", "dropdown", "componentSelect")
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -40,9 +42,5 @@ internal class SelectNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexSelect", "select", "dropdown", "componentSelect")
     }
 }

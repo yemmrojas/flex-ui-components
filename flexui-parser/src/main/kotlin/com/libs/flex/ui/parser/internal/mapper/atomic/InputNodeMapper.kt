@@ -20,6 +20,8 @@ import com.libs.flex.ui.parser.internal.util.Quint
  */
 internal class InputNodeMapper : NodeMapper {
 
+    override val types: Set<String> = setOf("flexInput", "input", "componentTextInput", "componentInput")
+
     override fun map(
         reader: PropertyReader,
         scope: MappingScope
@@ -28,7 +30,7 @@ internal class InputNodeMapper : NodeMapper {
         val labelResult = reader.requiredString("label", "placeholder")
         val placeholderResult = reader.optionalString("placeholder", "hint")
         val variantResult = reader.optionalString("inputVariant", "inputStyle", "variant", default = "outlined")
-        val isSensitiveResult = reader.optionalBoolean("isSensitive", "sensitive", "password", default = false)
+        val isSensitiveResult = reader.optionalBoolean("isSensitive", "sensitive", default = false)
         val rulesResult = reader.readValidationRules("validationRules", "validations", "rules")
 
         return commonResult
@@ -50,9 +52,5 @@ internal class InputNodeMapper : NodeMapper {
                     )
                 )
             }
-    }
-
-    companion object {
-        val SUPPORTED_TYPES: Set<String> = setOf("flexInput", "input", "componentTextInput", "componentInput")
     }
 }
