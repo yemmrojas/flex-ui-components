@@ -60,7 +60,7 @@ internal class NodeMapperRegistry private constructor(
      */
     val supportedTypes: Set<String> get() = mappers.keys
 
-    companion object {
+    internal companion object {
 
         /**
          * Crea el registro predeterminado con todos los 20 mappers atómicos y de layout del framework.
