@@ -1,0 +1,93 @@
+{
+  "id": "fab_screen",
+  "type": "contentWithFloatingButton",
+  "fabIcon": "add",
+  "fabPosition": "end",
+  "actionId": "add_item",
+  "children": [
+    {
+      "id": "fab_content",
+      "type": "contentScroll",
+      "style": {
+        "padding": {
+          "start": 16,
+          "top": 16,
+          "end": 16,
+          "bottom": 16
+        }
+      },
+      "children": [
+        {
+          "id": "fab_header",
+          "type": "componentTextView",
+          "text": "Floating Action Button Demo",
+          "textStyle": "bold",
+          "fontSize": 22,
+          "color": "#7B1FA2",
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
+        },
+        {
+          "id": "fab_description",
+          "type": "componentTextView",
+          "text": "Click the floating action button in the bottom right corner to trigger an action.",
+          "textStyle": "normal",
+          "fontSize": 16,
+          "color": "#424242",
+          "maxLines": 3,
+          "style": {
+            "padding": {
+              "bottom": 24
+            }
+          }
+        },
+        {
+          "id": "content_section",
+          "type": "contentVertical",
+          "arrangement": "top",
+          "children": [
+            {
+              "id": "item_1",
+              "type": "componentTextView",
+              "text": "• Item 1",
+              "fontSize": 16,
+              "color": "#000000",
+              "style": {
+                "padding": {
+                  "bottom": 8
+                }
+              }
+            },
+            {
+              "id": "item_2",
+              "type": "componentTextView",
+              "text": "• Item 2",
+              "fontSize": 16,
+              "color": "#000000",
+              "style": {
+                "padding": {
+                  "bottom": 8
+                }
+              }
+            },
+            {
+              "id": "item_3",
+              "type": "componentTextView",
+              "text": "• Item 3",
+              "fontSize": 16,
+              "color": "#000000",
+              "style": {
+                "padding": {
+                  "bottom": 8
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

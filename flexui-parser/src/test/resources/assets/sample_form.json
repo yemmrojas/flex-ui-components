@@ -1,0 +1,160 @@
+{
+  "id": "main_screen",
+  "type": "contentScroll",
+  "style": {
+    "padding": {
+      "start": 16,
+      "top": 16,
+      "end": 16,
+      "bottom": 16
+    },
+    "backgroundColor": "#F5F5F5"
+  },
+  "children": [
+    {
+      "id": "header",
+      "type": "componentTextView",
+      "text": "FlexUI Demo - User Registration",
+      "textStyle": "bold",
+      "fontSize": 24,
+      "color": "#1976D2",
+      "style": {
+        "padding": {
+          "bottom": 24
+        }
+      }
+    },
+    {
+      "id": "form_container",
+      "type": "contentVertical",
+      "arrangement": "top",
+      "alignment": "start",
+      "style": {
+        "padding": {
+          "start": 0,
+          "top": 0,
+          "end": 0,
+          "bottom": 16
+        }
+      },
+      "children": [
+        {
+          "id": "name_input",
+          "type": "componentInput",
+          "label": "Full Name",
+          "placeholder": "Enter your full name",
+          "inputStyle": "outlined",
+          "style": {
+            "padding": {
+              "bottom": 16
+            },
+            "width": "match_parent"
+          }
+        },
+        {
+          "id": "email_input",
+          "type": "componentInput",
+          "label": "Email Address",
+          "placeholder": "your.email@example.com",
+          "inputStyle": "outlined",
+          "style": {
+            "padding": {
+              "bottom": 16
+            },
+            "width": "match_parent"
+          }
+        },
+        {
+          "id": "age_slider",
+          "type": "componentSliderCheck",
+          "label": "Age",
+          "min": 18,
+          "max": 100,
+          "value": 25,
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
+        },
+        {
+          "id": "country_select",
+          "type": "componentSelect",
+          "label": "Country",
+          "placeholder": "Select your country",
+          "options": [
+            {
+              "label": "United States",
+              "value": "us"
+            },
+            {
+              "label": "Canada",
+              "value": "ca"
+            },
+            {
+              "label": "Mexico",
+              "value": "mx"
+            },
+            {
+              "label": "United Kingdom",
+              "value": "uk"
+            },
+            {
+              "label": "Germany",
+              "value": "de"
+            }
+          ],
+          "style": {
+            "padding": {
+              "bottom": 16
+            }
+          }
+        },
+        {
+          "id": "subscribe_check",
+          "type": "componentCheck",
+          "label": "Subscribe to newsletter",
+          "checked": false,
+          "style": {
+            "padding": {
+              "bottom": 24
+            }
+          }
+        },
+        {
+          "id": "buttons_container",
+          "type": "contentHorizontal",
+          "arrangement": "spaceBetween",
+          "style": {
+            "width": "match_parent"
+          },
+          "children": [
+            {
+              "id": "cancel_button",
+              "type": "componentButton",
+              "text": "Cancel",
+              "buttonStyle": "secondary",
+              "actionId": "cancel_action",
+              "style": {
+                "weight": 1,
+                "padding": {
+                  "end": 8
+                }
+              }
+            },
+            {
+              "id": "submit_button",
+              "type": "componentButton",
+              "text": "Submit",
+              "buttonStyle": "primary",
+              "actionId": "submit_action",
+              "style": {
+                "weight": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
