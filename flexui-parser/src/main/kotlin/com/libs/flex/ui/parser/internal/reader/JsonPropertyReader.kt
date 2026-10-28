@@ -70,9 +70,9 @@ internal class JsonPropertyReader(
         val entry = findElement(primaryKey, *aliases)
             ?: return Either.Left(Nel.of(ParserError.MissingRequiredProperty(path, primaryKey)))
 
-        val content = (entry.second as? JsonPrimitive)?.contentOrNull
-        return if (content != null) {
-            Either.Right(content)
+        val primitive = entry.second as? JsonPrimitive
+        return if (primitive != null && primitive.isString) {
+            Either.Right(primitive.content)
         } else {
             Either.Left(
                 Nel.of(
@@ -95,7 +95,9 @@ internal class JsonPropertyReader(
         aliases = aliases,
         default = default,
         expectedType = "string primitive"
-    ) { it.contentOrNull }
+    ) { primitive ->
+        if (primitive.isString) primitive.content else null
+    }
 
     override fun optionalBoolean(
         primaryKey: String,

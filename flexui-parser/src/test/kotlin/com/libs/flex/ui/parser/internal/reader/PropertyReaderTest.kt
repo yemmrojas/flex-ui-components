@@ -52,6 +52,24 @@ class PropertyReaderTest {
     }
 
     @Test
+    fun `requiredString and optionalString reject non-string primitives like number or boolean`() {
+        val jsonNumber = parseJsonObject("""{"text": 123, "label": true}""")
+        val reader: PropertyReader = JsonPropertyReader(jsonNumber, "root.btn", StrictErrorPolicy()) {}
+
+        val requiredRes = reader.requiredString("text")
+        val requiredLeft = assertIs<Either.Left<*>>(requiredRes)
+        val reqError = assertIs<ParserError.InvalidPropertyValue>((requiredLeft.value as com.libs.flex.ui.core.domain.functional.Nel<*>).head)
+        assertEquals("text", reqError.property)
+        assertTrue(reqError.reason.contains("number"))
+
+        val optionalRes = reader.optionalString("label")
+        val optionalLeft = assertIs<Either.Left<*>>(optionalRes)
+        val optError = assertIs<ParserError.InvalidPropertyValue>((optionalLeft.value as com.libs.flex.ui.core.domain.functional.Nel<*>).head)
+        assertEquals("label", optError.property)
+        assertTrue(optError.reason.contains("string primitive"))
+    }
+
+    @Test
     fun `optionalBoolean resolves alias checked and defaultChecked`() {
         val jsonChecked = parseJsonObject("""{"checked": true}""")
         val reader1: PropertyReader = JsonPropertyReader(jsonChecked, "root.check", StrictErrorPolicy()) {}
@@ -172,6 +190,49 @@ class PropertyReaderTest {
     }
 
     @Test
+    fun `readSelectOptions in STRICT mode propagates invalid option label error`() {
+        val json = parseJsonObject(
+            """
+            {
+                "options": [
+                    {"value": "opt_1", "label": 123}
+                ]
+            }
+            """.trimIndent()
+        )
+        val reader: PropertyReader = JsonPropertyReader(json, "root.select", StrictErrorPolicy()) {}
+
+        val result = reader.readSelectOptions("options")
+        val left = assertIs<Either.Left<*>>(result)
+        val error = assertIs<ParserError.InvalidPropertyValue>((left.value as com.libs.flex.ui.core.domain.functional.Nel<*>).head)
+        assertEquals("label", error.property)
+    }
+
+    @Test
+    fun `readSelectOptions in TOLERANT mode emits warning and falls back to value for invalid label`() {
+        val json = parseJsonObject(
+            """
+            {
+                "options": [
+                    {"value": "opt_1", "label": 123}
+                ]
+            }
+            """.trimIndent()
+        )
+        val warnings = mutableListOf<ParserWarning>()
+        val reader: PropertyReader = JsonPropertyReader(json, "root.select", TolerantErrorPolicy()) { warnings.add(it) }
+
+        val result = reader.readSelectOptions("options")
+        val options = assertIs<Either.Right<*>>(result).value as com.libs.flex.ui.core.domain.functional.Nel<*>
+        assertEquals(1, options.size)
+        val first = options.head as com.libs.flex.ui.core.domain.model.node.SelectOption
+        assertEquals("opt_1", first.value)
+        assertEquals("opt_1", first.label)
+        assertEquals(1, warnings.size)
+        assertEquals("INVALID_OPTIONAL_PROPERTY", warnings.first().code)
+    }
+
+    @Test
     fun `readNumberRange parses min max step`() {
         val json = parseJsonObject("""{"min": 10.0, "max": 50.0, "step": 5.0}""")
         val reader: PropertyReader = JsonPropertyReader(json, "root.slider", StrictErrorPolicy()) {}
@@ -181,6 +242,30 @@ class PropertyReaderTest {
         assertEquals(10.0, range.min)
         assertEquals(50.0, range.max)
         assertEquals(5.0, range.step)
+    }
+
+    @Test
+    fun `readNumberRange in STRICT mode propagates malformed range bound error`() {
+        val json = parseJsonObject("""{"range": {"min": "invalid_min", "max": 100.0}}""")
+        val reader: PropertyReader = JsonPropertyReader(json, "root.slider", StrictErrorPolicy()) {}
+
+        val result = reader.readNumberRange("min", "max", "step")
+        val left = assertIs<Either.Left<*>>(result)
+        val error = assertIs<ParserError.InvalidPropertyValue>((left.value as com.libs.flex.ui.core.domain.functional.Nel<*>).head)
+        assertEquals("min", error.property)
+    }
+
+    @Test
+    fun `readNumberRange in TOLERANT mode emits warning and uses fallback for malformed bound`() {
+        val json = parseJsonObject("""{"range": {"min": "invalid_min", "max": 100.0}}""")
+        val warnings = mutableListOf<ParserWarning>()
+        val reader: PropertyReader = JsonPropertyReader(json, "root.slider", TolerantErrorPolicy()) { warnings.add(it) }
+
+        val result = reader.readNumberRange("min", "max", "step", defaultMin = 0.0)
+        val range = assertIs<Either.Right<com.libs.flex.ui.core.domain.value.NumberRange>>(result).value
+        assertEquals(0.0, range.min)
+        assertEquals(100.0, range.max)
+        assertEquals(1, warnings.size)
     }
 
     @Test
@@ -200,5 +285,47 @@ class PropertyReaderTest {
         val rules = assertIs<Either.Right<List<*>>>(result).value
         assertEquals(1, rules.size)
         assertIs<com.libs.flex.ui.core.domain.validation.RequiredRule>(rules.first())
+    }
+
+    @Test
+    fun `readCommonProperties in STRICT mode propagates invalid style property error`() {
+        val json = parseJsonObject(
+            """
+            {
+                "id": "btn_1",
+                "style": {
+                    "backgroundColor": "invalid_color_not_hex"
+                }
+            }
+            """.trimIndent()
+        )
+        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", StrictErrorPolicy()) {}
+
+        val result = reader.readCommonProperties()
+        val left = assertIs<Either.Left<*>>(result)
+        val error = assertIs<ParserError.InvalidPropertyValue>((left.value as com.libs.flex.ui.core.domain.functional.Nel<*>).head)
+        assertEquals("backgroundColor", error.property)
+    }
+
+    @Test
+    fun `readCommonProperties in TOLERANT mode emits warning and succeeds with null for invalid style`() {
+        val json = parseJsonObject(
+            """
+            {
+                "id": "btn_1",
+                "style": {
+                    "backgroundColor": "invalid_color_not_hex"
+                }
+            }
+            """.trimIndent()
+        )
+        val warnings = mutableListOf<ParserWarning>()
+        val reader: PropertyReader = JsonPropertyReader(json, "root.btn", TolerantErrorPolicy()) { warnings.add(it) }
+
+        val result = reader.readCommonProperties()
+        val common = assertIs<Either.Right<com.libs.flex.ui.parser.internal.model.CommonProperties>>(result).value
+        assertEquals("btn_1", common.id.value)
+        assertEquals(null, common.style.backgroundColor)
+        assertEquals(1, warnings.size)
     }
 }

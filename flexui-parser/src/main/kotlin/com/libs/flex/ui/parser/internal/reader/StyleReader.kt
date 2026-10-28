@@ -20,5 +20,5 @@ internal interface StyleReader {
         onWarn: (ParserWarning) -> Unit
     ): Either<Nel<ParserError>, CommonProperties>
 
-    fun readStyleProperties(styleReader: PropertyReader): StyleProperties
+    fun readStyleProperties(styleReader: PropertyReader): Either<Nel<ParserError>, StyleProperties>
 }

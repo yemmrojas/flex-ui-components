@@ -117,4 +117,38 @@ class ValidationRuleMapperTest {
         assertEquals(1, warnings.size)
         assertTrue(warnings.first().message.contains("magicValidationRule"))
     }
+
+    @Test
+    fun `minLength with malformed min returns Left in STRICT mode`() {
+        val json = parseJsonObject("""{"type": "minLength", "min": "invalid_number"}""")
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy()) {}
+
+        val left = assertIs<Either.Left<*>>(result)
+        val error = assertIs<com.libs.flex.ui.parser.ParserError.InvalidPropertyValue>((left.value as com.libs.flex.ui.core.domain.functional.Nel<*>).head)
+        assertEquals("min", error.property)
+    }
+
+    @Test
+    fun `maxLength with malformed max returns Left in STRICT mode`() {
+        val json = parseJsonObject("""{"type": "maxLength", "max": "invalid_number"}""")
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", StrictErrorPolicy()) {}
+
+        val left = assertIs<Either.Left<*>>(result)
+        val error = assertIs<com.libs.flex.ui.parser.ParserError.InvalidPropertyValue>((left.value as com.libs.flex.ui.core.domain.functional.Nel<*>).head)
+        assertEquals("max", error.property)
+    }
+
+    @Test
+    fun `minLength with malformed min in TOLERANT mode emits warning and continues`() {
+        val json = parseJsonObject("""{"type": "minLength", "min": "invalid_number"}""")
+        val warnings = mutableListOf<com.libs.flex.ui.parser.ParserWarning>()
+        val result = ValidationRuleMapper.mapRule(json, "root.input.validations[0]", TolerantErrorPolicy()) {
+            warnings.add(it)
+        }
+
+        val right = assertIs<Either.Right<*>>(result)
+        val rule = assertIs<MinLengthRule>(right.value)
+        assertEquals(0, rule.min)
+        assertEquals(1, warnings.size)
+    }
 }

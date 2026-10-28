@@ -88,7 +88,20 @@ internal object ValidationRuleMapper {
             onRight = { it }
         )
 
-        val message = reader.optionalString(KEY_MESSAGE, KEY_CUSTOM_MESSAGE).getOrNull()
+        val message = reader.optionalString(
+            KEY_MESSAGE,
+            KEY_CUSTOM_MESSAGE
+        ).fold(
+            onLeft = {
+                return policy.handleOptionalError(
+                    path, KEY_MESSAGE,
+                    it.head,
+                    null,
+                    onWarn
+                )
+            },
+            onRight = { it }
+        )
 
         return when (rawType.lowercase()) {
             in TYPE_REQUIRED -> Either.Right(RequiredRule(customMessage = message))
@@ -112,16 +125,16 @@ internal object ValidationRuleMapper {
         onWarn: (ParserWarning) -> Unit,
         message: String?
     ): Either<Nel<ParserError>, ValidationRule?> {
-        val min = reader.optionalInt(KEY_MIN, default = DEFAULT_MIN_LENGTH).getOrNull()
-            ?: DEFAULT_MIN_LENGTH
-
-        return MinLengthRule.of(min, message).fold(
-            onLeft = { domainError ->
-                val error = ParserError.InvalidPropertyValue(path, KEY_MIN, domainError.reason, domainError)
-                policy.handleOptionalError(path, KEY_MIN, error, null, onWarn)
-            },
-            onRight = { Either.Right(it) }
-        )
+        return reader.optionalInt(KEY_MIN, default = DEFAULT_MIN_LENGTH).flatMap { rawMin ->
+            val min = rawMin ?: DEFAULT_MIN_LENGTH
+            MinLengthRule.of(min, message).fold(
+                onLeft = { domainError ->
+                    val error = ParserError.InvalidPropertyValue(path, KEY_MIN, domainError.reason, domainError)
+                    policy.handleOptionalError(path, KEY_MIN, error, null, onWarn)
+                },
+                onRight = { Either.Right(it) }
+            )
+        }
     }
 
     private fun mapMaxLength(
@@ -131,16 +144,16 @@ internal object ValidationRuleMapper {
         onWarn: (ParserWarning) -> Unit,
         message: String?
     ): Either<Nel<ParserError>, ValidationRule?> {
-        val max = reader.optionalInt(KEY_MAX, default = Int.MAX_VALUE).getOrNull()
-            ?: Int.MAX_VALUE
-
-        return MaxLengthRule.of(max, message).fold(
-            onLeft = { domainError ->
-                val error = ParserError.InvalidPropertyValue(path, KEY_MAX, domainError.reason, domainError)
-                policy.handleOptionalError(path, KEY_MAX, error, null, onWarn)
-            },
-            onRight = { Either.Right(it) }
-        )
+        return reader.optionalInt(KEY_MAX, default = Int.MAX_VALUE).flatMap { rawMax ->
+            val max = rawMax ?: Int.MAX_VALUE
+            MaxLengthRule.of(max, message).fold(
+                onLeft = { domainError ->
+                    val error = ParserError.InvalidPropertyValue(path, KEY_MAX, domainError.reason, domainError)
+                    policy.handleOptionalError(path, KEY_MAX, error, null, onWarn)
+                },
+                onRight = { Either.Right(it) }
+            )
+        }
     }
 
     private fun mapRegex(

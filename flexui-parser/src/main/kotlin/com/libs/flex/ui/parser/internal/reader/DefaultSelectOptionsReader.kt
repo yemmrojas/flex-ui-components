@@ -44,10 +44,18 @@ internal class DefaultSelectOptionsReader : SelectOptionsReader {
             val valRes = optReader.requiredString("value", "id")
             val labelRes = optReader.optionalString("label", "text", "title")
 
-            when (valRes) {
-                is Either.Left -> errors.addAll(valRes.value.toList())
-                is Either.Right -> options.add(
-                    SelectOption(value = valRes.value, label = labelRes.getOrNull() ?: valRes.value)
+            if (valRes is Either.Left) {
+                errors.addAll(valRes.value.toList())
+            }
+            if (labelRes is Either.Left) {
+                errors.addAll(labelRes.value.toList())
+            }
+            if (valRes is Either.Right && labelRes is Either.Right) {
+                options.add(
+                    SelectOption(
+                        value = valRes.value,
+                        label = labelRes.value ?: valRes.value
+                    )
                 )
             }
         }
