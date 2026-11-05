@@ -6,4 +6,5 @@ import com.libs.flex.ui.core.domain.value.SessionId
 public interface FormSessionPort {
     public suspend fun load(id: SessionId): FormSession?
     public suspend fun save(session: FormSession)
+    public suspend fun delete(id: SessionId)
 }

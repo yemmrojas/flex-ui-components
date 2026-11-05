@@ -13,6 +13,10 @@ class FakeFormSessionRepository : FormSessionPort {
         sessions[session.sessionId] = session
     }
 
+    override suspend fun delete(id: SessionId) {
+        sessions.remove(id)
+    }
+
     fun clear() {
         sessions.clear()
     }
