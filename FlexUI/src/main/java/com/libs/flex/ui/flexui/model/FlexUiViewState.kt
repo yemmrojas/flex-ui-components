@@ -6,20 +6,20 @@ package com.libs.flex.ui.flexui.model
  * It is completely immutable and contains no callbacks or lambdas, ensuring stable equality
  * across Jetpack Compose recompositions.
  */
-public sealed interface FlexUiViewState {
+sealed interface FlexUiViewState {
 
     /**
      * Initial loading state while the layout is being parsed or the session is initializing.
      */
-    public data object Loading : FlexUiViewState
+    data object Loading : FlexUiViewState
 
     /**
      * Active state when the layout is successfully parsed and ready for user interaction.
      *
      * @property state The immutable content state containing the component tree, values, and errors.
      */
-    public data class Content(
-        public val state: FlexUiContentState
+    data class Content(
+        val state: FlexUiContentState
     ) : FlexUiViewState
 
     /**
@@ -27,8 +27,7 @@ public sealed interface FlexUiViewState {
      *
      * @property error The typed error describing the failure.
      */
-    public data class Error(
-        public val error: FlexUiError
+    data class Error(
+        val error: FlexUiError
     ) : FlexUiViewState
 }
-

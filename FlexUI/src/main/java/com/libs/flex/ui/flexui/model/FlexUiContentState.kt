@@ -9,6 +9,9 @@ import com.libs.flex.ui.core.domain.value.NodeKey
 /**
  * Immutable state representing the currently rendered FlexUI form content.
  *
+ * It is declared as a clean, idiomatic [data class] ensuring automatic generated [copy], [equals], and [hashCode].
+ * Its [toString] implementation is sanitized to prevent credential/password leaks in logs and crash telemetry.
+ *
  * @property layoutId Unique layout identifier.
  * @property rootNode Root node of the parsed layout hierarchy.
  * @property values Validated map of values indexed by [NodeKey].
@@ -16,34 +19,14 @@ import com.libs.flex.ui.core.domain.value.NodeKey
  * @property isSubmitting True while an interactive action is in-flight.
  */
 @Immutable
-public class FlexUiContentState(
-    public val layoutId: String,
-    public val rootNode: UIComponentNode,
-    public val values: Map<NodeKey, FieldValue> = emptyMap(),
-    public val errors: Map<NodeKey, ValidationError> = emptyMap(),
-    public val isSubmitting: Boolean = false
+data class FlexUiContentState(
+    val layoutId: String,
+    val rootNode: UIComponentNode,
+    val values: Map<NodeKey, FieldValue> = emptyMap(),
+    val errors: Map<NodeKey, ValidationError> = emptyMap(),
+    val isSubmitting: Boolean = false
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is FlexUiContentState) return false
-        return layoutId == other.layoutId &&
-               rootNode == other.rootNode &&
-               values == other.values &&
-               errors == other.errors &&
-               isSubmitting == other.isSubmitting
-    }
-
-    override fun hashCode(): Int {
-        var result = layoutId.hashCode()
-        result = 31 * result + rootNode.hashCode()
-        result = 31 * result + values.hashCode()
-        result = 31 * result + errors.hashCode()
-        result = 31 * result + isSubmitting.hashCode()
-        return result
-    }
-
     override fun toString(): String {
-        return "FlexUiContentState(layoutId=$layoutId, isSubmitting=$isSubmitting)"
+        return "FlexUiContentState(layoutId='$layoutId', valuesCount=${values.size}, errorsCount=${errors.size}, isSubmitting=$isSubmitting)"
     }
 }
-
