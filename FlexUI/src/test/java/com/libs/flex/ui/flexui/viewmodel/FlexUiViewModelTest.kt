@@ -24,6 +24,8 @@ import com.libs.flex.ui.flexui.FlexUiConfig
 import com.libs.flex.ui.flexui.adapter.session.InMemoryFormSessionAdapter
 import com.libs.flex.ui.flexui.adapter.session.ObservableFormSessionPort
 import com.libs.flex.ui.flexui.adapter.source.DirectStringLayoutSourceAdapter
+import com.libs.flex.ui.flexui.factory.DefaultSessionIdFactory
+import com.libs.flex.ui.flexui.factory.SessionIdFactory
 import com.libs.flex.ui.flexui.model.FlexUiError
 import com.libs.flex.ui.flexui.model.FlexUiEvent
 import com.libs.flex.ui.flexui.model.FlexUiViewState
@@ -85,7 +87,8 @@ class FlexUiViewModelTest {
         commandBus: CommandBus,
         sessionPort: ObservableFormSessionPort,
         config: FlexUiConfig = FlexUiConfig(),
-        layoutParser: LayoutParser = LayoutParserFactory.create()
+        layoutParser: LayoutParser = LayoutParserFactory.create(),
+        idFactory: SessionIdFactory = DefaultSessionIdFactory()
     ): FlexUiViewModel {
         val layoutSource = DirectStringLayoutSourceAdapter(
             parser = layoutParser,
@@ -93,7 +96,8 @@ class FlexUiViewModelTest {
         )
         val useCase = InitializeLayoutSessionUseCase(
             layoutSource = layoutSource,
-            commandBus = commandBus
+            commandBus = commandBus,
+            idFactory = idFactory
         )
         return FlexUiViewModel(
             initializeLayoutSessionUseCase = useCase,
@@ -302,6 +306,97 @@ class FlexUiViewModelTest {
 
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `action failure due to domain error emits SessionError instead of ActionTimeout`() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val sessionAdapter = InMemoryFormSessionAdapter()
+
+        val startHandler = object : CommandHandler<StartFormSessionCommand, FormSession> {
+            override suspend fun handle(command: StartFormSessionCommand): Either<DomainError, FormSession> {
+                val s = givenSession(command.sessionId)
+                sessionAdapter.save(s)
+                return Either.Right(s)
+            }
+        }
+        val failingActionHandler = object : CommandHandler<ProcessUserActionCommand, ActionResult> {
+            override suspend fun handle(command: ProcessUserActionCommand): Either<DomainError, ActionResult> {
+                return Either.Left(DomainError.Interaction.HostExecutionFailed("Host rejected action"))
+            }
+        }
+
+        val bus = InMemoryCommandBus.builder()
+            .register(StartFormSessionCommand::class, StartFormSessionCommand.COMMAND_NAME, startHandler)
+            .register(ProcessUserActionCommand::class, ProcessUserActionCommand.COMMAND_NAME, failingActionHandler)
+            .build()
+
+        val config = FlexUiConfig(dispatcherProvider = TestDispatcherProvider(testDispatcher))
+        val viewModel = givenViewModel(bus, sessionAdapter, config)
+
+        viewModel.loadJson(sampleJson)
+        testScheduler.advanceUntilIdle()
+
+        viewModel.viewState.test {
+            val initial = awaitItem()
+            assertTrue(initial is FlexUiViewState.Content)
+
+            val actionId = ActionId.of("submit_btn").getOrNull()!!
+            val nodeKey = NodeKey(ComponentId.of("input_username").getOrNull()!!)
+            viewModel.onActionClicked(actionId, nodeKey)
+
+            val submittingState = awaitItem()
+            assertTrue((submittingState as FlexUiViewState.Content).state.isSubmitting)
+
+            testScheduler.advanceUntilIdle()
+
+            val errorState = awaitItem()
+            assertTrue(errorState is FlexUiViewState.Error)
+            val error = (errorState as FlexUiViewState.Error).error
+            assertTrue(error is FlexUiError.SessionError)
+            assertFalse(error is FlexUiError.ActionTimeout)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `superseded loadJson cancels previous loading job`() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val sessionAdapter = InMemoryFormSessionAdapter()
+        val completedSessions = mutableListOf<String>()
+
+        val startHandler = object : CommandHandler<StartFormSessionCommand, FormSession> {
+            override suspend fun handle(command: StartFormSessionCommand): Either<DomainError, FormSession> {
+                if (command.sessionId.contains("first")) {
+                    delay(2_000L)
+                }
+                completedSessions.add(command.sessionId)
+                val s = givenSession(command.sessionId)
+                sessionAdapter.save(s)
+                return Either.Right(s)
+            }
+        }
+
+        val bus = InMemoryCommandBus.builder()
+            .register(StartFormSessionCommand::class, StartFormSessionCommand.COMMAND_NAME, startHandler)
+            .build()
+
+        val config = FlexUiConfig(dispatcherProvider = TestDispatcherProvider(testDispatcher))
+        val idFactory = object : SessionIdFactory {
+            private var count = 0
+            override fun generate(): SessionId =
+                SessionId.of(if (count++ == 0) "session-first" else "session-second").getOrNull()!!
+        }
+        val viewModel = givenViewModel(bus, sessionAdapter, config, idFactory = idFactory)
+
+        viewModel.loadJson(sampleJson)
+        testScheduler.advanceTimeBy(100L) // Start first request but don't finish delay
+
+        viewModel.loadJson(sampleJson.replace("Sample Title", "Second Title"))
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(listOf("session-second"), completedSessions)
     }
 
     @Test

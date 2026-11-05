@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.libs.flex.ui.core.application.bus.CommandBus
 import com.libs.flex.ui.core.application.command.ProcessUserActionCommand
 import com.libs.flex.ui.core.application.command.UpdateInputValueCommand
+import com.libs.flex.ui.core.domain.error.DomainError
 import com.libs.flex.ui.core.domain.functional.Either
 import com.libs.flex.ui.core.domain.model.FormSession
 import com.libs.flex.ui.core.domain.model.node.UIComponentNode
@@ -56,6 +57,7 @@ class FlexUiViewModel(
     private var currentSessionId: SessionId? = null
     private var currentJsonHash: Int? = null
     private var lastRawJson: String? = null
+    private var loadJsonJob: Job? = null
     private var sessionObservationJob: Job? = null
 
     private val currentContentState: FlexUiContentState?
@@ -69,7 +71,8 @@ class FlexUiViewModel(
         if (isEquivalentLayout(jsonString)) return
         recordLayoutRequest(jsonString)
 
-        viewModelScope.launch(config.dispatcherProvider.io) {
+        loadJsonJob?.cancel()
+        loadJsonJob = viewModelScope.launch(config.dispatcherProvider.io) {
             _viewState.value = FlexUiViewState.Loading
             when (val outcome = initializeLayoutSessionUseCase(jsonString)) {
                 is Either.Left -> _viewState.value = FlexUiViewState.Error(outcome.value)
@@ -151,14 +154,25 @@ class FlexUiViewModel(
 
         viewModelScope.launch(config.dispatcherProvider.main) {
             setSubmitting(true)
-            val actionResult = withTimeoutOrNull(config.actionTimeoutMs.milliseconds) {
+            val actionResultEither = withTimeoutOrNull(config.actionTimeoutMs.milliseconds) {
                 dispatchActionCommand(sessionId, nodeKey)
             }
 
-            if (actionResult == null) {
-                _viewState.value = FlexUiViewState.Error(FlexUiError.ActionTimeout(actionId.value))
-            } else {
-                _events.send(FlexUiEvent.ActionExecuted(actionResult))
+            when (actionResultEither) {
+                null -> {
+                    _viewState.value = FlexUiViewState.Error(FlexUiError.ActionTimeout(actionId.value))
+                }
+                is Either.Left -> {
+                    _viewState.value = FlexUiViewState.Error(
+                        FlexUiError.SessionError(
+                            userMessage = "Action execution failed for ${actionId.value}",
+                            technicalCause = actionResultEither.value::class.simpleName ?: actionResultEither.value.toString()
+                        )
+                    )
+                }
+                is Either.Right -> {
+                    _events.send(FlexUiEvent.ActionExecuted(actionResultEither.value))
+                }
             }
             setSubmitting(false)
         }
@@ -172,13 +186,13 @@ class FlexUiViewModel(
     private suspend fun dispatchActionCommand(
         sessionId: SessionId,
         nodeKey: NodeKey
-    ): ActionResult? {
+    ): Either<DomainError, ActionResult> {
         val command = ProcessUserActionCommand(
             sessionId = sessionId.value,
             componentId = nodeKey.componentId.value,
             instanceIndex = nodeKey.instanceIndex
         )
-        return commandBus.dispatch(command).getOrNull()
+        return commandBus.dispatch(command)
     }
 
     /**
@@ -194,6 +208,7 @@ class FlexUiViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        loadJsonJob?.cancel()
         sessionObservationJob?.cancel()
         deleteCurrentSession()
     }
